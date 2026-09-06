@@ -27,7 +27,7 @@ main img {
 }
 
 h1 {
-  margin: 28px 0 8px;
+  margin: 28px 0 9px;
   font-family: "Oxanium", sans-serif;
   font-size: clamp(2rem, 5vw, 4rem);
   font-weight: 600;
