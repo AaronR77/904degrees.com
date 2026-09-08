@@ -39,3 +39,138 @@ p {
   margin: 0;
   letter-spacing: 0.18em;
 }
+
+.affiliate-launcher {
+  position: fixed;
+  left: 18px;
+  bottom: 18px;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: inherit;
+}
+
+.affiliate-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid rgba(168, 219, 0, 0.35);
+  border-radius: 999px;
+  background: rgba(12, 12, 12, 0.9);
+  color: #d7e6d0;
+  cursor: pointer;
+  box-shadow:
+    0 0 0 rgba(168, 219, 0, 0),
+    0 6px 18px rgba(0, 0, 0, 0.35);
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.affiliate-toggle:hover {
+  transform: translateY(-2px);
+  border-color: rgba(168, 219, 0, 0.75);
+  box-shadow:
+    0 0 18px rgba(168, 219, 0, 0.16),
+    0 8px 20px rgba(0, 0, 0, 0.4);
+}
+
+.affiliate-dot {
+  width: 8px;
+  height: 8px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: #a8db00;
+  box-shadow: 0 0 10px rgba(168, 219, 0, 0.9);
+  animation: affiliatePulse 2.4s ease-in-out infinite;
+}
+
+.affiliate-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.affiliate-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 0;
+  padding: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition:
+    max-width 0.35s ease,
+    opacity 0.25s ease,
+    transform 0.35s ease,
+    padding 0.35s ease;
+}
+
+.affiliate-launcher.open .affiliate-panel {
+  max-width: 260px;
+  padding: 7px 12px;
+  opacity: 1;
+  transform: translateX(0);
+  border: 1px solid rgba(168, 219, 0, 0.28);
+  border-radius: 999px;
+  background: rgba(12, 12, 12, 0.94);
+}
+
+.affiliate-title {
+  color: #8f9b8a;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.affiliate-panel a {
+  color: #a8db00;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.affiliate-panel a:hover {
+  text-decoration: underline;
+}
+
+@keyframes affiliatePulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.75;
+    box-shadow: 0 0 8px rgba(168, 219, 0, 0.5);
+  }
+
+  50% {
+    transform: scale(1.22);
+    opacity: 1;
+    box-shadow: 0 0 16px rgba(168, 219, 0, 0.95);
+  }
+}
+
+@media (max-width: 600px) {
+  .affiliate-launcher {
+    left: 10px;
+    bottom: 10px;
+  }
+
+  .affiliate-label {
+    display: none;
+  }
+
+  .affiliate-toggle {
+    padding: 9px;
+  }
+
+  .affiliate-launcher.open .affiliate-panel {
+    max-width: 220px;
+  }
+}
