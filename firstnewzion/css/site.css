@@ -98,6 +98,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .brand-mark::after { right: 12px; border-radius: 0 0 0 80%; transform: rotate(-7deg); }
 .church-name {
     color: var(--gold-light);
+	white-space: nowrap;
     font-family: "Cormorant Garamond", Georgia, serif;
     font-size: clamp(2rem, 3vw, 3rem);
     font-weight: 700;
