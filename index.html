@@ -1,51 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">	
-	
-<link rel="stylesheet" href="css/style.css?v=2">
-	
-<title>904° Labs</title>
-	
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#090b0a">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css?v=4">
+
+  <title>904° | Hot Ideas. Cold Logic.</title>
 </head>
 
 <body>
+  <div class="background-grid" aria-hidden="true"></div>
+  <div class="ambient ambient-one" aria-hidden="true"></div>
+  <div class="ambient ambient-two" aria-hidden="true"></div>
 
   <main>
-    <img
-      src="assets/904Labs_Logo_Full_Lime.svg"
-      alt="904 Degrees Labs"
-    >
+    <section class="landing" aria-labelledby="site-tagline">
+      <div class="hero">
+        <div class="status-line" aria-label="904 Degrees status">
+          <span class="status-dot" aria-hidden="true"></span>
+          <span>904° // BUILDING WHAT'S NEXT</span>
+        </div>
 
- <!--   <h1>Coming Soon</h1>
-	  
-   		<p>HOT IDEAS. COLD LOGIC.</p> -->
-	  
-	  
+        <div class="logo-wrap">
+          <div class="logo-halo" aria-hidden="true"></div>
+          <img
+            class="brand-logo"
+            src="assets/904_Logo_Lime.png"
+            alt="904 Degrees"
+          >
+        </div>
+
+        <div class="hero-copy">
+          <p id="site-tagline" class="tagline">HOT IDEAS. <span>COLD LOGIC.</span></p>
+        </div>
+
+        <div class="signal" aria-hidden="true">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <a class="scroll-cue" href="#whats-cooking" aria-label="Scroll to What's Cooking at 904 Degrees">
+        <span>MORE</span>
+        <i aria-hidden="true"></i>
+      </a>
+    </section>
+
+    <section class="cooking" id="whats-cooking" aria-labelledby="cooking-title">
+      <div class="section-shell">
+        <p class="section-kicker">904° // CURRENT TEMPERATURE - 396°</p>
+        <h1 id="cooking-title">WHAT'S COOKING AT <span>904°</span></h1>
+
+        <div class="category-line" aria-label="Software, games, brands, and tools">
+          <span>SOFTWARE</span>
+          <span>GAMES</span>
+          <span>BRANDS</span>
+          <span>TOOLS</span>
+        </div>
+
+        <div class="manifesto">
+          <p>Sometimes sensible.</p>
+          <p>Sometimes questionable.</p>
+          <p class="manifesto-final">Built anyway.</p>
+        </div>
+
+        <div class="future-slot" aria-hidden="true">
+          <span class="future-line"></span>
+          <span class="future-label">MORE WHEN IT'S READY</span>
+          <span class="future-line"></span>
+        </div>
+      </div>
+    </section>
   </main>
-	
-<div class="affiliate-menu">
-  <button class="affiliate-degree" type="button" aria-label="More links">
-    °
-  </button>
 
-  <div class="affiliate-links">
-    <a href="/activated/">Activated Handyman Services</a>
-<a
-  href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&autoplay=1"
-  target="_blank"
-  rel="noopener"
->
-  Something Unremarkable
-    </a>
-	  
+  <div class="affiliate-menu">
+    <button class="affiliate-degree" type="button" aria-label="More links">
+      <span class="degree-ring" aria-hidden="true"></span>
+    </button>
+
+    <div class="affiliate-links">
+      <a href="/activated/">Activated Handyman Services</a>
+      <a
+        href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&autoplay=1"
+        target="_blank"
+        rel="noopener"
+      >
+        Something Unremarkable
+      </a>
+    </div>
   </div>
-</div>	
 </body>
 </html>
