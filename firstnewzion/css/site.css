@@ -296,7 +296,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 .hero-content h1 {
     margin: 0;
-    max-width: 760px;
+    max-width: none;
     color: var(--gold-light);
     font-family: "Cormorant Garamond", Georgia, serif;
     font-size: clamp(3.7rem, 6.1vw, 6.5rem);
