@@ -953,7 +953,12 @@ section h2 {
 }
 
 /* Approved mockup emblem used as the header crest. */
-.brand-mark { overflow: hidden; padding: 0; border: 1px solid rgba(243,217,120,0.55); background: #431052; }
+.brand-mark {
+    overflow: hidden;
+    padding: 0;
+    border: 1px solid rgba(243,217,120,0.55);
+    background: var(--parchment);
+}
 .brand-mark::before, .brand-mark::after { display: none; }
 .brand-mark img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 
