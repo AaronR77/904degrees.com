@@ -1071,3 +1071,242 @@ body {
         flex-direction: column;
     }
 }
+
+/* =========================================================
+   EDITOR FINISH PASS — UPLOADS / ALL DAY / MEDIA
+   ========================================================= */
+
+.event-time-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 18px;
+}
+
+.event-all-day-toggle,
+.publisher-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 46px;
+    color: var(--green);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+}
+
+.event-all-day-toggle input,
+.publisher-checkbox input {
+    width: 19px;
+    height: 19px;
+    accent-color: var(--green);
+    flex: 0 0 auto;
+}
+
+.event-field input:disabled {
+    background: #eee9e1;
+    color: #8c838c;
+    cursor: not-allowed;
+}
+
+.upload-dropzone {
+    position: relative;
+    display: grid;
+    place-items: center;
+    gap: 12px;
+    min-height: 150px;
+    padding: 22px;
+    border: 2px dashed #c7b992;
+    background: linear-gradient(135deg, #fbf7ec, #ffffff);
+    text-align: center;
+    cursor: pointer;
+    transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone:focus,
+.upload-dropzone.drag-over {
+    border-color: var(--gold-dark);
+    background: #fffaf0;
+    outline: none;
+}
+
+.upload-dropzone.drag-over {
+    transform: translateY(-2px);
+}
+
+.upload-dropzone.has-file {
+    border-style: solid;
+}
+
+.upload-dropzone-copy {
+    display: grid;
+    gap: 5px;
+    color: var(--muted);
+}
+
+.upload-dropzone-copy strong {
+    color: var(--purple-dark);
+    font-size: .74rem;
+    letter-spacing: .08em;
+}
+
+.upload-dropzone-copy span {
+    font-size: .76rem;
+}
+
+.upload-dropzone-copy small {
+    font-size: .67rem;
+}
+
+.upload-preview {
+    display: block;
+    width: min(100%, 420px);
+    max-height: 260px;
+    object-fit: contain;
+    background: #f2edf2;
+}
+
+.upload-preview[hidden] {
+    display: none;
+}
+
+.upload-remove-button {
+    margin-top: 10px;
+}
+
+.upload-dropzone-large {
+    min-height: 210px;
+}
+
+.media-form-fields {
+    margin-top: 22px;
+}
+
+.media-publish-toggle {
+    margin-top: 16px;
+}
+
+.profile-editor-layout {
+    display: grid;
+    grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.profile-upload-dropzone {
+    min-height: 330px;
+}
+
+.profile-upload-preview {
+    width: 100%;
+    max-height: 360px;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+}
+
+.leader-visible-toggle {
+    align-self: end;
+}
+
+.leadership-publisher-card {
+    display: grid;
+    grid-template-columns: 82px minmax(0, 1fr) auto;
+}
+
+.leadership-publisher-thumb {
+    width: 82px;
+    height: 100px;
+    object-fit: cover;
+    background: #f0eaf1;
+}
+
+.leadership-publisher-thumb-empty {
+    display: grid;
+    place-items: center;
+    color: var(--gold-dark);
+    background: var(--purple-dark);
+    font-size: 1.6rem;
+}
+
+.leadership-publisher-copy {
+    min-width: 0;
+}
+
+.media-publisher-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.media-publisher-grid[hidden] {
+    display: none;
+}
+
+.media-publisher-card {
+    overflow: hidden;
+    border: 1px solid #ded4c4;
+    background: var(--white);
+    box-shadow: 0 7px 22px rgba(38, 3, 49, 0.05);
+}
+
+.media-publisher-card > img,
+.media-publisher-card > video {
+    display: block;
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    background: #1f1025;
+}
+
+.media-publisher-copy {
+    padding: 20px;
+}
+
+.media-publisher-copy h3 {
+    margin: 9px 0 6px;
+    color: var(--purple-dark);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.5rem;
+}
+
+.media-publisher-copy p {
+    margin: 0;
+    color: var(--muted);
+    font-size: .78rem;
+    line-height: 1.55;
+}
+
+#branding-message {
+    margin-bottom: 12px;
+}
+
+.settings-card .upload-dropzone {
+    margin-top: 18px;
+}
+
+@media (max-width: 800px) {
+    .profile-editor-layout,
+    .media-publisher-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .leadership-publisher-card {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .leadership-publisher-card .event-admin-actions {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .event-time-row {
+        grid-template-columns: 1fr;
+    }
+
+    .event-all-day-toggle {
+        min-height: 36px;
+    }
+}

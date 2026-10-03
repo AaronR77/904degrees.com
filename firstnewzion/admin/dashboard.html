@@ -471,18 +471,28 @@
 
 
 
-                        <!-- TIME -->
+                        <!-- TIME / ALL DAY -->
 
-                        <label class="event-field event-field-wide">
+                        <div class="event-time-row event-field-wide">
 
-                            <span>
-                                TIME
-                            </span>
+                            <label class="event-field">
 
-                            <input id="event-time"
-                                   type="time">
+                                <span>
+                                    TIME
+                                </span>
 
-                        </label>
+                                <input id="event-time"
+                                       type="time">
+
+                            </label>
+
+                            <label class="event-all-day-toggle">
+                                <input id="event-all-day"
+                                       type="checkbox">
+                                <span>ALL DAY</span>
+                            </label>
+
+                        </div>
 
 
 
@@ -520,26 +530,48 @@
 
 
 
-                        <!-- IMAGE -->
+                        <!-- OPTIONAL EVENT IMAGE -->
 
-                        <label class="event-field event-field-wide">
+                        <div class="event-field event-field-wide">
 
                             <span>
-                                OPTIONAL IMAGE URL
+                                OPTIONAL EVENT IMAGE
                             </span>
 
                             <input id="event-image-url"
-                                   type="text"
-                                   maxlength="500"
-                                   placeholder="images/events/example.jpg">
+                                   type="hidden">
 
-                            <small>
-                                Image uploading will be added with the
-                                media system. Existing image paths can
-                                already be used here.
-                            </small>
+                            <div id="event-image-dropzone"
+                                 class="upload-dropzone"
+                                 tabindex="0"
+                                 role="button"
+                                 aria-label="Upload an optional event image">
 
-                        </label>
+                                <img id="event-image-preview"
+                                     class="upload-preview"
+                                     alt="Event image preview"
+                                     hidden>
+
+                                <div class="upload-dropzone-copy">
+                                    <strong>DROP EVENT IMAGE HERE</strong>
+                                    <span>or click to browse</span>
+                                    <small>JPG, PNG or WebP • one image per event</small>
+                                </div>
+
+                                <input id="event-image-file"
+                                       type="file"
+                                       accept="image/jpeg,image/png,image/webp"
+                                       hidden>
+                            </div>
+
+                            <button id="remove-event-image-button"
+                                    class="publisher-secondary-button upload-remove-button"
+                                    type="button"
+                                    hidden>
+                                REMOVE IMAGE
+                            </button>
+
+                        </div>
 
 
                     </div>
@@ -699,48 +731,70 @@
                  class="publisher-panel">
 
             <div class="panel-heading">
-
                 <div>
-
-                    <p class="dashboard-eyebrow">
-                        MEDIA
-                    </p>
-
-                    <h1>
-                        Worship Media
-                    </h1>
-
-                    <p>
-                        Add or remove up to 20 photos and
-                        short videos from the worship gallery.
-                    </p>
-
+                    <p class="dashboard-eyebrow">MEDIA</p>
+                    <h1>Worship Media</h1>
+                    <p>Add or remove up to 20 approved photos and short videos from the public media gallery.</p>
                 </div>
 
-
-                <button class="publisher-button"
+                <button id="add-media-button"
+                        class="publisher-button"
                         type="button">
                     + ADD MEDIA
                 </button>
-
             </div>
 
+            <div id="media-editor" class="event-editor" hidden>
+                <div class="event-editor-heading">
+                    <div>
+                        <p class="dashboard-eyebrow">MEDIA UPLOAD</p>
+                        <h2>Add Gallery Item</h2>
+                    </div>
+                    <button id="cancel-media-button" class="publisher-outline-light" type="button">CANCEL</button>
+                </div>
 
-            <div class="publisher-placeholder">
+                <form id="media-form">
+                    <div id="media-dropzone" class="upload-dropzone upload-dropzone-large" tabindex="0" role="button" aria-label="Upload media">
+                        <div class="upload-dropzone-copy">
+                            <strong>DROP PHOTO OR SHORT VIDEO HERE</strong>
+                            <span>or click to browse</span>
+                            <small>JPG, PNG, WebP, MP4 or WebM</small>
+                        </div>
+                        <input id="media-file" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm" hidden>
+                    </div>
 
-                <h2>
-                    Gallery
-                </h2>
+                    <div class="event-form-grid media-form-fields">
+                        <label class="event-field">
+                            <span>TITLE</span>
+                            <input id="media-title" type="text" maxlength="120">
+                        </label>
+                        <label class="event-field">
+                            <span>DISPLAY ORDER</span>
+                            <input id="media-display-order" type="number" min="0" value="0">
+                        </label>
+                        <label class="event-field event-field-wide">
+                            <span>CAPTION</span>
+                            <textarea id="media-caption" rows="4" maxlength="1000"></textarea>
+                        </label>
+                    </div>
 
-                <p>
-                    Media uploads will appear here in a
-                    responsive two-column editor.
-                </p>
+                    <label class="publisher-checkbox media-publish-toggle">
+                        <input id="media-published" type="checkbox" checked>
+                        Publish this item on the website
+                    </label>
 
+                    <div id="media-form-message" class="event-form-message"></div>
+                    <div class="event-form-actions">
+                        <button id="upload-media-button" class="publisher-button" type="submit">UPLOAD MEDIA</button>
+                    </div>
+                </form>
             </div>
+
+            <div id="media-loading" class="publisher-placeholder"><h2>Loading Media</h2><p>Retrieving worship media.</p></div>
+            <div id="media-empty" class="publisher-placeholder" hidden><h2>No Media Yet</h2><p>Select Add Media to upload the first gallery item.</p></div>
+            <div id="media-list" class="media-publisher-grid" hidden></div>
 
         </section>
-
 
 
         <!-- =================================================
@@ -748,125 +802,128 @@
              ================================================= -->
 
         <section id="panel-leadership" class="publisher-panel admin-only">
-  <div class="panel-heading">
-    <div><p class="dashboard-eyebrow">ADMINISTRATOR</p><h1>Leadership</h1><p>Create, edit, preview, publish and delete church leadership profiles.</p></div>
-    <button id="add-leader-button" class="publisher-button" type="button">+ ADD PROFILE</button>
-  </div>
+            <div class="panel-heading">
+                <div>
+                    <p class="dashboard-eyebrow">ADMINISTRATOR</p>
+                    <h1>Leadership</h1>
+                    <p>Create, edit, preview, publish and delete church leadership profiles.</p>
+                </div>
+                <button id="add-leader-button" class="publisher-button" type="button">+ ADD PROFILE</button>
+            </div>
 
-  <div id="leadership-editor" class="event-editor" hidden>
-    <div class="event-editor-heading"><div><p class="dashboard-eyebrow">LEADERSHIP EDITOR</p><h2 id="leader-editor-title">Add Profile</h2></div><button id="cancel-leader-button" class="publisher-outline-button" type="button">CANCEL</button></div>
-    <form id="leader-form">
-      <input id="leader-id" type="hidden">
-      <div class="form-grid two-column">
-        <label>FIRST NAME *<input id="leader-first-name" type="text" required></label>
-        <label>LAST NAME<input id="leader-last-name" type="text"></label>
-      </div>
-      <label>TITLE / ROLE *<input id="leader-title" type="text" required placeholder="Pastor, Trustee Chair, Ministry Leader, etc."></label>
-      <label>APPROVED BIOGRAPHY<textarea id="leader-biography" rows="7" placeholder="Public, church-approved biography only."></textarea></label>
-      <label>PROFILE IMAGE PATH<input id="leader-image-url" type="text" placeholder="images/leadership/example.jpg"></label>
-      <div class="form-grid two-column">
-        <label>DISPLAY ORDER<input id="leader-display-order" type="number" min="0" value="0"></label>
-        <label class="publisher-checkbox"><input id="leader-visible" type="checkbox" checked> Publish this profile on the website</label>
-      </div>
-      <p class="privacy-note"><strong>Public information only.</strong> Do not enter personal phone numbers, personal email addresses, home addresses or other private information.</p>
-      <div class="event-editor-actions"><button id="preview-leader-button" class="publisher-outline-button" type="button">PREVIEW</button><button class="publisher-button" type="submit">SAVE PROFILE</button></div>
-    </form>
-  </div>
+            <div id="leadership-editor" class="event-editor" hidden>
+                <div class="event-editor-heading">
+                    <div><p class="dashboard-eyebrow">LEADERSHIP EDITOR</p><h2 id="leader-editor-title">Add Profile</h2></div>
+                    <button id="cancel-leader-button" class="publisher-outline-light" type="button">CANCEL</button>
+                </div>
 
-  <div id="leadership-loading" class="publisher-placeholder"><h2>Loading Leadership</h2><p>Retrieving leadership profiles.</p></div>
-  <div id="leadership-empty" class="publisher-placeholder" hidden><h2>No Profiles Yet</h2><p>Select Add Profile to create the first church leadership profile.</p></div>
-  <div id="leadership-list" class="leadership-publisher-list" hidden></div>
-</section>
+                <form id="leader-form">
+                    <input id="leader-id" type="hidden">
+                    <input id="leader-image-url" type="hidden">
 
+                    <div class="profile-editor-layout">
+                        <div>
+                            <div id="leader-image-dropzone" class="upload-dropzone profile-upload-dropzone" tabindex="0" role="button" aria-label="Upload leadership profile photo">
+                                <img id="leader-image-preview" class="upload-preview profile-upload-preview" alt="Profile photo preview" hidden>
+                                <div class="upload-dropzone-copy">
+                                    <strong>DROP PROFILE PHOTO HERE</strong>
+                                    <span>or click to browse</span>
+                                    <small>JPG, PNG or WebP • one photo per profile</small>
+                                </div>
+                                <input id="leader-image-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                            </div>
+                            <button id="remove-leader-image-button" class="publisher-secondary-button upload-remove-button" type="button" hidden>REMOVE PHOTO</button>
+                            <p class="upload-note">Uploading a new photo replaces the previous photo for this profile, regardless of filename.</p>
+                        </div>
+
+                        <div class="event-form-grid">
+                            <label class="event-field">
+                                <span>FIRST NAME *</span>
+                                <input id="leader-first-name" type="text" maxlength="80" required>
+                            </label>
+                            <label class="event-field">
+                                <span>LAST NAME</span>
+                                <input id="leader-last-name" type="text" maxlength="80">
+                            </label>
+                            <label class="event-field event-field-wide">
+                                <span>TITLE / ROLE *</span>
+                                <input id="leader-title" type="text" maxlength="140" required placeholder="Pastor, Trustee Chair, Ministry Leader, etc.">
+                            </label>
+                            <label class="event-field event-field-wide">
+                                <span>APPROVED BIOGRAPHY</span>
+                                <textarea id="leader-biography" rows="7" maxlength="5000" placeholder="Public, church-approved biography only."></textarea>
+                            </label>
+                            <label class="event-field">
+                                <span>DISPLAY ORDER</span>
+                                <input id="leader-display-order" type="number" min="0" value="0">
+                            </label>
+                            <label class="publisher-checkbox leader-visible-toggle">
+                                <input id="leader-visible" type="checkbox" checked>
+                                Publish this profile on the website
+                            </label>
+                        </div>
+                    </div>
+
+                    <p class="privacy-note"><strong>Public information only.</strong> Do not enter personal phone numbers, personal email addresses, home addresses or other private information.</p>
+                    <div id="leader-form-message" class="event-form-message"></div>
+                    <div class="event-form-actions">
+                        <button id="preview-leader-button" class="publisher-secondary-button" type="button">PREVIEW</button>
+                        <button id="save-leader-button" class="publisher-button" type="submit">SAVE PROFILE</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="leadership-loading" class="publisher-placeholder"><h2>Loading Leadership</h2><p>Retrieving leadership profiles.</p></div>
+            <div id="leadership-empty" class="publisher-placeholder" hidden><h2>No Profiles Yet</h2><p>Select Add Profile to create the first church leadership profile.</p></div>
+            <div id="leadership-list" class="leadership-publisher-list" hidden></div>
+        </section>
 
 
         <!-- =================================================
              BRANDING
              ================================================= -->
 
-        <section id="panel-branding"
-                 class="publisher-panel admin-only">
-
+        <section id="panel-branding" class="publisher-panel admin-only">
             <div class="panel-heading">
-
                 <div>
-
-                    <p class="dashboard-eyebrow">
-                        ADMINISTRATOR
-                    </p>
-
-                    <h1>
-                        Site Branding
-                    </h1>
-
-                    <p>
-                        Manage protected visual elements
-                        of the church website.
-                    </p>
-
+                    <p class="dashboard-eyebrow">ADMINISTRATOR</p>
+                    <h1>Site Branding</h1>
+                    <p>Replace the protected church logo and homepage hero without touching website folders.</p>
                 </div>
-
             </div>
 
-
+            <div id="branding-message" class="event-form-message"></div>
 
             <div class="settings-grid">
-
-
-                <!-- CHURCH LOGO -->
-
                 <article class="settings-card">
-
-                    <h2>
-                        Church Logo
-                    </h2>
-
-                    <img src="../images/FNZ_Emblem.png"
-                         alt="Current church emblem"
-                         class="settings-preview-logo">
-
-                    <p class="upload-note">
-                        PNG recommended. Transparent
-                        background preferred.
-                    </p>
-
-                    <button class="publisher-button"
-                            type="button">
-                        REPLACE LOGO
-                    </button>
-
+                    <h2>Church Logo</h2>
+                    <img id="branding-logo-preview" src="../images/FNZ_Emblem.png" alt="Current church emblem" class="settings-preview-logo">
+                    <div id="branding-logo-dropzone" class="upload-dropzone" tabindex="0" role="button" aria-label="Replace church logo">
+                        <div class="upload-dropzone-copy">
+                            <strong>DROP NEW LOGO HERE</strong>
+                            <span>or click to browse</span>
+                            <small>PNG or WebP recommended</small>
+                        </div>
+                        <input id="branding-logo-file" type="file" accept="image/png,image/webp,image/jpeg" hidden>
+                    </div>
+                    <p class="upload-note">The new upload replaces the current Publisher-managed logo.</p>
                 </article>
 
-
-
-                <!-- HOMEPAGE HERO -->
-
                 <article class="settings-card">
-
-                    <h2>
-                        Homepage Hero
-                    </h2>
-
-                    <img src="../images/Church_Front.jpg"
-                         alt="Current church hero"
-                         class="settings-preview-hero">
-
-                    <p class="upload-note">
-                        Wide landscape image recommended.
-                    </p>
-
-                    <button class="publisher-button"
-                            type="button">
-                        REPLACE HERO
-                    </button>
-
+                    <h2>Homepage Hero</h2>
+                    <img id="branding-hero-preview" src="../images/Church_Front.jpg" alt="Current church hero" class="settings-preview-hero">
+                    <div id="branding-hero-dropzone" class="upload-dropzone" tabindex="0" role="button" aria-label="Replace homepage hero image">
+                        <div class="upload-dropzone-copy">
+                            <strong>DROP NEW HERO HERE</strong>
+                            <span>or click to browse</span>
+                            <small>JPG, PNG or WebP • landscape recommended</small>
+                        </div>
+                        <input id="branding-hero-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                    </div>
+                    <p class="upload-note">The church image keeps a consistent visual scale across desktop and mobile layouts.</p>
                 </article>
-
-
             </div>
-
         </section>
-
 
 
         <!-- =================================================

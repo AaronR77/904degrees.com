@@ -43,6 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
     initializeActiveNavigation(path, params);
     initializeHomeLinks();
     initializeSocialLinks();
+    initializeSiteBranding();
+    initializePublicMediaGallery();
 
 
     /* ---------------------------------------------------------
@@ -1383,7 +1385,11 @@ function createEventSortValue(event) {
     let hour = 23;
     let minute = 59;
 
-    if (event.event_time) {
+    if (Number(event?.is_all_day) === 1) {
+        hour = 0;
+        minute = 0;
+    }
+    else if (event.event_time) {
 
         const parts =
             String(event.event_time)
@@ -1447,9 +1453,11 @@ function formatEventDateLine(event) {
         );
 
     const time =
-        formatEventTime(
-            event?.event_time
-        );
+        Number(event?.is_all_day) === 1
+            ? "All Day"
+            : formatEventTime(
+                event?.event_time
+            );
 
     let dateText;
 
@@ -1838,6 +1846,81 @@ function escapeHtml(value) {
 })();
 
 /* =============================================================
+   PUBLISHER-MANAGED SITE BRANDING
+   Static files remain graceful fallbacks if the API is unavailable.
+   ============================================================= */
+
+async function initializeSiteBranding() {
+    try {
+        const response = await fetch(`${FNZ_API_URL}/api/site-settings`, {
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+        });
+        if (!response.ok) return;
+        const data = await response.json();
+        const logo = safeImageUrl(data?.settings?.church_logo);
+        const hero = safeImageUrl(data?.settings?.hero_image);
+
+        if (logo) {
+            document.querySelectorAll(".brand-mark img").forEach(image => {
+                image.src = logo;
+            });
+        }
+
+        if (hero) {
+            document.querySelectorAll(".hero-image").forEach(image => {
+                image.src = hero;
+            });
+        }
+    }
+    catch (error) {
+        console.warn("Publisher branding unavailable; using packaged site images.");
+    }
+}
+
+
+/* =============================================================
+   PUBLIC WORSHIP MEDIA GALLERY
+   ============================================================= */
+
+async function initializePublicMediaGallery() {
+    const container = document.getElementById("public-media-gallery");
+    if (!container) return;
+
+    try {
+        const response = await fetch(`${FNZ_API_URL}/api/gallery`, {
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+        });
+        if (!response.ok) throw new Error("Media request failed.");
+        const data = await response.json();
+        const items = Array.isArray(data?.items) ? data.items : [];
+
+        if (!items.length) {
+            container.innerHTML = `<div class="v2-cta"><h2>Media Gallery</h2><p>Approved church photos and videos will appear here as they are published.</p></div>`;
+            return;
+        }
+
+        container.innerHTML = items.map(item => {
+            const title = escapeHtml(item.title || (item.media_type === "video" ? "Church Video" : "Church Photo"));
+            const caption = escapeHtml(item.caption || "");
+            const mediaUrl = safeImageUrl(item.media_url);
+            if (!mediaUrl) return "";
+
+            const media = item.media_type === "video"
+                ? `<video class="public-media-asset" src="${escapeAttribute(mediaUrl)}" controls preload="metadata"></video>`
+                : `<img class="public-media-asset" src="${escapeAttribute(mediaUrl)}" alt="${escapeAttribute(title)}" loading="lazy">`;
+
+            return `<article class="public-media-card">${media}<div class="public-media-copy"><h3>${title}</h3>${caption ? `<p>${caption}</p>` : ""}</div></article>`;
+        }).join("");
+    }
+    catch (error) {
+        container.innerHTML = `<div class="v2-cta"><h2>Media Gallery</h2><p>The gallery is temporarily unavailable. Please visit the church YouTube channel above.</p></div>`;
+    }
+}
+
+
+/* =============================================================
    V2 LEADERSHIP DIRECTORY + PROFILE
    Public data only. Personal contact information is never used.
    ============================================================= */
@@ -1848,9 +1931,9 @@ async function loadLeadershipDirectory() {
 
     const pastorCard = `<article class="leadership-card leadership-card-pastor"><img class="leadership-card-image" src="images/Pastor_Sampson.png" alt="Rev. Dr. James B. Sampson"><h3>Rev. Dr. James B. Sampson</h3><p>Pastor</p><a href="leader.html?slug=pastor">VIEW PROFILE →</a></article>`;
 
-    // Pastor Sampson is permanent public baseline content. Publisher/API
-    // leadership is additive, so an empty or unavailable API never leaves
-    // the public Leadership page empty.
+    // Pastor Sampson remains the fallback baseline. Once a Publisher profile
+    // for him exists, that database profile replaces the fallback card so
+    // his photo and biography can be managed in the Publisher too.
     container.innerHTML = pastorCard;
 
     try {
@@ -1859,21 +1942,25 @@ async function loadLeadershipDirectory() {
 
         const payload = await response.json();
         const leaders = Array.isArray(payload.leadership) ? payload.leadership : [];
-        const additionalLeaders = leaders.filter(leader => {
+        if (!leaders.length) return;
+
+        const hasPublisherPastor = leaders.some(leader => {
             const name = [leader.first_name, leader.last_name].filter(Boolean).join(" ").toLowerCase();
-            return !name.includes("james b. sampson") && !name.includes("james sampson");
+            return name.includes("james b. sampson") || name.includes("james sampson");
         });
 
-        if (!additionalLeaders.length) return;
-
-        container.insertAdjacentHTML("beforeend", additionalLeaders.map(leader => {
+        const dynamicCards = leaders.map(leader => {
             const fullName = escapeHtml([leader.first_name, leader.last_name].filter(Boolean).join(" "));
             const image = leader.image_url
                 ? `<img class="leadership-card-image" src="${escapeAttribute(leader.image_url)}" alt="${fullName}">`
                 : `<div class="leadership-card-placeholder" aria-hidden="true">✦</div>`;
 
             return `<article class="leadership-card">${image}<h3>${fullName}</h3><p>${escapeHtml(leader.title || "")}</p><a href="leader.html?id=${encodeURIComponent(leader.id)}">VIEW PROFILE →</a></article>`;
-        }).join(""));
+        }).join("");
+
+        container.innerHTML = hasPublisherPastor
+            ? dynamicCards
+            : pastorCard + dynamicCards;
     }
     catch (error) {
         console.warn("Leadership API unavailable; showing permanent pastor profile.");

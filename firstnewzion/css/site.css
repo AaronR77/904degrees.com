@@ -2151,3 +2151,113 @@ section h2 {
     object-position: center;
     margin: auto;
 }
+/* =========================================================
+   HERO PHOTO — CONSISTENT VISUAL SCALE
+   The church photo keeps the same 590px rendered height across
+   viewport widths. Wider screens gain background space instead
+   of zooming/cropping the building.
+   ========================================================= */
+
+.hero {
+    height: 590px;
+    min-height: 590px;
+}
+
+.hero-image {
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: auto;
+    width: auto;
+    height: 590px;
+    max-width: none;
+    object-fit: contain;
+    object-position: right center;
+}
+
+@media (max-width: 1080px) {
+    .hero {
+        height: 590px;
+        min-height: 590px;
+    }
+}
+
+@media (max-width: 700px) {
+    .hero {
+        height: 590px;
+        min-height: 590px;
+    }
+
+    .hero-image {
+        right: 50%;
+        transform: translateX(50%);
+        width: auto;
+        height: 590px;
+        max-width: none;
+        object-position: center center;
+    }
+}
+
+/* =========================================================
+   PUBLIC WORSHIP MEDIA GALLERY
+   ========================================================= */
+
+.public-media-gallery {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto 70px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.public-media-gallery > .events-loading,
+.public-media-gallery > .v2-cta {
+    grid-column: 1 / -1;
+    width: 100%;
+    margin: 0;
+}
+
+.public-media-card {
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(191, 139, 35, .5);
+    box-shadow: 0 12px 32px rgba(44, 7, 52, .08);
+}
+
+.public-media-asset {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: #24132e;
+}
+
+.public-media-copy {
+    padding: 22px;
+}
+
+.public-media-copy h3 {
+    margin: 0 0 7px;
+    color: #4a1558;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.5rem;
+}
+
+.public-media-copy p {
+    margin: 0;
+    color: #59485d;
+    line-height: 1.55;
+}
+
+@media (max-width: 900px) {
+    .public-media-gallery {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 650px) {
+    .public-media-gallery {
+        width: min(100% - 28px, 1180px);
+        grid-template-columns: 1fr;
+    }
+}

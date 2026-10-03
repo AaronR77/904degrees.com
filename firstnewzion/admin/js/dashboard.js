@@ -169,6 +169,14 @@ document.addEventListener("DOMContentLoaded", () => {
             loadLeadership();
         }
 
+        if (panelName === "gallery") {
+            loadGallery();
+        }
+
+        if (panelName === "branding") {
+            loadBranding();
+        }
+
 
         window.scrollTo({
             top: 0,
@@ -393,6 +401,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "event-time"
         );
 
+    const eventAllDay =
+        document.getElementById(
+            "event-all-day"
+        );
+
     const eventLocation =
         document.getElementById(
             "event-location"
@@ -407,6 +420,30 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById(
             "event-image-url"
         );
+
+    const eventImageDropzone =
+        document.getElementById(
+            "event-image-dropzone"
+        );
+
+    const eventImageFile =
+        document.getElementById(
+            "event-image-file"
+        );
+
+    const eventImagePreview =
+        document.getElementById(
+            "event-image-preview"
+        );
+
+    const removeEventImageButton =
+        document.getElementById(
+            "remove-event-image-button"
+        );
+
+    let pendingEventImageFile = null;
+    let removeEventImageRequested = false;
+    let eventImagePreviewObjectUrl = "";
 
     const eventFormMessage =
         document.getElementById(
@@ -543,6 +580,113 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         return data;
+    }
+
+
+    async function apiBinaryRequest(path, file, method = "PUT") {
+        const response = await fetch(`${API_URL}${path}`, {
+            method,
+            headers: {
+                "Authorization": `Bearer ${storedToken}`,
+                "Content-Type": file.type || "application/octet-stream"
+            },
+            body: file
+        });
+
+        let data = {};
+        try { data = await response.json(); } catch (error) { data = {}; }
+
+        if (response.status === 401) {
+            sessionStorage.removeItem("fnzPublisherUser");
+            sessionStorage.removeItem("fnzPublisherToken");
+            sessionStorage.removeItem("fnzEventPreview");
+            window.location.href = LOGIN_PAGE;
+            throw new Error("Your Publisher session has expired.");
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || "Upload failed.");
+        }
+
+        return data;
+    }
+
+
+    async function apiFormRequest(path, formData) {
+        const response = await fetch(`${API_URL}${path}`, {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${storedToken}`
+            },
+            body: formData
+        });
+
+        let data = {};
+        try { data = await response.json(); } catch (error) { data = {}; }
+
+        if (response.status === 401) {
+            sessionStorage.removeItem("fnzPublisherUser");
+            sessionStorage.removeItem("fnzPublisherToken");
+            sessionStorage.removeItem("fnzEventPreview");
+            window.location.href = LOGIN_PAGE;
+            throw new Error("Your Publisher session has expired.");
+        }
+
+        if (!response.ok) {
+            throw new Error(data.error || "Upload failed.");
+        }
+
+        return data;
+    }
+
+
+    function wireFileDropzone(zone, input, onFile) {
+        if (!zone || !input || !onFile) return;
+
+        const choose = () => input.click();
+        zone.addEventListener("click", choose);
+        zone.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                choose();
+            }
+        });
+
+        ["dragenter", "dragover"].forEach(type => {
+            zone.addEventListener(type, event => {
+                event.preventDefault();
+                zone.classList.add("drag-over");
+            });
+        });
+
+        ["dragleave", "drop"].forEach(type => {
+            zone.addEventListener(type, event => {
+                event.preventDefault();
+                zone.classList.remove("drag-over");
+            });
+        });
+
+        zone.addEventListener("drop", event => {
+            const file = event.dataTransfer?.files?.[0];
+            if (file) onFile(file);
+        });
+
+        input.addEventListener("change", () => {
+            const file = input.files?.[0];
+            if (file) onFile(file);
+            input.value = "";
+        });
+    }
+
+
+    function validateImageFile(file, maxMegabytes = 12) {
+        const allowed = new Set(["image/jpeg", "image/png", "image/webp"]);
+        if (!file || !allowed.has(file.type)) {
+            throw new Error("Choose a JPG, PNG or WebP image.");
+        }
+        if (file.size > maxMegabytes * 1024 * 1024) {
+            throw new Error(`Image must be ${maxMegabytes} MB or smaller.`);
+        }
     }
 
 
@@ -701,9 +845,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
         const time =
-            formatEventTime(
-                event.event_time
-            );
+            Number(event.is_all_day) === 1
+                ? "All Day"
+                : formatEventTime(
+                    event.event_time
+                );
 
 
         const description =
@@ -824,6 +970,66 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    function syncEventAllDayState() {
+        if (!eventAllDay || !eventTime) return;
+        if (eventAllDay.checked) {
+            eventTime.value = "";
+            eventTime.disabled = true;
+        }
+        else {
+            eventTime.disabled = false;
+        }
+    }
+
+
+    function setEventImageState(url = "") {
+        pendingEventImageFile = null;
+        removeEventImageRequested = false;
+
+        if (eventImagePreviewObjectUrl) {
+            URL.revokeObjectURL(eventImagePreviewObjectUrl);
+            eventImagePreviewObjectUrl = "";
+        }
+
+        if (eventImageUrl) eventImageUrl.value = url || "";
+
+        if (eventImagePreview) {
+            if (url) {
+                eventImagePreview.src = url;
+                eventImagePreview.hidden = false;
+            }
+            else {
+                eventImagePreview.removeAttribute("src");
+                eventImagePreview.hidden = true;
+            }
+        }
+
+        if (removeEventImageButton) removeEventImageButton.hidden = !url;
+        eventImageDropzone?.classList.toggle("has-file", Boolean(url));
+    }
+
+
+    function chooseEventImage(file) {
+        try {
+            validateImageFile(file);
+            pendingEventImageFile = file;
+            removeEventImageRequested = false;
+
+            if (eventImagePreviewObjectUrl) URL.revokeObjectURL(eventImagePreviewObjectUrl);
+            eventImagePreviewObjectUrl = URL.createObjectURL(file);
+            if (eventImagePreview) {
+                eventImagePreview.src = eventImagePreviewObjectUrl;
+                eventImagePreview.hidden = false;
+            }
+            if (removeEventImageButton) removeEventImageButton.hidden = false;
+            eventImageDropzone?.classList.add("has-file");
+        }
+        catch (error) {
+            if (eventFormMessage) eventFormMessage.textContent = error.message;
+        }
+    }
+
+
     /* =========================================================
        EVENTS — EDITOR STATUS
        ========================================================= */
@@ -920,6 +1126,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 "";
         }
 
+        if (eventAllDay) {
+            eventAllDay.checked = false;
+        }
+
+        syncEventAllDayState();
+        setEventImageState("");
+
 
         eventEditorTitle.textContent =
             "Add Event";
@@ -988,9 +1201,15 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
 
+        if (eventAllDay) {
+            eventAllDay.checked = Number(selectedEvent.is_all_day) === 1;
+        }
+
         eventTime.value =
             selectedEvent.event_time ||
             "";
+
+        syncEventAllDayState();
 
 
         eventLocation.value =
@@ -1003,9 +1222,10 @@ document.addEventListener("DOMContentLoaded", () => {
             "";
 
 
-        eventImageUrl.value =
+        setEventImageState(
             selectedEvent.image_url ||
-            "";
+            ""
+        );
 
 
         eventEditorTitle.textContent =
@@ -1073,6 +1293,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         currentEditorPublished =
             false;
+
+        setEventImageState("");
+        if (eventTime) eventTime.disabled = false;
     }
 
 
@@ -1092,17 +1315,20 @@ document.addEventListener("DOMContentLoaded", () => {
             event_date:
                 eventDate.value,
 
-            /*
-             * Worker/D1 support for this field is the NEXT step.
-             */
-
             end_date:
                 eventEndDate
                     ? eventEndDate.value || ""
                     : "",
 
             event_time:
-                eventTime.value || "",
+                eventAllDay?.checked
+                    ? ""
+                    : eventTime.value || "",
+
+            is_all_day:
+                eventAllDay?.checked
+                    ? 1
+                    : 0,
 
             location:
                 eventLocation.value.trim(),
@@ -1272,6 +1498,28 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
 
+            const savedEventId =
+                data?.event?.id ||
+                (existingId ? Number(existingId) : null);
+
+            if (savedEventId && eventId) {
+                eventId.value = String(savedEventId);
+            }
+
+            if (savedEventId && removeEventImageRequested) {
+                await apiRequest(
+                    `/api/events/${encodeURIComponent(savedEventId)}/image`,
+                    { method: "DELETE" }
+                );
+            }
+
+            if (savedEventId && pendingEventImageFile) {
+                await apiBinaryRequest(
+                    `/api/events/${encodeURIComponent(savedEventId)}/image`,
+                    pendingEventImageFile
+                );
+            }
+
             eventFormMessage.textContent =
                 successMessage ||
                 data.message ||
@@ -1280,14 +1528,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
             await loadEvents();
 
-
             window.setTimeout(
                 () => {
-
                     closeEventEditor();
 
+                    if (publishState) {
+                        const eventsTop = document.querySelector(
+                            "#panel-events .panel-heading"
+                        );
+                        eventsTop?.scrollIntoView({
+                            behavior: "smooth",
+                            block: "start"
+                        });
+                    }
                 },
-                500
+                350
             );
 
         }
@@ -1706,6 +1961,34 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
+    if (eventAllDay) {
+        eventAllDay.addEventListener("change", syncEventAllDayState);
+    }
+
+    wireFileDropzone(
+        eventImageDropzone,
+        eventImageFile,
+        chooseEventImage
+    );
+
+    removeEventImageButton?.addEventListener("click", event => {
+        event.stopPropagation();
+        pendingEventImageFile = null;
+        removeEventImageRequested = true;
+        if (eventImagePreviewObjectUrl) {
+            URL.revokeObjectURL(eventImagePreviewObjectUrl);
+            eventImagePreviewObjectUrl = "";
+        }
+        if (eventImageUrl) eventImageUrl.value = "";
+        if (eventImagePreview) {
+            eventImagePreview.removeAttribute("src");
+            eventImagePreview.hidden = true;
+        }
+        removeEventImageButton.hidden = true;
+        eventImageDropzone?.classList.remove("has-file");
+    });
+
+
     if (previewEventButton) {
 
         previewEventButton.addEventListener(
@@ -1834,6 +2117,9 @@ document.addEventListener("DOMContentLoaded", () => {
                             selectedEvent.event_time ||
                             "",
 
+                        is_all_day:
+                            Number(selectedEvent.is_all_day) || 0,
+
                         location:
                             selectedEvent.location ||
                             "",
@@ -1869,8 +2155,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* =========================================================
-       LEADERSHIP — PUBLISHER CRUD
-       Public profile information only. No personal contact data.
+       LEADERSHIP — PUBLISHER CRUD + ONE-PHOTO UPLOAD
        ========================================================= */
 
     const leadershipEditor = document.getElementById("leadership-editor");
@@ -1878,10 +2163,83 @@ document.addEventListener("DOMContentLoaded", () => {
     const leadershipLoading = document.getElementById("leadership-loading");
     const leadershipEmpty = document.getElementById("leadership-empty");
     const leadershipList = document.getElementById("leadership-list");
+    const leaderImageUrl = document.getElementById("leader-image-url");
+    const leaderImageDropzone = document.getElementById("leader-image-dropzone");
+    const leaderImageFile = document.getElementById("leader-image-file");
+    const leaderImagePreview = document.getElementById("leader-image-preview");
+    const removeLeaderImageButton = document.getElementById("remove-leader-image-button");
+    const leaderFormMessage = document.getElementById("leader-form-message");
+    const saveLeaderButton = document.getElementById("save-leader-button");
+
     let leadershipCache = [];
+    let pendingLeaderImageFile = null;
+    let removeLeaderImageRequested = false;
+    let leaderImagePreviewObjectUrl = "";
+
+    function setLeaderImageState(url = "") {
+        pendingLeaderImageFile = null;
+        removeLeaderImageRequested = false;
+        if (leaderImagePreviewObjectUrl) {
+            URL.revokeObjectURL(leaderImagePreviewObjectUrl);
+            leaderImagePreviewObjectUrl = "";
+        }
+        if (leaderImageUrl) leaderImageUrl.value = url || "";
+        if (leaderImagePreview) {
+            if (url) {
+                leaderImagePreview.src = url;
+                leaderImagePreview.hidden = false;
+            }
+            else {
+                leaderImagePreview.removeAttribute("src");
+                leaderImagePreview.hidden = true;
+            }
+        }
+        if (removeLeaderImageButton) removeLeaderImageButton.hidden = !url;
+        leaderImageDropzone?.classList.toggle("has-file", Boolean(url));
+    }
+
+    function chooseLeaderImage(file) {
+        try {
+            validateImageFile(file);
+            pendingLeaderImageFile = file;
+            removeLeaderImageRequested = false;
+            if (leaderImagePreviewObjectUrl) URL.revokeObjectURL(leaderImagePreviewObjectUrl);
+            leaderImagePreviewObjectUrl = URL.createObjectURL(file);
+            if (leaderImagePreview) {
+                leaderImagePreview.src = leaderImagePreviewObjectUrl;
+                leaderImagePreview.hidden = false;
+            }
+            if (removeLeaderImageButton) removeLeaderImageButton.hidden = false;
+            leaderImageDropzone?.classList.add("has-file");
+            if (leaderFormMessage) leaderFormMessage.textContent = "New photo ready to upload when the profile is saved.";
+        }
+        catch (error) {
+            if (leaderFormMessage) leaderFormMessage.textContent = error.message;
+        }
+    }
+
+    wireFileDropzone(leaderImageDropzone, leaderImageFile, chooseLeaderImage);
+
+    removeLeaderImageButton?.addEventListener("click", event => {
+        event.stopPropagation();
+        pendingLeaderImageFile = null;
+        removeLeaderImageRequested = true;
+        if (leaderImagePreviewObjectUrl) {
+            URL.revokeObjectURL(leaderImagePreviewObjectUrl);
+            leaderImagePreviewObjectUrl = "";
+        }
+        if (leaderImageUrl) leaderImageUrl.value = "";
+        if (leaderImagePreview) {
+            leaderImagePreview.removeAttribute("src");
+            leaderImagePreview.hidden = true;
+        }
+        removeLeaderImageButton.hidden = true;
+        leaderImageDropzone?.classList.remove("has-file");
+        if (leaderFormMessage) leaderFormMessage.textContent = "Photo will be removed when the profile is saved.";
+    });
 
     async function loadLeadership() {
-        if (!leadershipList) return;
+        if (!leadershipList || !leadershipLoading || !leadershipEmpty) return;
         leadershipLoading.hidden = false;
         leadershipEmpty.hidden = true;
         leadershipList.hidden = true;
@@ -1899,7 +2257,10 @@ document.addEventListener("DOMContentLoaded", () => {
             leadershipList.innerHTML = leadershipCache.map(leader => {
                 const fullName = escapeHtml([leader.first_name, leader.last_name].filter(Boolean).join(" "));
                 const status = Number(leader.is_visible) === 1 ? "Published" : "Draft";
-                return `<article class="leadership-publisher-card" data-leader-id="${leader.id}"><div><span class="event-status ${Number(leader.is_visible) === 1 ? "published" : "draft"}">${status}</span><h3>${fullName}</h3><p>${escapeHtml(leader.title || "")}</p></div><div class="event-card-actions"><button type="button" data-leader-action="edit">EDIT</button><button type="button" data-leader-action="preview">PREVIEW</button><button type="button" class="delete-button" data-leader-action="delete">DELETE</button></div></article>`;
+                const image = leader.image_url
+                    ? `<img class="leadership-publisher-thumb" src="${escapeHtml(leader.image_url)}" alt="">`
+                    : `<div class="leadership-publisher-thumb leadership-publisher-thumb-empty">✦</div>`;
+                return `<article class="leadership-publisher-card" data-leader-id="${leader.id}">${image}<div class="leadership-publisher-copy"><span class="event-status ${Number(leader.is_visible) === 1 ? "published" : "draft"}">${status}</span><h3>${fullName}</h3><p>${escapeHtml(leader.title || "")}</p></div><div class="event-admin-actions"><button class="publisher-secondary-button" type="button" data-leader-action="edit">EDIT</button><button class="publisher-secondary-button" type="button" data-leader-action="preview">PREVIEW</button><button class="publisher-danger-button" type="button" data-leader-action="delete">DELETE</button></div></article>`;
             }).join("");
             leadershipList.hidden = false;
         }
@@ -1912,16 +2273,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function openLeaderEditor(leader = null) {
+        if (!leadershipForm || !leadershipEditor) return;
         leadershipForm.reset();
         document.getElementById("leader-id").value = leader?.id || "";
         document.getElementById("leader-first-name").value = leader?.first_name || "";
         document.getElementById("leader-last-name").value = leader?.last_name || "";
         document.getElementById("leader-title").value = leader?.title || "";
         document.getElementById("leader-biography").value = leader?.biography || "";
-        document.getElementById("leader-image-url").value = leader?.image_url || "";
         document.getElementById("leader-display-order").value = leader?.display_order ?? 0;
         document.getElementById("leader-visible").checked = leader ? Number(leader.is_visible) === 1 : true;
         document.getElementById("leader-editor-title").textContent = leader ? "Edit Profile" : "Add Profile";
+        if (leaderFormMessage) leaderFormMessage.textContent = "";
+        setLeaderImageState(leader?.image_url || "");
         leadershipEditor.hidden = false;
         leadershipEditor.scrollIntoView({ behavior: "smooth", block: "start" });
     }
@@ -1932,26 +2295,68 @@ document.addEventListener("DOMContentLoaded", () => {
             last_name: document.getElementById("leader-last-name").value.trim(),
             title: document.getElementById("leader-title").value.trim(),
             biography: document.getElementById("leader-biography").value.trim(),
-            image_url: document.getElementById("leader-image-url").value.trim(),
+            image_url: leaderImageUrl?.value.trim() || "",
             display_order: Number(document.getElementById("leader-display-order").value || 0),
             is_visible: document.getElementById("leader-visible").checked
         };
     }
 
     document.getElementById("add-leader-button")?.addEventListener("click", () => openLeaderEditor());
-    document.getElementById("cancel-leader-button")?.addEventListener("click", () => { leadershipEditor.hidden = true; });
+    document.getElementById("cancel-leader-button")?.addEventListener("click", () => {
+        leadershipEditor.hidden = true;
+        setLeaderImageState("");
+    });
 
     leadershipForm?.addEventListener("submit", async event => {
         event.preventDefault();
-        const id = document.getElementById("leader-id").value;
+        const existingId = document.getElementById("leader-id").value;
         const payload = getLeaderFormData();
+
+        if (!payload.first_name || !payload.title) {
+            leaderFormMessage.textContent = "First name and title are required.";
+            return;
+        }
+
+        const originalText = saveLeaderButton?.textContent || "SAVE PROFILE";
+        if (saveLeaderButton) {
+            saveLeaderButton.disabled = true;
+            saveLeaderButton.textContent = "SAVING...";
+        }
+        leaderFormMessage.textContent = "Saving profile...";
+
         try {
-            await apiRequest(id ? `/api/leadership/${id}` : "/api/leadership", { method: id ? "PUT" : "POST", body: JSON.stringify(payload) });
+            const data = await apiRequest(
+                existingId ? `/api/leadership/${existingId}` : "/api/leadership",
+                { method: existingId ? "PUT" : "POST", body: JSON.stringify(payload) }
+            );
+
+            const savedId = data.id || Number(existingId);
+
+            if (savedId) {
+                document.getElementById("leader-id").value = String(savedId);
+            }
+
+            if (savedId && removeLeaderImageRequested) {
+                await apiRequest(`/api/leadership/${encodeURIComponent(savedId)}/image`, { method: "DELETE" });
+            }
+
+            if (savedId && pendingLeaderImageFile) {
+                await apiBinaryRequest(`/api/leadership/${encodeURIComponent(savedId)}/image`, pendingLeaderImageFile);
+            }
+
             leadershipEditor.hidden = true;
+            setLeaderImageState("");
             await loadLeadership();
+            document.querySelector("#panel-leadership .panel-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
         }
         catch (error) {
-            alert(error.message || "Unable to save leadership profile.");
+            leaderFormMessage.textContent = error.message || "Unable to save leadership profile.";
+        }
+        finally {
+            if (saveLeaderButton) {
+                saveLeaderButton.disabled = false;
+                saveLeaderButton.textContent = originalText;
+            }
         }
     });
 
@@ -1984,6 +2389,203 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+
+    /* =========================================================
+       WORSHIP MEDIA — UPLOAD + PUBLISHER LIST
+       ========================================================= */
+
+    const mediaEditor = document.getElementById("media-editor");
+    const mediaForm = document.getElementById("media-form");
+    const mediaDropzone = document.getElementById("media-dropzone");
+    const mediaFileInput = document.getElementById("media-file");
+    const mediaLoading = document.getElementById("media-loading");
+    const mediaEmpty = document.getElementById("media-empty");
+    const mediaList = document.getElementById("media-list");
+    const mediaFormMessage = document.getElementById("media-form-message");
+    const uploadMediaButton = document.getElementById("upload-media-button");
+    let mediaCache = [];
+    let pendingMediaFile = null;
+
+    function validateGalleryFile(file) {
+        const allowed = new Set(["image/jpeg", "image/png", "image/webp", "video/mp4", "video/webm"]);
+        if (!file || !allowed.has(file.type)) {
+            throw new Error("Choose a JPG, PNG, WebP, MP4 or WebM file.");
+        }
+        const isVideo = file.type.startsWith("video/");
+        const max = isVideo ? 75 : 15;
+        if (file.size > max * 1024 * 1024) {
+            throw new Error(`${isVideo ? "Video" : "Image"} must be ${max} MB or smaller.`);
+        }
+    }
+
+    function chooseGalleryFile(file) {
+        try {
+            validateGalleryFile(file);
+            pendingMediaFile = file;
+            mediaDropzone?.classList.add("has-file");
+            if (mediaFormMessage) mediaFormMessage.textContent = `${file.name} ready to upload.`;
+        }
+        catch (error) {
+            pendingMediaFile = null;
+            if (mediaFormMessage) mediaFormMessage.textContent = error.message;
+        }
+    }
+
+    wireFileDropzone(mediaDropzone, mediaFileInput, chooseGalleryFile);
+
+    async function loadGallery() {
+        if (!mediaLoading || !mediaEmpty || !mediaList) return;
+        mediaLoading.hidden = false;
+        mediaEmpty.hidden = true;
+        mediaList.hidden = true;
+        try {
+            const data = await apiRequest("/api/gallery");
+            mediaCache = Array.isArray(data.items) ? data.items : [];
+            mediaLoading.hidden = true;
+            if (!mediaCache.length) {
+                mediaEmpty.hidden = false;
+                return;
+            }
+            mediaList.innerHTML = mediaCache.map(item => {
+                const isVideo = item.media_type === "video";
+                const visual = isVideo
+                    ? `<video src="${escapeHtml(item.media_url)}" muted preload="metadata"></video>`
+                    : `<img src="${escapeHtml(item.media_url)}" alt="">`;
+                return `<article class="media-publisher-card" data-media-id="${item.id}">${visual}<div class="media-publisher-copy"><span class="event-status ${Number(item.is_published) === 1 ? "published" : "draft"}">${Number(item.is_published) === 1 ? "Published" : "Draft"}</span><h3>${escapeHtml(item.title || (isVideo ? "Video" : "Photo"))}</h3><p>${escapeHtml(item.caption || "")}</p><div class="event-admin-actions"><button class="publisher-secondary-button" type="button" data-media-action="toggle">${Number(item.is_published) === 1 ? "UNPUBLISH" : "PUBLISH"}</button><button class="publisher-danger-button" type="button" data-media-action="delete">DELETE</button></div></div></article>`;
+            }).join("");
+            mediaList.hidden = false;
+        }
+        catch (error) {
+            mediaLoading.hidden = true;
+            mediaEmpty.hidden = false;
+            mediaEmpty.querySelector("h2").textContent = "Media Unavailable";
+            mediaEmpty.querySelector("p").textContent = error.message || "Unable to load media.";
+        }
+    }
+
+    document.getElementById("add-media-button")?.addEventListener("click", () => {
+        mediaForm?.reset();
+        pendingMediaFile = null;
+        mediaDropzone?.classList.remove("has-file");
+        if (mediaFormMessage) mediaFormMessage.textContent = "";
+        if (mediaEditor) mediaEditor.hidden = false;
+        mediaEditor?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    document.getElementById("cancel-media-button")?.addEventListener("click", () => {
+        if (mediaEditor) mediaEditor.hidden = true;
+        pendingMediaFile = null;
+        mediaDropzone?.classList.remove("has-file");
+    });
+
+    mediaForm?.addEventListener("submit", async event => {
+        event.preventDefault();
+        if (!pendingMediaFile) {
+            mediaFormMessage.textContent = "Choose a photo or video first.";
+            return;
+        }
+
+        const originalText = uploadMediaButton?.textContent || "UPLOAD MEDIA";
+        if (uploadMediaButton) {
+            uploadMediaButton.disabled = true;
+            uploadMediaButton.textContent = "UPLOADING...";
+        }
+        mediaFormMessage.textContent = "Uploading media...";
+
+        try {
+            const formData = new FormData();
+            formData.append("file", pendingMediaFile);
+            formData.append("title", document.getElementById("media-title").value.trim());
+            formData.append("caption", document.getElementById("media-caption").value.trim());
+            formData.append("display_order", document.getElementById("media-display-order").value || "0");
+            formData.append("is_published", document.getElementById("media-published").checked ? "1" : "0");
+            await apiFormRequest("/api/gallery", formData);
+            mediaEditor.hidden = true;
+            pendingMediaFile = null;
+            mediaDropzone?.classList.remove("has-file");
+            await loadGallery();
+            document.querySelector("#panel-gallery .panel-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        catch (error) {
+            mediaFormMessage.textContent = error.message || "Unable to upload media.";
+        }
+        finally {
+            if (uploadMediaButton) {
+                uploadMediaButton.disabled = false;
+                uploadMediaButton.textContent = originalText;
+            }
+        }
+    });
+
+    mediaList?.addEventListener("click", async event => {
+        const button = event.target.closest("[data-media-action]");
+        if (!button) return;
+        const card = button.closest("[data-media-id]");
+        const id = card?.dataset.mediaId;
+        const item = mediaCache.find(entry => String(entry.id) === String(id));
+        if (!item) return;
+
+        try {
+            if (button.dataset.mediaAction === "toggle") {
+                await apiRequest(`/api/gallery/${encodeURIComponent(id)}`, {
+                    method: "PUT",
+                    body: JSON.stringify({ is_published: Number(item.is_published) === 1 ? 0 : 1 })
+                });
+                await loadGallery();
+            }
+            if (button.dataset.mediaAction === "delete") {
+                if (!confirm("Delete this media item? This cannot be undone.")) return;
+                await apiRequest(`/api/gallery/${encodeURIComponent(id)}`, { method: "DELETE" });
+                await loadGallery();
+            }
+        }
+        catch (error) {
+            alert(error.message || "Unable to update media.");
+        }
+    });
+
+
+    /* =========================================================
+       SITE BRANDING — FIXED-SLOT UPLOADS
+       ========================================================= */
+
+    const brandingMessage = document.getElementById("branding-message");
+    const brandingLogoPreview = document.getElementById("branding-logo-preview");
+    const brandingHeroPreview = document.getElementById("branding-hero-preview");
+    const brandingLogoDropzone = document.getElementById("branding-logo-dropzone");
+    const brandingHeroDropzone = document.getElementById("branding-hero-dropzone");
+    const brandingLogoFile = document.getElementById("branding-logo-file");
+    const brandingHeroFile = document.getElementById("branding-hero-file");
+
+    async function loadBranding() {
+        try {
+            const data = await apiRequest("/api/site-settings");
+            if (data.settings?.church_logo && brandingLogoPreview) brandingLogoPreview.src = data.settings.church_logo;
+            if (data.settings?.hero_image && brandingHeroPreview) brandingHeroPreview.src = data.settings.hero_image;
+        }
+        catch (error) {
+            if (brandingMessage) brandingMessage.textContent = error.message || "Unable to load branding settings.";
+        }
+    }
+
+    async function uploadBrandingAsset(kind, file) {
+        try {
+            validateImageFile(file, kind === "hero" ? 20 : 8);
+            if (brandingMessage) brandingMessage.textContent = `Uploading ${kind === "hero" ? "hero image" : "logo"}...`;
+            const data = await apiBinaryRequest(`/api/branding/${kind}`, file);
+            if (kind === "logo" && brandingLogoPreview) brandingLogoPreview.src = data.url;
+            if (kind === "hero" && brandingHeroPreview) brandingHeroPreview.src = data.url;
+            if (brandingMessage) brandingMessage.textContent = `${kind === "hero" ? "Homepage hero" : "Church logo"} updated.`;
+        }
+        catch (error) {
+            if (brandingMessage) brandingMessage.textContent = error.message || "Unable to update branding.";
+        }
+    }
+
+    wireFileDropzone(brandingLogoDropzone, brandingLogoFile, file => uploadBrandingAsset("logo", file));
+    wireFileDropzone(brandingHeroDropzone, brandingHeroFile, file => uploadBrandingAsset("hero", file));
+
 
     /* =========================================================
        STARTUP
