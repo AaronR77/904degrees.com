@@ -982,3 +982,1167 @@ section h2 {
 @media (max-width: 1080px) {
     .events-grid { gap: 10px; }
 }
+
+/* =========================================================
+   LIVE EVENT SYSTEM — FINAL COMPATIBILITY / POLISH
+   Works with the database-driven site.js event renderer.
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   HOMEPAGE EVENT CARDS
+   --------------------------------------------------------- */
+
+.event-card {
+    position: relative;
+    overflow: hidden;
+}
+
+.event-card-content {
+    position: relative;
+    z-index: 2;
+    min-width: 0;
+}
+
+    .event-card-content h3 {
+        margin: 0 0 3px;
+    }
+
+        .event-card-content h3 a {
+            position: relative;
+            z-index: 4;
+        }
+
+    .event-card-content > strong {
+        display: block;
+        color: var(--gold-light);
+        font-size: 0.88rem;
+        line-height: 1.25;
+    }
+
+.event-card-location {
+    margin-top: 3px;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.88rem;
+    line-height: 1.25;
+}
+
+.event-card-content p {
+    margin: 8px 0 0;
+    color: rgba(255,255,255,0.83);
+    font-size: 0.94rem;
+    line-height: 1.27;
+}
+
+
+/* Makes the whole homepage event card clickable */
+
+.event-card-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+}
+
+
+/* Keep visible links above the overlay */
+
+.event-card-content h3 a {
+    z-index: 4;
+}
+
+
+/* ---------------------------------------------------------
+   HOMEPAGE THUMBNAIL PLACEHOLDER
+
+   When Publisher has no event image, preserve the exact
+   thumbnail geometry instead of collapsing the card.
+   --------------------------------------------------------- */
+
+.event-image-placeholder {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient( circle at 30% 25%, rgba(243,217,120,0.12), transparent 35% ), linear-gradient( 145deg, #59166f, #2b0737 );
+}
+
+    .event-image-placeholder::before {
+        content: "✝";
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        color: rgba(243,217,120,0.20);
+        font-size: 3.6rem;
+        line-height: 1;
+    }
+
+
+/* ---------------------------------------------------------
+   HOMEPAGE EMPTY / ERROR STATE
+   --------------------------------------------------------- */
+
+.homepage-events-empty {
+    grid-column: 1 / -1;
+    padding: 34px 25px;
+    text-align: center;
+    border: 1px solid rgba(243,217,120,0.23);
+    background: linear-gradient( 145deg, rgba(111,37,132,0.72), rgba(55,10,70,0.88) );
+}
+
+    .homepage-events-empty h3 {
+        margin: 0 0 7px;
+        color: var(--gold-light);
+        font-size: 1.2rem;
+    }
+
+    .homepage-events-empty p {
+        margin: 0;
+        color: rgba(255,255,255,0.85);
+    }
+
+
+/* =========================================================
+   EVENTS PAGE
+   ========================================================= */
+
+.event-list-page {
+    position: relative;
+    overflow: hidden;
+}
+
+    .event-list-page::before,
+    .event-list-page::after {
+        content: "";
+        position: absolute;
+        z-index: 0;
+        top: 50%;
+        width: clamp(150px, 18vw, 245px);
+        height: clamp(210px, 26vw, 330px);
+        color: var(--purple);
+        opacity: 0.035;
+        background: linear-gradient( 90deg, transparent 41%, currentColor 41%, currentColor 59%, transparent 59% ), linear-gradient( 0deg, transparent 44%, currentColor 44%, currentColor 56%, transparent 56% );
+        border: 10px double currentColor;
+        border-radius: 48% 48% 16% 16%;
+        pointer-events: none;
+    }
+
+    .event-list-page::before {
+        left: -5%;
+        transform: translateY(-50%) rotate(-5deg);
+    }
+
+    .event-list-page::after {
+        right: -5%;
+        transform: translateY(-50%) rotate(5deg);
+    }
+
+.event-list-grid {
+    position: relative;
+    z-index: 1;
+}
+
+
+/* ---------------------------------------------------------
+   LIVE EVENTS LIST CARDS
+   --------------------------------------------------------- */
+
+.event-detail-card {
+    position: relative;
+    overflow: hidden;
+    color: var(--ink);
+}
+
+    .event-detail-card::after {
+        content: "";
+        position: absolute;
+        right: -55px;
+        top: -70px;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient( circle, rgba(86,32,108,0.055), transparent 68% );
+        pointer-events: none;
+    }
+
+    .event-detail-card .event-date {
+        position: relative;
+        z-index: 2;
+    }
+
+    .event-detail-card > div:last-child {
+        position: relative;
+        z-index: 2;
+        min-width: 0;
+    }
+
+    .event-detail-card h2 {
+        margin: 0 0 5px;
+        color: var(--purple);
+        text-align: left;
+        text-transform: none;
+        font-size: 1.65rem;
+    }
+
+    .event-detail-card strong {
+        display: block;
+        color: var(--green-dark);
+        font-size: 1rem;
+    }
+
+.event-location {
+    margin-top: 3px;
+    color: var(--green-dark);
+    font-weight: 600;
+}
+
+.event-detail-card p {
+    margin: 9px 0;
+    color: #59485d;
+    line-height: 1.4;
+}
+
+.event-more {
+    display: inline-block;
+    margin-top: 4px;
+}
+
+
+/* ---------------------------------------------------------
+   EVENTS LOADING
+   --------------------------------------------------------- */
+
+.events-loading {
+    padding: 12px 20px 45px;
+    text-align: center;
+}
+
+    .events-loading h2 {
+        margin-bottom: 14px;
+    }
+
+    .events-loading p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+
+/* ---------------------------------------------------------
+   EVENTS EMPTY / ERROR STATE
+   --------------------------------------------------------- */
+
+.events-empty-state {
+    padding: 65px 30px;
+    text-align: center;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(214,169,61,0.45);
+    box-shadow: 0 8px 25px rgba(51,17,61,0.06);
+}
+
+    .events-empty-state h2 {
+        margin-bottom: 12px;
+    }
+
+    .events-empty-state p {
+        margin: 0;
+        color: var(--muted);
+    }
+
+
+/* =========================================================
+   PUBLISHER PREVIEW
+   ========================================================= */
+
+.event-preview-notice {
+    padding: 18px 22px;
+    color: #fff;
+    background: linear-gradient( 110deg, var(--green-deep), var(--green) );
+    border: 1px solid var(--gold);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.10);
+}
+
+    .event-preview-notice strong {
+        color: var(--gold-light);
+        font-family: "Montserrat", Arial, sans-serif;
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+    }
+
+    .event-preview-notice p {
+        margin: 5px 0 0;
+    }
+
+
+/* =========================================================
+   SINGLE EVENT PAGE
+   ========================================================= */
+
+.event-expanded-content {
+    min-width: 0;
+}
+
+    .event-expanded-content h3 {
+        margin-top: 0;
+        margin-bottom: 10px;
+    }
+
+#event-location {
+    color: var(--green-dark);
+    font-weight: 600;
+}
+
+#event-description {
+    white-space: pre-line;
+}
+
+
+/* ---------------------------------------------------------
+   OPTIONAL EVENT IMAGE
+
+   The old CSS styled this as a placeholder box.
+   It now contains an actual image, so make it behave
+   like an event photograph.
+   --------------------------------------------------------- */
+
+.optional-image {
+    overflow: hidden;
+    margin: 30px 0;
+    padding: 0;
+    border: 1px solid #c9b17b;
+    background: #faf5ea;
+}
+
+    .optional-image img {
+        display: block;
+        width: 100%;
+        max-height: 560px;
+        object-fit: contain;
+        margin: 0 auto;
+        background: #f5ecdd;
+    }
+
+
+/* ---------------------------------------------------------
+   EVENT ERROR
+   --------------------------------------------------------- */
+
+#event-error {
+    margin: 25px 0;
+    padding: 25px;
+    border-left: 4px solid var(--gold);
+    background: #faf5ea;
+}
+
+    #event-error h2 {
+        margin: 0 0 7px;
+        text-align: left;
+        font-size: 1.45rem;
+    }
+
+    #event-error p {
+        margin: 0;
+    }
+
+
+/* =========================================================
+   RESPONSIVE LIVE EVENTS
+   ========================================================= */
+
+@media (max-width: 1080px) {
+
+    .event-detail-card {
+        grid-template-columns: 90px 1fr;
+    }
+}
+
+
+@media (max-width: 700px) {
+
+    .event-card {
+        grid-template-columns: 105px 1fr;
+    }
+
+    .event-card-content p {
+        font-size: 0.9rem;
+    }
+
+    .event-detail-card {
+        grid-template-columns: 74px 1fr;
+        gap: 16px;
+    }
+
+        .event-detail-card h2 {
+            font-size: 1.4rem;
+        }
+
+    .event-expanded-content {
+        width: 100%;
+    }
+
+    .event-list-page::before,
+    .event-list-page::after {
+        opacity: 0.02;
+    }
+}
+
+
+@media (max-width: 420px) {
+
+    .event-card {
+        grid-template-columns: 92px 1fr;
+        gap: 11px;
+    }
+
+    .event-thumb {
+        width: 92px;
+        height: 88px;
+    }
+
+        .event-thumb .event-date {
+            width: 43px;
+            height: 54px;
+        }
+
+    .event-detail-card {
+        grid-template-columns: 66px 1fr;
+        padding: 15px;
+        gap: 13px;
+    }
+
+        .event-detail-card .event-date {
+            width: 62px;
+            height: 74px;
+        }
+
+            .event-detail-card .event-date strong {
+                font-size: 1.7rem;
+            }
+}
+
+/* =========================================================
+   HOMEPAGE EVENTS — V1 HORIZONTAL LAYOUT RESTORE
+   Three nearest events across desktop/tablet.
+   Stack only on actual mobile screens.
+   ========================================================= */
+
+@media (min-width: 701px) {
+
+    .events-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .event-card {
+        min-width: 0;
+        grid-template-columns: 136px minmax(0, 1fr);
+        gap: 16px;
+        align-items: center;
+    }
+
+    .event-thumb {
+        width: 136px;
+        height: 105px;
+    }
+}
+
+
+/* Actual phones: stack the events */
+
+@media (max-width: 700px) {
+
+    .events-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+}
+
+/* =========================================================
+   EXPLORE OUR MINISTRIES
+   8-ministry responsive layout
+   ========================================================= */
+
+/* Desktop — two balanced rows of four */
+
+.ministries-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    row-gap: 34px;
+}
+
+
+/* Tablet — still 4 across while space permits */
+
+@media (max-width: 900px) {
+
+    .ministries-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 28px 18px;
+    }
+}
+
+
+/* Smaller screens — two across */
+
+@media (max-width: 700px) {
+
+    .ministries-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 28px 16px;
+    }
+}
+
+
+/* Very small phones */
+
+@media (max-width: 380px) {
+
+    .ministries-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* =========================================================
+   SOCIAL ICONS
+   Facebook / Instagram / YouTube
+   ========================================================= */
+
+.social-cluster {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.social-link {
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.75);
+    border-radius: 50%;
+    color: #ffffff;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+    .social-link:hover {
+        background: #d4af37;
+        border-color: #d4af37;
+        color: #260331;
+        transform: translateY(-1px);
+    }
+
+
+/* FACEBOOK */
+
+.social-facebook {
+    font-family: Arial, sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+}
+
+
+/* YOUTUBE */
+
+.social-youtube {
+    padding-left: 2px;
+    font-size: 12px;
+}
+
+
+/* =========================================================
+   INSTAGRAM GLYPH
+
+   Drawn entirely with CSS.
+   No PNG/SVG required.
+   ========================================================= */
+
+.instagram-glyph {
+    position: relative;
+    width: 15px;
+    height: 15px;
+    display: block;
+    border: 2px solid currentColor;
+    border-radius: 4px;
+}
+
+
+    /* Instagram center lens */
+
+    .instagram-glyph::before {
+        content: "";
+        position: absolute;
+        width: 5px;
+        height: 5px;
+        left: 50%;
+        top: 50%;
+        border: 1.5px solid currentColor;
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+
+    /* Instagram upper-right dot */
+
+    .instagram-glyph::after {
+        content: "";
+        position: absolute;
+        width: 2px;
+        height: 2px;
+        right: 2px;
+        top: 2px;
+        background: currentColor;
+        border-radius: 50%;
+    }
+
+
+/* =========================================================
+   V2 PUBLIC PAGES
+   Shared layout for About, Ministries, Leadership, Services,
+   Media and Contact. Keep public content presentation here.
+   ========================================================= */
+
+.v2-section,
+.v2-split,
+.ministry-directory,
+.leadership-directory,
+.leadership-profile-shell,
+.v2-cta {
+    width: min(1180px, calc(100% - 48px));
+    margin: 0 auto;
+}
+
+.v2-intro {
+    padding: 64px 0 34px;
+    text-align: center;
+}
+
+.v2-intro h2,
+.v2-card h2,
+.v2-cta h2 {
+    margin: 6px 0 18px;
+    color: #4a1558;
+    font-family: "Cormorant Garamond", serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.v2-intro > p:not(.eyebrow) {
+    max-width: 760px;
+    margin: 0 auto;
+}
+
+.v2-split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    padding: 12px 0 64px;
+}
+
+.v2-card,
+.ministry-directory-card,
+.leadership-card,
+.leadership-profile-card {
+    background: #fff;
+    border: 1px solid rgba(191, 139, 35, .5);
+    box-shadow: 0 12px 32px rgba(44, 7, 52, .08);
+}
+
+.v2-card { padding: 34px; }
+.v2-card p { line-height: 1.72; }
+.v2-card a { color: #6b2676; font-weight: 700; }
+
+.v2-cta {
+    margin-bottom: 64px;
+    padding: 44px;
+    text-align: center;
+    background: linear-gradient(135deg, #3b0648, #07533f);
+    color: #fff;
+    border-top: 2px solid #d7aa35;
+    border-bottom: 2px solid #d7aa35;
+}
+.v2-cta h2 { color: #f5d65c; }
+
+.ministry-directory,
+.leadership-directory {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px;
+    padding: 12px 0 70px;
+}
+
+.ministry-directory-card,
+.leadership-card {
+    padding: 28px;
+}
+
+.ministry-directory-card h3,
+.leadership-card h3 {
+    margin: 12px 0 8px;
+    color: #4a1558;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.55rem;
+}
+
+.ministry-directory-card p,
+.leadership-card p { line-height: 1.6; }
+.ministry-directory-card a,
+.leadership-card a { color: #b17b13; font-size: .78rem; font-weight: 700; letter-spacing: .08em; }
+.ministry-icon-slot { color: #c59221; font-size: 1.8rem; }
+
+.leadership-card-image,
+.leadership-profile-image {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    background: #f2edf2;
+}
+
+.leadership-card-placeholder {
+    display: grid;
+    place-items: center;
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    background: linear-gradient(135deg, #3d0648, #07533f);
+    color: #f5d65c;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 4rem;
+}
+
+.leadership-profile-shell { padding: 56px 0 72px; }
+.leadership-profile-card {
+    display: grid;
+    grid-template-columns: minmax(240px, 360px) 1fr;
+    gap: 42px;
+    padding: 38px;
+}
+.leadership-profile-copy h1 { color: #4a1558; font-size: clamp(2.2rem, 5vw, 4rem); margin: 0 0 8px; }
+.leadership-profile-copy .leader-title { color: #087054; font-weight: 700; letter-spacing: .05em; }
+.leadership-profile-copy .leader-bio { line-height: 1.8; margin: 24px 0 32px; white-space: pre-line; }
+
+.site-credit {
+    padding: 9px 16px 12px;
+    text-align: center;
+    background: #f7f4ed;
+    color: #666;
+    font-family: Montserrat, sans-serif;
+    font-size: .72rem;
+    letter-spacing: .04em;
+}
+.site-credit a { text-decoration: none; margin-left: 3px; }
+.credit-904 { color: #000; font-weight: 800; }
+.credit-degree { color: #9ee600; font-weight: 900; }
+
+@media (max-width: 850px) {
+    .v2-split,
+    .ministry-directory,
+    .leadership-directory,
+    .leadership-profile-card { grid-template-columns: 1fr; }
+    .v2-section,
+    .v2-split,
+    .ministry-directory,
+    .leadership-directory,
+    .leadership-profile-shell,
+    .v2-cta { width: min(100% - 28px, 1180px); }
+}
+
+
+/* =========================================================
+   FNZ V2 BRAND ASSET + VISUAL POLISH PASS
+   ========================================================= */
+
+/* Homepage identity: FNZ gold motto and more visible church photo. */
+.hero-motto { color: var(--gold-light); font-weight: 700; }
+.hero-shade {
+    background:
+        linear-gradient(90deg,
+            rgba(45,4,61,0.94) 0%,
+            rgba(60,8,79,0.82) 23%,
+            rgba(67,14,85,0.52) 38%,
+            rgba(67,14,85,0.14) 55%,
+            rgba(0,0,0,0.01) 72%),
+        linear-gradient(180deg, rgba(24,0,32,0.10), transparent 28%);
+}
+
+/* Solid gold divider with protected negative space around Mini_Cross.svg. */
+.hero-divider {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: min(390px, 78%);
+    height: 22px;
+    margin: 14px 0 14px;
+    background: none;
+}
+.hero-divider::before,
+.hero-divider::after {
+    content: "";
+    flex: 1 1 auto;
+    height: 1px;
+    background: var(--gold-light);
+}
+.hero-divider::after {
+    position: static;
+    transform: none;
+    padding: 0;
+    color: transparent;
+}
+.hero-divider { background-image: url("../images/icons/fnz/Mini_Cross.svg"); background-repeat: no-repeat; background-position: center; background-size: auto 20px; }
+
+/* Mini cross is the canonical small divider ornament. */
+.section-cross {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    width: min(310px, 60%);
+    height: 20px;
+    margin: 10px auto 23px;
+    font-size: 0;
+    background: url("../images/icons/fnz/Mini_Cross.svg") center / auto 18px no-repeat;
+}
+.section-cross::before,
+.section-cross::after {
+    content: "";
+    position: static;
+    flex: 1 1 auto;
+    width: auto;
+    height: 1px;
+    transform: none;
+    background: currentColor;
+}
+
+/* FNZ Default Cross replaces generic large cross watermarks. */
+.patterned-section::before,
+.patterned-section::after {
+    border: 0;
+    border-radius: 0;
+    background: url("../images/icons/fnz/FNZ_Default_Cross.svg") center / contain no-repeat;
+    filter: grayscale(1);
+    opacity: 0.055;
+}
+.page-banner::after {
+    content: "";
+    width: 180px;
+    height: 180px;
+    right: 5%;
+    background: url("../images/icons/fnz/FNZ_Default_Cross.svg") center / contain no-repeat;
+    opacity: 0.075;
+}
+.event-image-placeholder::before {
+    content: "";
+    width: 58%;
+    height: 58%;
+    background: url("../images/icons/fnz/FNZ_Default_Cross.svg") center / contain no-repeat;
+    opacity: 0.34;
+}
+
+/* Ministry artwork: custom icon when present, FNZ default otherwise. */
+.ministry-icon-slot img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+/* Plan-a-Visit schedule. */
+.visit-schedule { display: grid; gap: 0; margin: 24px 0 22px; border-top: 1px solid rgba(112,83,23,.22); }
+.visit-schedule > div { display: flex; justify-content: space-between; gap: 20px; align-items: baseline; padding: 12px 0; border-bottom: 1px solid rgba(112,83,23,.22); }
+.visit-schedule span { font-family: Montserrat, sans-serif; font-size: .76rem; font-weight: 700; letter-spacing: .08em; color: var(--purple); }
+.visit-schedule strong { white-space: nowrap; color: var(--green-deep); }
+
+/* 904° footer credit is intentionally all black. */
+.credit-degree { color: #000; }
+
+/* Keep address numerals on a normal baseline. */
+.header-contact, .site-footer, .v2-card { font-variant-position: normal; }
+
+
+/* =========================================================
+   FNZ V2 VISUAL QA PATCH
+   Normalizes 512x512 ministry artboards, uses the branded
+   default cross for functional cross icons, keeps the Mini
+   Cross gold, and forces lining numerals in visit/contact data.
+   ========================================================= */
+
+/* Every ministry SVG is authored on the same 512x512 artboard.
+   Give every card the same square viewport so Illustrator's
+   artboard — not the path's natural bounds — controls sizing. */
+.ministry-icon-slot {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+.ministry-icon-slot img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    object-position: center;
+}
+
+/* Branded default cross. Masking lets one SVG inherit the
+   correct context color without maintaining duplicate files. */
+.fnz-default-cross-icon {
+    width: 1em;
+    height: 1em;
+    background-color: currentColor;
+    -webkit-mask: url("../images/icons/fnz/FNZ_Default_Cross.svg") center / contain no-repeat;
+    mask: url("../images/icons/fnz/FNZ_Default_Cross.svg") center / contain no-repeat;
+    font-size: inherit;
+}
+.pillar .fnz-default-cross-icon {
+    color: var(--gold-light);
+}
+.service-icon.fnz-default-cross-icon {
+    color: var(--purple);
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Mini_Cross.svg is the gold ornamental divider everywhere.
+   The separate line elements preserve the intentional gap. */
+.hero-divider,
+.section-cross {
+    background-image: none;
+}
+.hero-divider::before,
+.hero-divider::after,
+.section-cross::before,
+.section-cross::after {
+    background: var(--gold-light);
+}
+.hero-divider::after,
+.section-cross::after {
+    /* line stays a line; center ornament is supplied separately */
+}
+.hero-divider {
+    position: relative;
+}
+.hero-divider > * { pointer-events: none; }
+.hero-divider::marker { content: none; }
+.hero-divider {
+    /* Mini cross as a gold mask on a dedicated center layer. */
+    --fnz-mini-cross-size: 20px;
+}
+.hero-divider:has(*) { }
+.hero-divider::before,
+.hero-divider::after { z-index: 0; }
+
+/* Use an inline-mask center ornament without allowing rules
+   to run beneath it. */
+.hero-divider {
+    background:
+      linear-gradient(var(--gold-light), var(--gold-light)) left center / calc(50% - 20px) 1px no-repeat,
+      linear-gradient(var(--gold-light), var(--gold-light)) right center / calc(50% - 20px) 1px no-repeat;
+}
+.hero-divider::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 12px;
+    height: 20px;
+    transform: translate(-50%, -50%);
+    background: var(--gold-light);
+    -webkit-mask: url("../images/icons/fnz/Mini_Cross.svg") center / contain no-repeat;
+    mask: url("../images/icons/fnz/Mini_Cross.svg") center / contain no-repeat;
+}
+.hero-divider::after { content: none; }
+
+.section-cross {
+    position: relative;
+    background:
+      linear-gradient(currentColor, currentColor) left center / calc(50% - 20px) 1px no-repeat,
+      linear-gradient(currentColor, currentColor) right center / calc(50% - 20px) 1px no-repeat;
+}
+.section-cross::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 11px;
+    height: 18px;
+    transform: translate(-50%, -50%);
+    background: var(--gold-light);
+    -webkit-mask: url("../images/icons/fnz/Mini_Cross.svg") center / contain no-repeat;
+    mask: url("../images/icons/fnz/Mini_Cross.svg") center / contain no-repeat;
+}
+.section-cross::after { content: none; }
+
+/* Cormorant defaults to old-style figures. Addresses and
+   phone numbers use lining figures so 4835 shares one baseline. */
+.v2-card h2,
+.v2-card p,
+.header-contact,
+.site-footer {
+    font-variant-numeric: lining-nums proportional-nums;
+    font-feature-settings: "lnum" 1, "onum" 0;
+}
+
+
+/* =========================================================
+   FNZ V2.5 FINAL QA
+   Canonical black SVG masters are colorized by CSS masks.
+   512x512 icon artboards align by their viewport, not path bounds.
+   ========================================================= */
+
+/* Four homepage pillars: fixed icon box + fixed label rhythm. */
+.pillar { gap: 8px; }
+.pillar-icon {
+    width: 54px;
+    height: 54px;
+    margin: 0;
+    display: grid;
+    place-items: center;
+    flex: 0 0 54px;
+    line-height: 1;
+}
+.pillar > div:last-child { line-height: 1; margin: 0; }
+.pillar .fnz-default-cross-icon {
+    width: 42px;
+    height: 42px;
+    flex-basis: 42px;
+    color: var(--gold-light);
+}
+
+/* Worship row: every symbol gets the same box and every heading starts
+   at the same vertical position. The branded cross is gold here. */
+.worship-grid article { display: flex; flex-direction: column; align-items: center; }
+.service-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 0 7px;
+    display: grid;
+    place-items: center;
+    flex: 0 0 64px;
+    line-height: 1;
+}
+.service-icon.fnz-default-cross-icon {
+    width: 48px;
+    height: 64px;
+    margin: 0 0 7px;
+    color: var(--gold-dark);
+}
+.service-symbol { font-size: 2.35rem; color: var(--purple); }
+.worship-grid h3 { min-height: 1.15em; }
+
+/* One black SVG master per ministry. CSS supplies the FNZ gold. */
+.ministry-icon-art,
+.ministry-home-icon {
+    --ministry-color: var(--gold-dark);
+    background: var(--ministry-color);
+    -webkit-mask-image: var(--ministry-icon);
+    mask-image: var(--ministry-icon);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}
+.ministry-icon-slot { width: 100%; aspect-ratio: 1 / 1; display: grid; place-items: center; }
+.ministry-icon-art { width: 100%; height: 100%; }
+.ministries-grid .ministry-home-icon {
+    width: 78px;
+    height: 78px;
+    flex: 0 0 78px;
+    display: block;
+    background-color: var(--gold-dark);
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+/* Keep the existing homepage medallion behind the masked artwork. */
+.ministries-grid a { position: relative; }
+.ministries-grid .ministry-home-icon::before { content: none; }
+.ministries-grid a::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    width: 78px;
+    height: 78px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff 0%, #fff9e7 45%, #ead2a1 100%);
+    border: 1px solid #d3a84c;
+    box-shadow: inset 0 0 0 6px rgba(255,255,255,0.43), 0 7px 16px rgba(102,64,16,0.12);
+    z-index: 0;
+}
+.ministries-grid .ministry-home-icon { position: relative; z-index: 1; transform: scale(.72); }
+
+/* Public address is also the directions control. */
+.fnz-directions { color: inherit; text-decoration: none; cursor: pointer; }
+.fnz-directions:hover { color: var(--gold-light); }
+.visit-address { display: block; color: inherit; }
+.visit-address:hover { color: inherit; }
+.visit-address h2, .visit-address p { margin-left: 0; margin-right: 0; }
+.directions-label { display: inline-block; margin: 3px 0 14px; color: var(--gold-dark); font: 700 .7rem "Montserrat", Arial, sans-serif; letter-spacing: .08em; }
+
+/* Lining numerals everywhere address/service times appear. */
+.header-contact, .site-footer, .visit-address, .visit-schedule, .worship-grid {
+    font-variant-numeric: lining-nums proportional-nums;
+    font-feature-settings: "lnum" 1, "onum" 0;
+}
+
+@media (max-width: 700px) {
+    .ministries-grid a::before { width: 69px; height: 69px; }
+    .ministries-grid .ministry-home-icon { width: 69px; height: 69px; flex-basis: 69px; }
+}
+@media (max-width: 380px) {
+    .ministries-grid a::before { width: 64px; height: 64px; }
+    .ministries-grid .ministry-home-icon { width: 64px; height: 64px; flex-basis: 64px; }
+}
+
+
+/* =============================================================
+   V2.5 FINAL QA PATCH
+   ============================================================= */
+/* Sunday Worship uses the same purple icon language as the other service icons. */
+.worship-grid .service-icon.fnz-default-cross-icon { color: var(--purple); }
+
+/* Stay Connected reuses the persistent-header social icon treatment. */
+.stay-connected-links { display: grid; gap: 14px; margin-top: 18px; }
+.stay-connected-links > a { display: flex; align-items: center; gap: 12px; width: fit-content; color: var(--purple); text-decoration: none; }
+.stay-connected-links > a .social-link { flex: 0 0 36px; width: 36px; height: 36px; margin: 0; }
+.stay-connected-links > a:hover { color: var(--gold-dark); }
+
+/* Ministry masks are black master SVGs; CSS supplies gold. */
+.ministry-icon-art, .ministry-home-icon { background-color: var(--gold-dark); }
+
+
+/* =============================================================
+   V2.5 FINAL ICON RENDER FIX
+   SVG masters remain black. External SVG files render as normal
+   images; this filter presents them in FNZ gold in both ministry
+   locations without relying on Firefox external-mask behavior.
+   ============================================================= */
+.ministry-icon-art,
+.ministry-home-icon {
+    background: transparent !important;
+    -webkit-mask: none !important;
+    mask: none !important;
+    object-fit: contain;
+    object-position: center;
+    display: block;
+    /* black master -> FNZ gold */
+    filter: brightness(0) saturate(100%) invert(49%) sepia(89%) saturate(1018%) hue-rotate(6deg) brightness(91%) contrast(89%);
+}
+.ministry-icon-art { width: 100%; height: 100%; }
+.ministries-grid .ministry-home-icon {
+    position: relative;
+    z-index: 1;
+    object-fit: contain;
+}
+
+/* =========================================================
+   VETERANS & MILITARY AFFAIRS ICON
+   Optical-size correction for the wider crucifix artwork.
+   ========================================================= */
+
+.ministry-icon-slot > .ministry-icon-veterans {
+    width: 78%;
+    height: 78%;
+    object-fit: contain;
+    object-position: center;
+    margin: auto;
+}

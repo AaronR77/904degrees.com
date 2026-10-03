@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>FNZ Website Publisher</title>
+
+    <link rel="preconnect"
+          href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+          href="https://fonts.gstatic.com"
+          crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="css/admin.css">
+
+</head>
+
+
+<body class="dashboard-body">
+
+
+    <!-- =====================================================
+         HEADER
+         ===================================================== -->
+
+    <header class="publisher-header">
+
+        <div class="publisher-brand">
+
+            <img src="../images/FNZ_Emblem.png"
+                 alt="First New Zion emblem"
+                 class="publisher-logo">
+
+            <div>
+
+                <div class="publisher-church-name">
+                    FIRST NEW ZION
+                </div>
+
+                <div class="publisher-church-subtitle">
+                    Missionary Baptist Church
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="publisher-header-actions">
+
+            <span id="user-display-name">
+                Administrator
+            </span>
+
+            <button id="logout-button"
+                    class="publisher-outline-button"
+                    type="button">
+                SIGN OUT
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <!-- =====================================================
+         MAIN PUBLISHER NAVIGATION
+         ===================================================== -->
+
+    <nav class="publisher-nav">
+
+        <button class="publisher-nav-button active"
+                data-panel="overview"
+                type="button">
+            OVERVIEW
+        </button>
+
+        <button class="publisher-nav-button"
+                data-panel="events"
+                type="button">
+            EVENTS
+        </button>
+
+        <button class="publisher-nav-button"
+                data-panel="gallery"
+                type="button">
+            WORSHIP MEDIA
+        </button>
+
+        <button class="publisher-nav-button admin-only"
+                data-panel="leadership"
+                type="button">
+            LEADERSHIP
+        </button>
+
+        <button class="publisher-nav-button admin-only"
+                data-panel="branding"
+                type="button">
+            SITE BRANDING
+        </button>
+
+        <button class="publisher-nav-button admin-only"
+                data-panel="team"
+                type="button">
+            TEAM &amp; ROLES
+        </button>
+
+    </nav>
+
+
+
+    <!-- =====================================================
+         MAIN
+         ===================================================== -->
+
+    <main class="publisher-main">
+
+
+        <!-- =================================================
+             OVERVIEW
+             ================================================= -->
+
+        <section id="panel-overview"
+                 class="publisher-panel active">
+
+            <div class="dashboard-heading">
+
+                <div>
+
+                    <p class="dashboard-eyebrow">
+                        WEBSITE PUBLISHER
+                    </p>
+
+                    <h1>
+                        Welcome back,
+                        <span id="welcome-name">
+                            Administrator
+                        </span>
+                    </h1>
+
+                    <p>
+                        Manage First New Zion's website content
+                        from one place.
+                    </p>
+
+                </div>
+
+
+                <a href="../index.html"
+                   target="_blank"
+                   class="publisher-button">
+                    VIEW WEBSITE →
+                </a>
+
+            </div>
+
+
+
+            <div class="dashboard-grid">
+
+
+                <!-- EVENTS -->
+
+                <button class="dashboard-card"
+                        data-open-panel="events"
+                        type="button">
+
+                    <span class="dashboard-card-icon">
+                        ◫
+                    </span>
+
+                    <h2>
+                        Events
+                    </h2>
+
+                    <p>
+                        Add, edit and remove church events
+                        and announcements.
+                    </p>
+
+                    <strong>
+                        MANAGE EVENTS →
+                    </strong>
+
+                </button>
+
+
+
+                <!-- WORSHIP MEDIA -->
+
+                <button class="dashboard-card"
+                        data-open-panel="gallery"
+                        type="button">
+
+                    <span class="dashboard-card-icon">
+                        ▶
+                    </span>
+
+                    <h2>
+                        Worship Media
+                    </h2>
+
+                    <p>
+                        Manage the church photo and video
+                        gallery.
+                    </p>
+
+                    <strong>
+                        MANAGE MEDIA →
+                    </strong>
+
+                </button>
+
+
+
+                <!-- LEADERSHIP -->
+
+                <button class="dashboard-card admin-only"
+                        data-open-panel="leadership"
+                        type="button">
+
+                    <span class="dashboard-card-icon">
+                        ♙
+                    </span>
+
+                    <h2>
+                        Leadership
+                    </h2>
+
+                    <p>
+                        Add, edit, reorder and remove
+                        leadership profiles.
+                    </p>
+
+                    <strong>
+                        MANAGE LEADERSHIP →
+                    </strong>
+
+                </button>
+
+
+
+                <!-- SITE BRANDING -->
+
+                <button class="dashboard-card admin-only"
+                        data-open-panel="branding"
+                        type="button">
+
+                    <span class="dashboard-card-icon">
+                        ✦
+                    </span>
+
+                    <h2>
+                        Site Branding
+                    </h2>
+
+                    <p>
+                        Update the church emblem and
+                        homepage hero image.
+                    </p>
+
+                    <strong>
+                        MANAGE BRANDING →
+                    </strong>
+
+                </button>
+
+
+
+                <!-- TEAM -->
+
+                <button class="dashboard-card admin-only"
+                        data-open-panel="team"
+                        type="button">
+
+                    <span class="dashboard-card-icon">
+                        ●●●
+                    </span>
+
+                    <h2>
+                        Team &amp; Roles
+                    </h2>
+
+                    <p>
+                        Add team members and control
+                        Publisher permissions.
+                    </p>
+
+                    <strong>
+                        MANAGE TEAM →
+                    </strong>
+
+                </button>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             EVENTS
+             ================================================= -->
+
+        <section id="panel-events"
+                 class="publisher-panel">
+
+
+            <!-- EVENTS HEADING -->
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <p class="dashboard-eyebrow">
+                        CONTENT
+                    </p>
+
+                    <h1>
+                        Events &amp; Announcements
+                    </h1>
+
+                    <p>
+                        Create, edit, preview, publish and remove
+                        events from the church website.
+                    </p>
+
+                </div>
+
+
+                <button id="add-event-button"
+                        class="publisher-button"
+                        type="button">
+                    + ADD EVENT
+                </button>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 EVENT EDITOR
+                 ================================================= -->
+
+            <div id="event-editor"
+                 class="event-editor"
+                 hidden>
+
+
+                <!-- EDITOR HEADING -->
+
+                <div class="event-editor-heading">
+
+                    <div>
+
+                        <p class="dashboard-eyebrow">
+                            EVENT EDITOR
+                        </p>
+
+                        <h2 id="event-editor-title">
+                            Add Event
+                        </h2>
+
+
+                        <!--
+                            JavaScript will change this between:
+
+                            DRAFT
+                            PUBLISHED
+                        -->
+
+                        <div id="event-editor-status"
+                             class="event-editor-status"
+                             hidden>
+
+                            <span id="event-editor-status-text">
+                                DRAFT
+                            </span>
+
+                        </div>
+
+                    </div>
+
+
+                    <button id="close-event-editor"
+                            class="publisher-outline-light"
+                            type="button">
+                        CANCEL
+                    </button>
+
+                </div>
+
+
+
+                <!-- EVENT FORM -->
+
+                <form id="event-form">
+
+
+                    <!-- DATABASE EVENT ID -->
+
+                    <input id="event-id"
+                           type="hidden">
+
+
+
+                    <div class="event-form-grid">
+
+
+                        <!-- EVENT TITLE -->
+
+                        <label class="event-field event-field-wide">
+
+                            <span>
+                                EVENT TITLE *
+                            </span>
+
+                            <input id="event-title"
+                                   type="text"
+                                   maxlength="120"
+                                   required>
+
+                        </label>
+
+
+
+                        <!-- START DATE -->
+
+                        <label class="event-field">
+
+                            <span>
+                                START DATE *
+                            </span>
+
+                            <input id="event-date"
+                                   type="date"
+                                   required>
+
+                        </label>
+
+
+
+                        <!-- END DATE -->
+
+                        <label class="event-field">
+
+                            <span>
+                                END DATE
+                            </span>
+
+                            <input id="event-end-date"
+                                   type="date">
+
+                            <small>
+                                Optional. Leave blank for a
+                                one-day event.
+                            </small>
+
+                        </label>
+
+
+
+                        <!-- TIME -->
+
+                        <label class="event-field event-field-wide">
+
+                            <span>
+                                TIME
+                            </span>
+
+                            <input id="event-time"
+                                   type="time">
+
+                        </label>
+
+
+
+                        <!-- LOCATION -->
+
+                        <label class="event-field event-field-wide">
+
+                            <span>
+                                LOCATION
+                            </span>
+
+                            <input id="event-location"
+                                   type="text"
+                                   maxlength="160"
+                                   placeholder="First New Zion, Fellowship Hall, etc.">
+
+                        </label>
+
+
+
+                        <!-- DESCRIPTION -->
+
+                        <label class="event-field event-field-wide">
+
+                            <span>
+                                DESCRIPTION
+                            </span>
+
+                            <textarea id="event-description"
+                                      rows="6"
+                                      maxlength="3000"
+                                      placeholder="Event details..."></textarea>
+
+                        </label>
+
+
+
+                        <!-- IMAGE -->
+
+                        <label class="event-field event-field-wide">
+
+                            <span>
+                                OPTIONAL IMAGE URL
+                            </span>
+
+                            <input id="event-image-url"
+                                   type="text"
+                                   maxlength="500"
+                                   placeholder="images/events/example.jpg">
+
+                            <small>
+                                Image uploading will be added with the
+                                media system. Existing image paths can
+                                already be used here.
+                            </small>
+
+                        </label>
+
+
+                    </div>
+
+
+
+                    <!-- =================================================
+                         EVENT STATUS MESSAGE
+                         ================================================= -->
+
+                    <div id="event-form-message"
+                         class="event-form-message">
+                    </div>
+
+
+
+                    <!-- =================================================
+                         EVENT ACTIONS
+                         ================================================= -->
+
+                    <div class="event-form-actions">
+
+
+                        <!-- PREVIEW -->
+
+                        <button id="preview-event-button"
+                                class="publisher-secondary-button"
+                                type="button">
+                            PREVIEW
+                        </button>
+
+
+
+                        <!--
+                            SAVE DRAFT
+
+                            Saves the event without displaying it
+                            on the public website.
+                        -->
+
+                        <button id="save-draft-button"
+                                class="publisher-secondary-button"
+                                type="button">
+
+                            SAVE DRAFT
+
+                        </button>
+
+
+
+                        <!--
+                            UNPUBLISH
+
+                            Hidden for:
+                            - new events
+                            - draft events
+
+                            JavaScript will show this button while
+                            editing a published event.
+                        -->
+
+                        <button id="unpublish-event-button"
+                                class="publisher-outline-light"
+                                type="button"
+                                hidden>
+
+                            UNPUBLISH
+
+                        </button>
+
+
+
+                        <!--
+                            PUBLISH
+
+                            Saves the event AND immediately makes
+                            it visible on the public website.
+
+                            JavaScript may change the text to
+                            SAVE CHANGES when editing an event
+                            that is already published.
+                        -->
+
+                        <button id="publish-event-button"
+                                class="publisher-button"
+                                type="button">
+
+                            PUBLISH EVENT
+
+                        </button>
+
+
+                    </div>
+
+                </form>
+
+            </div>
+
+
+
+            <!-- =================================================
+                 EVENT LIST
+                 ================================================= -->
+            <!-- LOADING -->
+
+            <div id="events-loading"
+                 class="publisher-placeholder">
+
+                <h2>
+                    Loading Events
+                </h2>
+
+                <p>
+                    Retrieving current event information.
+                </p>
+
+            </div>
+
+
+
+            <!-- EMPTY -->
+
+            <div id="events-empty"
+                 class="publisher-placeholder"
+                 hidden>
+
+                <h2>
+                    No Events Yet
+                </h2>
+
+                <p>
+                    Select Add Event to create the first church
+                    event or announcement.
+                </p>
+
+            </div>
+
+
+
+            <!-- EVENTS -->
+
+            <div id="events-list"
+                 class="events-admin-list"
+                 hidden>
+            </div>
+
+
+        </section>
+
+
+
+        <!-- =================================================
+             WORSHIP MEDIA
+             ================================================= -->
+
+        <section id="panel-gallery"
+                 class="publisher-panel">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <p class="dashboard-eyebrow">
+                        MEDIA
+                    </p>
+
+                    <h1>
+                        Worship Media
+                    </h1>
+
+                    <p>
+                        Add or remove up to 20 photos and
+                        short videos from the worship gallery.
+                    </p>
+
+                </div>
+
+
+                <button class="publisher-button"
+                        type="button">
+                    + ADD MEDIA
+                </button>
+
+            </div>
+
+
+            <div class="publisher-placeholder">
+
+                <h2>
+                    Gallery
+                </h2>
+
+                <p>
+                    Media uploads will appear here in a
+                    responsive two-column editor.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             LEADERSHIP
+             ================================================= -->
+
+        <section id="panel-leadership" class="publisher-panel admin-only">
+  <div class="panel-heading">
+    <div><p class="dashboard-eyebrow">ADMINISTRATOR</p><h1>Leadership</h1><p>Create, edit, preview, publish and delete church leadership profiles.</p></div>
+    <button id="add-leader-button" class="publisher-button" type="button">+ ADD PROFILE</button>
+  </div>
+
+  <div id="leadership-editor" class="event-editor" hidden>
+    <div class="event-editor-heading"><div><p class="dashboard-eyebrow">LEADERSHIP EDITOR</p><h2 id="leader-editor-title">Add Profile</h2></div><button id="cancel-leader-button" class="publisher-outline-button" type="button">CANCEL</button></div>
+    <form id="leader-form">
+      <input id="leader-id" type="hidden">
+      <div class="form-grid two-column">
+        <label>FIRST NAME *<input id="leader-first-name" type="text" required></label>
+        <label>LAST NAME<input id="leader-last-name" type="text"></label>
+      </div>
+      <label>TITLE / ROLE *<input id="leader-title" type="text" required placeholder="Pastor, Trustee Chair, Ministry Leader, etc."></label>
+      <label>APPROVED BIOGRAPHY<textarea id="leader-biography" rows="7" placeholder="Public, church-approved biography only."></textarea></label>
+      <label>PROFILE IMAGE PATH<input id="leader-image-url" type="text" placeholder="images/leadership/example.jpg"></label>
+      <div class="form-grid two-column">
+        <label>DISPLAY ORDER<input id="leader-display-order" type="number" min="0" value="0"></label>
+        <label class="publisher-checkbox"><input id="leader-visible" type="checkbox" checked> Publish this profile on the website</label>
+      </div>
+      <p class="privacy-note"><strong>Public information only.</strong> Do not enter personal phone numbers, personal email addresses, home addresses or other private information.</p>
+      <div class="event-editor-actions"><button id="preview-leader-button" class="publisher-outline-button" type="button">PREVIEW</button><button class="publisher-button" type="submit">SAVE PROFILE</button></div>
+    </form>
+  </div>
+
+  <div id="leadership-loading" class="publisher-placeholder"><h2>Loading Leadership</h2><p>Retrieving leadership profiles.</p></div>
+  <div id="leadership-empty" class="publisher-placeholder" hidden><h2>No Profiles Yet</h2><p>Select Add Profile to create the first church leadership profile.</p></div>
+  <div id="leadership-list" class="leadership-publisher-list" hidden></div>
+</section>
+
+
+
+        <!-- =================================================
+             BRANDING
+             ================================================= -->
+
+        <section id="panel-branding"
+                 class="publisher-panel admin-only">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <p class="dashboard-eyebrow">
+                        ADMINISTRATOR
+                    </p>
+
+                    <h1>
+                        Site Branding
+                    </h1>
+
+                    <p>
+                        Manage protected visual elements
+                        of the church website.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+
+            <div class="settings-grid">
+
+
+                <!-- CHURCH LOGO -->
+
+                <article class="settings-card">
+
+                    <h2>
+                        Church Logo
+                    </h2>
+
+                    <img src="../images/FNZ_Emblem.png"
+                         alt="Current church emblem"
+                         class="settings-preview-logo">
+
+                    <p class="upload-note">
+                        PNG recommended. Transparent
+                        background preferred.
+                    </p>
+
+                    <button class="publisher-button"
+                            type="button">
+                        REPLACE LOGO
+                    </button>
+
+                </article>
+
+
+
+                <!-- HOMEPAGE HERO -->
+
+                <article class="settings-card">
+
+                    <h2>
+                        Homepage Hero
+                    </h2>
+
+                    <img src="../images/Church_Front.jpg"
+                         alt="Current church hero"
+                         class="settings-preview-hero">
+
+                    <p class="upload-note">
+                        Wide landscape image recommended.
+                    </p>
+
+                    <button class="publisher-button"
+                            type="button">
+                        REPLACE HERO
+                    </button>
+
+                </article>
+
+
+            </div>
+
+        </section>
+
+
+
+        <!-- =================================================
+             TEAM
+             ================================================= -->
+
+        <section id="panel-team"
+                 class="publisher-panel admin-only">
+
+            <div class="panel-heading">
+
+                <div>
+
+                    <p class="dashboard-eyebrow">
+                        ADMINISTRATOR
+                    </p>
+
+                    <h1>
+                        Team &amp; Roles
+                    </h1>
+
+                    <p>
+                        Manage the people authorized to
+                        update the church website.
+                    </p>
+
+                </div>
+
+
+                <button class="publisher-button"
+                        type="button">
+                    + ADD TEAM MEMBER
+                </button>
+
+            </div>
+
+
+
+            <div class="publisher-placeholder">
+
+                <h2>
+                    Publisher Team
+                </h2>
+
+                <p>
+                    Administrators will be able to add and
+                    remove accounts and assign Publisher
+                    roles here.
+                </p>
+
+                <p>
+                    Legal first and last name and a personal
+                    email address are required for accounts.
+                    Only the first name is required for
+                    public display.
+                </p>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =====================================================
+         FOOTER
+         ===================================================== -->
+
+    <footer class="publisher-footer">
+
+        <span>
+            First New Zion Website Publisher
+        </span>
+
+        <span>
+            Powered by 904°
+        </span>
+
+    </footer>
+
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+         ===================================================== -->
+
+    <script src="js/dashboard.js"></script>
+
+
+</body>
+
+</html>

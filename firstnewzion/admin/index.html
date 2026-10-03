@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>FNZ Website Publisher</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Montserrat:wght@400;500;600;700&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="css/admin.css">
+</head>
+
+<body class="login-page">
+
+    <main class="login-shell">
+
+        <section class="login-card">
+
+            <div class="login-brand">
+
+                <img src="../images/FNZ_Emblem.png"
+                     alt="First New Zion Missionary Baptist Church"
+                     class="login-logo">
+
+                <h1>FIRST NEW ZION</h1>
+
+                <p class="church-title">
+                    Missionary Baptist Church
+                </p>
+
+                <div class="gold-rule"></div>
+
+                <h2>WEBSITE PUBLISHER</h2>
+
+                <p class="login-description">
+                    Authorized church team access
+                </p>
+
+            </div>
+
+
+            <form id="login-form" class="login-form">
+
+                <label for="email">
+                    EMAIL ADDRESS
+                </label>
+
+                <input id="email"
+                       name="email"
+                       type="email"
+                       autocomplete="username"
+                       required>
+
+
+                <label for="password">
+                    PASSWORD
+                </label>
+
+                <input id="password"
+                       name="password"
+                       type="password"
+                       autocomplete="current-password"
+                       required>
+
+
+                <div id="login-error"
+                     class="login-error"
+                     role="alert"
+                     aria-live="polite"></div>
+
+
+                <button id="login-button"
+                        class="publisher-button"
+                        type="submit">
+                    SIGN IN
+                </button>
+
+            </form>
+
+
+            <div class="login-footer">
+
+                <a href="../index.html">
+                    ← Return to First New Zion
+                </a>
+
+                <span>
+                    Website Publisher by 904°
+                </span>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <script src="js/auth.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,1073 @@
+:root {
+    --purple-dark: #260331;
+    --purple: #45135b;
+    --gold: #d4af37;
+    --gold-light: #f1dc76;
+    --green: #355c3a;
+    --tan: #efe4cf;
+    --cream: #faf7f0;
+    --ink: #251f27;
+    --muted: #746c76;
+    --white: #ffffff;
+    --shadow: 0 22px 60px rgba(25, 4, 32, 0.28);
+}
+
+
+* {
+    box-sizing: border-box;
+}
+
+
+html,
+body {
+    margin: 0;
+    min-height: 100%;
+}
+
+
+body {
+    font-family: "Montserrat", Arial, sans-serif;
+    color: var(--ink);
+}
+
+
+/* =========================================================
+   LOGIN
+   ========================================================= */
+
+.login-page {
+    min-height: 100vh;
+    background: linear-gradient( rgba(34, 3, 47, 0.88), rgba(34, 3, 47, 0.94) ), url("../../images/Church_Front.jpg") center / cover fixed;
+    display: flex;
+}
+
+
+.login-shell {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+
+.login-card {
+    width: min(100%, 480px);
+    background: rgba(250, 247, 240, 0.98);
+    border-top: 6px solid var(--gold);
+    box-shadow: var(--shadow);
+    padding: 42px 46px 34px;
+}
+
+
+.login-brand {
+    text-align: center;
+}
+
+
+.login-logo {
+    width: 94px;
+    height: 94px;
+    object-fit: contain;
+    margin-bottom: 14px;
+}
+
+
+.login-brand h1 {
+    margin: 0;
+    color: var(--purple-dark);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: clamp(2.4rem, 8vw, 3.4rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+}
+
+
+.church-title {
+    margin: 8px 0 0;
+    color: var(--purple);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.3rem;
+    font-style: italic;
+}
+
+
+.gold-rule {
+    width: 80px;
+    height: 2px;
+    background: var(--gold);
+    margin: 23px auto 20px;
+}
+
+
+.login-brand h2 {
+    margin: 0;
+    color: var(--green);
+    font-size: 0.92rem;
+    letter-spacing: 0.18em;
+}
+
+
+.login-description {
+    margin: 8px 0 28px;
+    color: var(--muted);
+    font-size: 0.8rem;
+}
+
+
+/* =========================================================
+   FORM
+   ========================================================= */
+
+.login-form {
+    display: grid;
+    gap: 9px;
+}
+
+
+    .login-form label {
+        margin-top: 9px;
+        color: var(--purple-dark);
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+    }
+
+
+    .login-form input {
+        width: 100%;
+        border: 1px solid #cfc5d0;
+        background: var(--white);
+        color: var(--ink);
+        font: inherit;
+        padding: 13px 14px;
+        outline: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+
+        .login-form input:focus {
+            border-color: var(--purple);
+            box-shadow: 0 0 0 3px rgba(69, 19, 91, 0.12);
+        }
+
+
+.publisher-button {
+    margin-top: 18px;
+    border: 0;
+    background: var(--purple-dark);
+    color: var(--gold-light);
+    font-family: "Montserrat", Arial, sans-serif;
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 15px 20px;
+    cursor: pointer;
+    transition: transform 0.12s ease, background 0.12s ease;
+}
+
+
+    .publisher-button:hover {
+        background: var(--purple);
+        transform: translateY(-1px);
+    }
+
+
+    .publisher-button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+        transform: none;
+    }
+
+
+.login-error {
+    min-height: 20px;
+    margin-top: 5px;
+    color: #a22222;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+
+/* =========================================================
+   LOGIN FOOTER
+   ========================================================= */
+
+.login-footer {
+    margin-top: 30px;
+    border-top: 1px solid #ddd3c3;
+    padding-top: 18px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    color: var(--muted);
+    font-size: 0.68rem;
+}
+
+
+    .login-footer a {
+        color: var(--purple);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+
+        .login-footer a:hover {
+            text-decoration: underline;
+        }
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+
+    .login-shell {
+        padding: 18px;
+    }
+
+    .login-card {
+        padding: 32px 24px 26px;
+    }
+
+    .login-logo {
+        width: 78px;
+        height: 78px;
+    }
+
+    .login-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* =========================================================
+   PUBLISHER DASHBOARD
+   ========================================================= */
+
+.dashboard-body {
+    min-height: 100vh;
+    background: var(--cream);
+}
+
+
+/* HEADER */
+
+.publisher-header {
+    min-height: 88px;
+    background: var(--purple-dark);
+    border-bottom: 4px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 14px 5%;
+    color: var(--white);
+}
+
+
+.publisher-brand {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+
+.publisher-logo {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+}
+
+
+.publisher-church-name {
+    color: var(--gold-light);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.65rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.03em;
+}
+
+
+.publisher-church-subtitle {
+    margin-top: 4px;
+    color: rgba(255,255,255,0.82);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1rem;
+    font-style: italic;
+}
+
+
+.publisher-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+
+.publisher-outline-button {
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold-light);
+    padding: 10px 15px;
+    font-family: "Montserrat", Arial, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+}
+
+
+    .publisher-outline-button:hover {
+        background: var(--gold);
+        color: var(--purple-dark);
+    }
+
+
+/* =========================================================
+   DASHBOARD NAVIGATION
+   ========================================================= */
+
+.publisher-nav {
+    min-height: 54px;
+    background: var(--white);
+    border-bottom: 1px solid #ddd4c4;
+    display: flex;
+    justify-content: center;
+    align-items: stretch;
+    padding: 0 4%;
+    box-shadow: 0 4px 16px rgba(38, 3, 49, 0.05);
+}
+
+
+.publisher-nav-button {
+    position: relative;
+    border: 0;
+    background: transparent;
+    color: var(--muted);
+    padding: 0 20px;
+    font-family: "Montserrat", Arial, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+}
+
+
+    .publisher-nav-button:hover {
+        color: var(--purple-dark);
+    }
+
+
+    .publisher-nav-button.active {
+        color: var(--purple-dark);
+    }
+
+
+        .publisher-nav-button.active::after {
+            content: "";
+            position: absolute;
+            left: 18px;
+            right: 18px;
+            bottom: 0;
+            height: 3px;
+            background: var(--gold);
+        }
+
+
+/* =========================================================
+   MAIN AREA
+   ========================================================= */
+
+.publisher-main {
+    width: min(1180px, calc(100% - 40px));
+    margin: 0 auto;
+    padding: 52px 0 80px;
+}
+
+
+.publisher-panel {
+    display: none;
+}
+
+
+    .publisher-panel.active {
+        display: block;
+    }
+
+
+.dashboard-eyebrow {
+    margin: 0 0 7px;
+    color: var(--green);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+}
+
+
+.dashboard-heading,
+.panel-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 35px;
+    margin-bottom: 36px;
+}
+
+
+    .dashboard-heading h1,
+    .panel-heading h1 {
+        margin: 0;
+        color: var(--purple-dark);
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: clamp(2.6rem, 5vw, 4rem);
+        font-weight: 700;
+        line-height: 0.95;
+    }
+
+
+    .dashboard-heading p:last-child,
+    .panel-heading p:last-child {
+        max-width: 650px;
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 0.85rem;
+        line-height: 1.6;
+    }
+
+
+/*
+ * The login button already uses .publisher-button.
+ * These rules make that same button work cleanly
+ * inside the dashboard as a button or link.
+ */
+
+.dashboard-body .publisher-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 0;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+
+/* =========================================================
+   OVERVIEW CARDS
+   ========================================================= */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+
+.dashboard-card {
+    min-height: 230px;
+    border: 1px solid #e0d7c8;
+    border-top: 4px solid var(--gold);
+    background: var(--white);
+    padding: 30px;
+    text-align: left;
+    font-family: "Montserrat", Arial, sans-serif;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(38, 3, 49, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+
+    .dashboard-card:hover {
+        transform: translateY(-3px);
+        border-top-color: var(--purple);
+        box-shadow: 0 14px 34px rgba(38, 3, 49, 0.12);
+    }
+
+
+.dashboard-card-icon {
+    width: 54px;
+    height: 54px;
+    margin-bottom: 22px;
+    border-radius: 50%;
+    background: var(--purple-dark);
+    color: var(--gold-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+
+.dashboard-card h2 {
+    margin: 0 0 10px;
+    color: var(--purple-dark);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.75rem;
+}
+
+
+.dashboard-card p {
+    min-height: 50px;
+    margin: 0 0 22px;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+
+.dashboard-card strong {
+    color: var(--green);
+    font-size: 0.67rem;
+    letter-spacing: 0.08em;
+}
+
+
+/* =========================================================
+   EDITOR PLACEHOLDERS
+   ========================================================= */
+
+.publisher-placeholder {
+    min-height: 280px;
+    border: 1px dashed #c9bdac;
+    background: linear-gradient( 135deg, rgba(239, 228, 207, 0.45), rgba(255,255,255,0.8) );
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 45px;
+    text-align: center;
+}
+
+
+    .publisher-placeholder h2 {
+        margin: 0 0 8px;
+        color: var(--purple-dark);
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 2rem;
+    }
+
+
+    .publisher-placeholder p {
+        max-width: 650px;
+        margin: 6px auto;
+        color: var(--muted);
+        font-size: 0.8rem;
+        line-height: 1.65;
+    }
+
+    .publisher-placeholder[hidden] {
+        display: none;
+    }
+
+
+/* =========================================================
+   BRANDING SETTINGS
+   ========================================================= */
+
+.settings-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 22px;
+}
+
+
+.settings-card {
+    border: 1px solid #ded4c4;
+    background: var(--white);
+    padding: 30px;
+    box-shadow: 0 8px 25px rgba(38, 3, 49, 0.06);
+}
+
+
+    .settings-card h2 {
+        margin: 0 0 22px;
+        color: var(--purple-dark);
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 1.8rem;
+    }
+
+
+.settings-preview-logo {
+    width: 150px;
+    height: 150px;
+    display: block;
+    margin: 10px auto 25px;
+    object-fit: contain;
+}
+
+
+.settings-preview-hero {
+    width: 100%;
+    height: 230px;
+    display: block;
+    object-fit: cover;
+    margin-bottom: 20px;
+}
+
+
+.upload-note {
+    color: var(--muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+}
+
+
+/* =========================================================
+   DASHBOARD FOOTER
+   ========================================================= */
+
+.publisher-footer {
+    min-height: 68px;
+    background: var(--purple-dark);
+    color: rgba(255,255,255,0.65);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 5%;
+    font-size: 0.65rem;
+}
+
+
+/* =========================================================
+   DASHBOARD RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+    .publisher-nav {
+        justify-content: flex-start;
+        overflow-x: auto;
+    }
+
+    .publisher-nav-button {
+        min-height: 54px;
+        flex: 0 0 auto;
+    }
+
+    .dashboard-grid,
+    .settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .publisher-header {
+        align-items: flex-start;
+        padding: 13px 18px;
+    }
+
+    .publisher-logo {
+        width: 46px;
+        height: 46px;
+    }
+
+    .publisher-church-name {
+        font-size: 1.3rem;
+    }
+
+    .publisher-church-subtitle {
+        font-size: 0.85rem;
+    }
+
+    .publisher-header-actions > span {
+        display: none;
+    }
+
+    .publisher-main {
+        width: min(100% - 28px, 1180px);
+        padding-top: 38px;
+    }
+
+    .dashboard-heading,
+    .panel-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .dashboard-card {
+        min-height: auto;
+    }
+
+    .publisher-footer {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+
+/* =========================================================
+   EVENTS PUBLISHER
+   ========================================================= */
+
+.event-editor {
+    margin-bottom: 34px;
+    border: 1px solid #d8cebd;
+    border-top: 5px solid var(--gold);
+    background: var(--white);
+    box-shadow: 0 12px 34px rgba(38, 3, 49, 0.08);
+    padding: 30px;
+}
+
+    .event-editor[hidden] {
+        display: none;
+    }
+
+.event-editor-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+}
+
+    .event-editor-heading h2 {
+        margin: 0;
+        color: var(--purple-dark);
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 2.25rem;
+    }
+
+.event-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.event-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.event-field-wide {
+    grid-column: 1 / -1;
+}
+
+.event-field span {
+    color: var(--purple-dark);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.event-field input,
+.event-field textarea {
+    width: 100%;
+    border: 1px solid #cfc5d0;
+    background: var(--white);
+    color: var(--ink);
+    font-family: "Montserrat", Arial, sans-serif;
+    font-size: 0.85rem;
+    padding: 13px 14px;
+    outline: none;
+}
+
+.event-field textarea {
+    resize: vertical;
+    min-height: 130px;
+    line-height: 1.6;
+}
+
+    .event-field input:focus,
+    .event-field textarea:focus {
+        border-color: var(--purple);
+        box-shadow: 0 0 0 3px rgba(69, 19, 91, 0.10);
+    }
+
+.event-field small {
+    color: var(--muted);
+    font-size: 0.68rem;
+    line-height: 1.5;
+}
+
+.event-publish-row {
+    margin-top: 22px;
+    padding: 18px 0;
+    border-top: 1px solid #e5dccd;
+    border-bottom: 1px solid #e5dccd;
+}
+
+.event-publish-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--green);
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+    .event-publish-toggle input {
+        width: 18px;
+        height: 18px;
+        accent-color: var(--green);
+    }
+
+.event-form-message {
+    min-height: 20px;
+    margin-top: 15px;
+    color: var(--green);
+    font-size: 0.76rem;
+    font-weight: 600;
+}
+
+.event-form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.publisher-secondary-button,
+.publisher-danger-button,
+.publisher-outline-light {
+    border: 1px solid #cfc5d0;
+    background: var(--white);
+    color: var(--purple-dark);
+    font-family: "Montserrat", Arial, sans-serif;
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 12px 16px;
+    cursor: pointer;
+}
+
+    .publisher-secondary-button:hover {
+        border-color: var(--purple);
+        background: var(--cream);
+    }
+
+.publisher-danger-button {
+    border-color: #c98f8f;
+    color: #8f2525;
+}
+
+    .publisher-danger-button:hover {
+        background: #fff2f2;
+    }
+
+.publisher-outline-light {
+    border-color: var(--gold);
+    background: transparent;
+}
+
+    .publisher-outline-light:hover {
+        background: var(--gold);
+        color: var(--purple-dark);
+    }
+
+
+/* =========================================================
+   EVENT LIST
+   ========================================================= */
+
+.events-admin-list {
+    display: grid;
+    gap: 16px;
+}
+
+    .events-admin-list[hidden] {
+        display: none;
+    }
+
+.event-admin-card {
+    display: grid;
+    grid-template-columns: 105px minmax(0, 1fr);
+    border: 1px solid #ded4c4;
+    background: var(--white);
+    box-shadow: 0 7px 22px rgba(38, 3, 49, 0.05);
+}
+
+.event-admin-date {
+    min-height: 160px;
+    background: var(--purple-dark);
+    color: var(--white);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+    .event-admin-date strong {
+        color: var(--gold-light);
+        font-size: 0.72rem;
+        letter-spacing: 0.14em;
+    }
+
+    .event-admin-date span {
+        margin-top: 3px;
+        font-family: "Cormorant Garamond", Georgia, serif;
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+.event-admin-content {
+    padding: 24px 26px;
+}
+
+.event-admin-title-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+}
+
+.event-admin-content h2 {
+    margin: 7px 0 8px;
+    color: var(--purple-dark);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.8rem;
+}
+
+.event-status {
+    display: inline-block;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    padding: 5px 8px;
+}
+
+    .event-status.published {
+        background: rgba(53, 92, 58, 0.12);
+        color: var(--green);
+    }
+
+    .event-status.draft {
+        background: rgba(116, 108, 118, 0.12);
+        color: var(--muted);
+    }
+
+.event-admin-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 18px;
+    color: var(--green);
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.event-admin-content > p {
+    margin: 14px 0 0;
+    color: var(--muted);
+    font-size: 0.78rem;
+    line-height: 1.6;
+}
+
+.event-admin-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    margin-top: 20px;
+}
+
+
+/* =========================================================
+   EVENTS RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 700px) {
+
+    .event-editor {
+        padding: 22px 18px;
+    }
+
+    .event-editor-heading {
+        flex-direction: column;
+    }
+
+    .event-form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .event-field-wide {
+        grid-column: auto;
+    }
+
+    .event-form-actions {
+        justify-content: stretch;
+        flex-direction: column;
+    }
+
+        .event-form-actions button {
+            width: 100%;
+        }
+
+    .event-admin-card {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .event-admin-date {
+        min-height: 150px;
+    }
+
+        .event-admin-date span {
+            font-size: 2.25rem;
+        }
+
+    .event-admin-content {
+        padding: 20px 18px;
+    }
+}
+
+/* =========================================================
+   LEADERSHIP PUBLISHER
+   Public profile management. Never store personal contact data.
+   ========================================================= */
+
+.leadership-publisher-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.leadership-publisher-list[hidden],
+#leadership-editor[hidden],
+.publisher-placeholder[hidden] {
+    display: none;
+}
+
+.leadership-publisher-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #ded3c1;
+}
+
+.leadership-publisher-card h3 {
+    margin: 8px 0 4px;
+    color: #2d0338;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.6rem;
+}
+
+.leadership-publisher-card p { margin: 0; }
+
+.privacy-note {
+    margin: 18px 0;
+    padding: 14px 16px;
+    border-left: 4px solid #c89b2b;
+    background: #fbf7eb;
+    color: #5d5140;
+    font-size: .86rem;
+}
+
+@media (max-width: 720px) {
+    .leadership-publisher-card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
