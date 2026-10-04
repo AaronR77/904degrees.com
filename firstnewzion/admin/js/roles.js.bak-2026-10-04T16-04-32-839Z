@@ -1,6 +1,6 @@
-"use strict";
+﻿"use strict";
 
-/* FNZ_ROLE_SYSTEM_V3_MANY_HATS
+/* FNZ_ROLE_SYSTEM_V1
  * Website Publisher role/scoping UI.
  * Security is enforced by the Worker. This file only mirrors permissions in the UI.
  */
@@ -13,12 +13,10 @@
     let currentUser = null;
     let pendingRequests = [];
     let eventWorkflow = new Map();
-    let ministryOptions = [];
-    let teamCapabilities = {};
 
     document.addEventListener("DOMContentLoaded", initializeRoleSystem);
 
-async function initializeRoleSystem() {
+    async function initializeRoleSystem() {
         const token = sessionStorage.getItem(TOKEN_KEY);
         if (!token) return;
 
@@ -32,11 +30,14 @@ async function initializeRoleSystem() {
             applyRoleVisibility();
             decorateUserIdentity();
 
-            if (hasPermission("team.view")) {
-                await loadMinistryOptions();
+            // Owner controls are critical. Build Team & Roles first so a
+            // failure in an unrelated content module can never leave the
+            // Add Team Member button as the old inert dashboard stub.
+            if (hasPermission("team.manage")) {
                 await buildTeamAndRolesPanel();
             }
 
+            // installTeamButtonFallback(); // disabled: real Owner panel is active
             configureEventPublisherControls();
             enforceMinistryScopes();
             ensureMinistryEventSelector();
@@ -51,8 +52,7 @@ async function initializeRoleSystem() {
                 showRequiredPasswordChange();
             }
 
-            // Deliberately no MutationObserver here. The prior observer could
-            // create a self-triggering hidden-attribute loop in Firefox.
+            // observeDynamicPublisherUi(); // disabled: Firefox freeze
         }
         catch (error) {
             console.warn("FNZ access controls could not initialize:", error.message);
@@ -63,25 +63,6 @@ async function initializeRoleSystem() {
         return Boolean(currentUser?.permissions?.includes(permission));
     }
 
-    function currentRoles() {
-        const roles = Array.isArray(currentUser?.roles) && currentUser.roles.length
-            ? currentUser.roles
-            : [currentUser?.role || "viewer"];
-
-        return [...new Set(roles.map(role => String(role || "").toLowerCase()))];
-    }
-
-    function hasRole(role) {
-        return currentRoles().includes(String(role || "").toLowerCase());
-    }
-
-    function currentRoleLabels() {
-        if (Array.isArray(currentUser?.roleLabels) && currentUser.roleLabels.length) {
-            return currentUser.roleLabels;
-        }
-
-        return currentRoles().map(roleLabel);
-    }
     async function api(path, options = {}) {
         const token = sessionStorage.getItem(TOKEN_KEY);
         const headers = {
@@ -107,13 +88,10 @@ async function initializeRoleSystem() {
         return data;
     }
 
-function decorateUserIdentity() {
-        const labels = currentRoleLabels();
-        const summary = labels.join(" + ");
-
+    function decorateUserIdentity() {
         const display = document.getElementById("user-display-name");
         if (display && currentUser) {
-            display.textContent = `${currentUser.firstName} · ${summary}`;
+            display.textContent = `${currentUser.firstName} Â· ${currentUser.roleLabel || roleLabel(currentUser.role)}`;
         }
 
         const headerActions = document.querySelector(".publisher-header-actions");
@@ -121,8 +99,7 @@ function decorateUserIdentity() {
             const pill = document.createElement("span");
             pill.id = "rbac-role-pill";
             pill.className = "rbac-role-pill";
-            pill.textContent = summary;
-            pill.title = labels.join(", ");
+            pill.textContent = currentUser.roleLabel || roleLabel(currentUser.role);
             headerActions.insertBefore(pill, headerActions.firstChild);
         }
     }
@@ -137,34 +114,24 @@ function decorateUserIdentity() {
         })[role] || "Viewer";
     }
 
-function allowedPanelsForRole() {
-        if (hasRole("owner")) return null;
-
-        const allowed = new Set(["overview"]);
-
-        if (hasRole("administrator")) {
-            [
-                "events", "gallery", "media", "worship-media",
-                "ministries", "ministry", "leadership", "branding", "team"
-            ].forEach(panel => allowed.add(panel));
-
-            return allowed;
-        }
-
-        if (hasRole("media_team")) {
-            ["events", "gallery", "media", "worship-media"].forEach(panel => allowed.add(panel));
-        }
-
-        if (hasRole("ministry_leader")) {
-            ["events", "ministries", "ministry"].forEach(panel => allowed.add(panel));
-        }
-
-        return allowed;
+    function allowedPanelsForRole(role) {
+        if (role === "owner") return null; // null = all panels
+        if (role === "administrator") return new Set([
+            "overview", "events", "gallery", "media", "worship-media",
+            "ministries", "ministry", "leadership", "branding"
+        ]);
+        if (role === "media_team") return new Set([
+            "overview", "events", "gallery", "media", "worship-media"
+        ]);
+        if (role === "ministry_leader") return new Set([
+            "overview", "events", "ministries", "ministry"
+        ]);
+        return new Set(["overview"]);
     }
 
-function applyRoleVisibility() {
+    function applyRoleVisibility() {
         if (!currentUser) return;
-        const allowed = allowedPanelsForRole();
+        const allowed = allowedPanelsForRole(currentUser.role);
 
         document.querySelectorAll("[data-panel]").forEach(element => {
             const panel = String(element.dataset.panel || "").toLowerCase();
@@ -179,8 +146,14 @@ function applyRoleVisibility() {
             if (!canSee) panel.classList.remove("active");
         });
 
-        if (!hasPermission("team.view")) {
+        // Team & Roles is intentionally Owner-only.
+        if (!hasPermission("team.manage")) {
             hidePanelByName("team");
+        }
+
+        // Administrators may edit through branding, but cannot alter roles/ownership.
+        if (currentUser.role === "administrator") {
+            document.querySelectorAll("[data-open-panel='team'], [data-panel='team'], #panel-team").forEach(el => el.hidden = true);
         }
 
         const activeVisible = document.querySelector(".publisher-panel.active:not([hidden])");
@@ -197,10 +170,8 @@ function applyRoleVisibility() {
         });
     }
 
-function enforceMinistryScopes() {
-        if (!hasRole("ministry_leader")) return;
-        if (hasRole("owner") || hasRole("administrator")) return;
-
+    function enforceMinistryScopes() {
+        if (currentUser?.role !== "ministry_leader") return;
         const allowedKeys = new Set(
             (currentUser.scopes || [])
                 .filter(scope => scope.type === "ministry")
@@ -208,12 +179,9 @@ function enforceMinistryScopes() {
         );
 
         const selectors = ["[data-ministry-key]", "[data-ministry]", "[data-scope-key]"];
-
         document.querySelectorAll(selectors.join(",")).forEach(element => {
             const raw = element.dataset.ministryKey || element.dataset.ministry || element.dataset.scopeKey || "";
-            if (raw && !allowedKeys.has(normalizeKey(raw))) {
-                element.hidden = true;
-            }
+            if (raw && !allowedKeys.has(normalizeKey(raw))) element.hidden = true;
         });
     }
 
@@ -226,9 +194,8 @@ function enforceMinistryScopes() {
             .replace(/^-+|-+$/g, "");
     }
 
-function ensureMinistryEventSelector() {
-        if (!hasRole("ministry_leader")) return;
-        if (hasRole("owner") || hasRole("administrator")) return;
+    function ensureMinistryEventSelector() {
+        if (currentUser?.role !== "ministry_leader") return;
         if (document.getElementById("rbac-event-ministry")) return;
 
         const scopes = (currentUser.scopes || []).filter(scope => scope.type === "ministry");
@@ -237,29 +204,16 @@ function ensureMinistryEventSelector() {
         const grid = document.querySelector("#event-form .event-form-grid");
         if (!grid) return;
 
-        const ministryRequired = !hasRole("media_team");
-
         const label = document.createElement("label");
         label.className = "event-field event-field-wide";
         label.id = "rbac-event-ministry-field";
         label.innerHTML = `
-            <span>MINISTRY${ministryRequired ? " *" : " (OPTIONAL)"}</span>
-            <select id="rbac-event-ministry" ${ministryRequired ? "required" : ""}>
-                ${ministryRequired ? "" : `<option value="">No ministry / general media item</option>`}
-                ${scopes.map(scope => {
-                    const key = normalizeKey(scope.key);
-                    const option = ministryOptions.find(item => item.key === key);
-                    const labelText = option?.label || prettyKey(scope.key);
-                    return `<option value="${escapeAttribute(scope.key)}">${escapeHtml(labelText)}</option>`;
-                }).join("")}
+            <span>MINISTRY *</span>
+            <select id="rbac-event-ministry" required>
+                ${scopes.map(scope => `<option value="${escapeAttribute(scope.key)}">${escapeHtml(prettyKey(scope.key))}</option>`).join("")}
             </select>
-            <small>
-                ${ministryRequired
-                    ? "This event will be submitted under the selected assigned ministry."
-                    : "Choose a ministry when this item belongs to one of your ministry assignments."}
-            </small>
+            <small>This event will be submitted under the selected assigned ministry.</small>
         `;
-
         grid.prepend(label);
     }
 
@@ -269,177 +223,9 @@ function ensureMinistryEventSelector() {
             .join(" ");
     }
 
-    async function loadMinistryOptions() {
-        const fallbackLabels = ["Christian Education", "Youth / Benjamin Tribe", "Music Ministry", "Evangelism Ministry", "Shepherd’s Care Ministry", "Women’s Ministry", "Men’s Ministry", "Senior Saints Ministry", "Deacons Ministry", "Deaconesses Ministry", "Ushers Ministry", "Hospitality Ministry", "Culinary Ministry", "Health & Wellness Ministry", "Veterans & Military Affairs", "Security Ministry", "Angel Tree Ministry", "Tribal Ministries"];
-
-        try {
-            const data = await api("/api/ministries");
-            const raw = Array.isArray(data?.ministries)
-                ? data.ministries
-                : (Array.isArray(data) ? data : []);
-
-            const parsed = raw.map(item => {
-                const label = String(
-                    item?.name ??
-                    item?.title ??
-                    item?.display_name ??
-                    item?.ministry_name ??
-                    ""
-                ).trim();
-
-                const rawKey = String(
-                    item?.key ??
-                    item?.slug ??
-                    item?.ministry_key ??
-                    label
-                ).trim();
-
-                return {
-                    key: normalizeKey(rawKey),
-                    label: label || prettyKey(rawKey)
-                };
-            }).filter(item => item.key && item.label);
-
-            if (parsed.length) {
-                ministryOptions = parsed;
-                return;
-            }
-        }
-        catch (error) {
-            console.warn("Using FNZ ministry fallback list:", error.message);
-        }
-
-        ministryOptions = fallbackLabels.map(label => ({
-            key: normalizeKey(label),
-            label
-        }));
-    }
-
-    function selectedRolesFrom(container) {
-        if (!container) return [];
-
-        const roles = [...container.querySelectorAll("[data-role-choice]:checked")]
-            .map(input => input.value)
-            .filter(Boolean);
-
-        if (roles.length > 1 && roles.includes("viewer")) {
-            return roles.filter(role => role !== "viewer");
-        }
-
-        return roles;
-    }
-
-    function ministryScopesFrom(container) {
-        if (!container) return [];
-
-        return [...container.querySelectorAll("[data-ministry-choice]:checked")]
-            .map(input => normalizeKey(input.value))
-            .filter(Boolean)
-            .filter((value, index, array) => array.indexOf(value) === index)
-            .map(key => ({ type: "ministry", key }));
-    }
-
-function ministryPickerHtml(selectedKeys = [], pickerId = "") {
-        const selected = new Set((selectedKeys || []).map(normalizeKey));
-        const optionMap = new Map(ministryOptions.map(item => [item.key, item]));
-        const options = [...ministryOptions];
-
-        for (const key of selected) {
-            if (!optionMap.has(key)) {
-                options.push({
-                    key,
-                    label: prettyKey(key)
-                });
-            }
-        }
-
-        const selectedCount = selected.size;
-        const summary = selectedCount
-            ? `${selectedCount} ministr${selectedCount === 1 ? "y" : "ies"} selected`
-            : "Choose ministries";
-
-        return `
-            <details class="rbac-multi-select" ${pickerId ? `id="${escapeAttribute(pickerId)}"` : ""}>
-                <summary data-ministry-summary>${escapeHtml(summary)}</summary>
-                <div class="rbac-multi-options">
-                    ${options.map(item => `
-                        <label>
-                            <input
-                                type="checkbox"
-                                data-ministry-choice
-                                value="${escapeAttribute(item.key)}"
-                                ${selected.has(item.key) ? "checked" : ""}>
-                            <span>${escapeHtml(item.label)}</span>
-                        </label>
-                    `).join("")}
-                </div>
-            </details>
-        `;
-    }
-
-    function updateMinistryPickerSummary(container) {
-        const details = container?.matches?.(".rbac-multi-select")
-            ? container
-            : container?.querySelector?.(".rbac-multi-select");
-
-        if (!details) return;
-
-        const count = details.querySelectorAll("[data-ministry-choice]:checked").length;
-        const summary = details.querySelector("[data-ministry-summary]");
-
-        if (summary) {
-            summary.textContent = count
-                ? `${count} ministr${count === 1 ? "y" : "ies"} selected`
-                : "Choose ministries";
-        }
-    }
-
-    function bindMinistryPicker(container) {
-        if (!container) return;
-
-        container.querySelectorAll("[data-ministry-choice]").forEach(input => {
-            input.addEventListener("change", () => updateMinistryPickerSummary(container));
-        });
-
-        updateMinistryPickerSummary(container);
-    }
-
-    function roleCheckboxesHtml(selectedRoles = [], disabled = false, prefix = "role") {
-        const selected = new Set(selectedRoles || []);
-
-        return `
-            <div class="rbac-role-checks" data-role-picker>
-                ${[
-                    ["administrator", "Administrator"],
-                    ["media_team", "Media Team"],
-                    ["ministry_leader", "Ministry Leader"],
-                    ["viewer", "Viewer"]
-                ].map(([value, label]) => `
-                    <label>
-                        <input
-                            type="checkbox"
-                            data-role-choice
-                            value="${value}"
-                            name="${escapeAttribute(prefix)}"
-                            ${selected.has(value) ? "checked" : ""}
-                            ${disabled ? "disabled" : ""}>
-                        <span>${label}</span>
-                    </label>
-                `).join("")}
-            </div>
-        `;
-    }
-
-    function rolesSummaryHtml(roles = []) {
-        return `<div class="rbac-role-tags">${(roles || []).map(role => `
-            <span class="rbac-role-tag">${escapeHtml(roleLabel(role))}</span>
-        `).join("")}</div>`;
-    }
-
-function installEventScopeFetchBridge() {
+    function installEventScopeFetchBridge() {
         if (window.__fnzRoleFetchBridgeInstalled) return;
-        if (!hasRole("ministry_leader")) return;
-        if (hasRole("owner") || hasRole("administrator")) return;
+        if (currentUser?.role !== "ministry_leader") return;
 
         const originalFetch = window.fetch.bind(window);
         window.__fnzRoleFetchBridgeInstalled = true;
@@ -454,18 +240,13 @@ function installEventScopeFetchBridge() {
                 if (isEventWrite && typeof init.body === "string") {
                     const data = JSON.parse(init.body);
                     const selector = document.getElementById("rbac-event-ministry");
-
-                    if (selector?.value) {
-                        data.ministry_key = selector.value;
-                    }
-
+                    if (selector?.value) data.ministry_key = selector.value;
                     init = { ...init, body: JSON.stringify(data) };
                 }
             }
             catch (_) {
                 // Preserve the original request if the body is not JSON.
             }
-
             return originalFetch(input, init);
         };
     }
@@ -514,14 +295,42 @@ function installEventScopeFetchBridge() {
     }
 
     function observeDynamicPublisherUi() {
+        const observerOptions = {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ["hidden"]
+        };
+
+        let refreshQueued = false;
+
         const observer = new MutationObserver(() => {
-            applyRoleVisibility();
-            configureEventPublisherControls();
-            enforceMinistryScopes();
-            markPendingEventCards();
+            if (refreshQueued) return;
+            refreshQueued = true;
+
+            window.requestAnimationFrame(() => {
+                /*
+                 * Disconnect while we mirror permissions into the DOM.
+                 * Those updates intentionally change `hidden` attributes and
+                 * status text. Observing our own changes caused an infinite
+                 * MutationObserver loop when Add Team Member opened.
+                 */
+                observer.disconnect();
+
+                try {
+                    applyRoleVisibility();
+                    configureEventPublisherControls();
+                    enforceMinistryScopes();
+                    markPendingEventCards();
+                }
+                finally {
+                    observer.observe(document.body, observerOptions);
+                    refreshQueued = false;
+                }
+            });
         });
 
-        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
+        observer.observe(document.body, observerOptions);
     }
 
     async function loadPublicationQueue() {
@@ -590,7 +399,7 @@ function installEventScopeFetchBridge() {
                 ${pendingRequests.map(item => `
                     <article class="rbac-request" data-request-id="${item.id}">
                         <div class="rbac-request-copy">
-                            <div class="rbac-request-meta">${escapeHtml(item.entityType.toUpperCase())} · submitted by ${escapeHtml(item.submittedBy)}</div>
+                            <div class="rbac-request-meta">${escapeHtml(item.entityType.toUpperCase())} Â· submitted by ${escapeHtml(item.submittedBy)}</div>
                             <h3>${escapeHtml(item.title)}</h3>
                             <p>${formatRequestDate(item)}</p>
                             ${item.scopeKey ? `<span class="rbac-scope">${escapeHtml(item.scopeKey)}</span>` : ""}
@@ -617,7 +426,7 @@ function installEventScopeFetchBridge() {
         if (date && !Number.isNaN(date.getTime())) parts.push(date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }));
         if (item.eventTime) parts.push(item.eventTime);
         if (item.location) parts.push(item.location);
-        return escapeHtml(parts.join(" · ") || "Ready for review");
+        return escapeHtml(parts.join(" Â· ") || "Ready for review");
     }
 
     async function handleQueueAction(event) {
@@ -741,148 +550,108 @@ function installEventScopeFetchBridge() {
     }
 
 
-function installTeamButtonFallback() {
-        // No fallback handler. The Team & Roles panel owns its buttons directly.
+    function installTeamButtonFallback() {
+        if (window.__fnzTeamButtonFallbackInstalled) return;
+        window.__fnzTeamButtonFallbackInstalled = true;
+
+        document.addEventListener("click", async event => {
+            const button = event.target.closest("button");
+            if (!button) return;
+
+            const text = String(button.textContent || "")
+                .replace(/\s+/g, " ")
+                .trim()
+                .toUpperCase();
+
+            const isAddTeamButton =
+                button.id === "rbac-add-member" ||
+                text === "+ ADD TEAM MEMBER" ||
+                text === "ADD TEAM MEMBER";
+
+            if (!isAddTeamButton || !hasPermission("team.manage")) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            let form = document.getElementById("rbac-add-member-form");
+            if (!form) {
+                await buildTeamAndRolesPanel();
+                form = document.getElementById("rbac-add-member-form");
+            }
+
+            if (form) {
+                form.hidden = false;
+                // Firefox-safe: no automatic scrolling
+                // Firefox-safe: no automatic focus
+            }
+        }, true);
     }
 
-async function buildTeamAndRolesPanel() {
+    async function buildTeamAndRolesPanel() {
         const panel = document.getElementById("panel-team");
         if (!panel) return;
-
-        const canAdd = hasPermission("team.manage");
-        const canChangeSettings = hasPermission("access.settings");
-        const canTransfer = hasPermission("ownership.transfer");
 
         panel.hidden = false;
         panel.innerHTML = `
             <div class="panel-heading rbac-team-heading">
                 <div>
-                    <p class="dashboard-eyebrow">${canAdd ? "OWNER" : "ADMINISTRATOR"}</p>
+                    <p class="dashboard-eyebrow">OWNER</p>
                     <h1>Team &amp; Roles</h1>
-                    <p>
-                        ${canAdd
-                            ? "One person can wear multiple hats. Assign any combination of roles and ministry responsibilities."
-                            : "View church accounts and remove lower-level accounts when necessary. Role assignments remain Owner-controlled."}
-                    </p>
+                    <p>Only the Owner can promote, demote or deactivate accounts. The Owner does not count toward the Administrator limit.</p>
                 </div>
-                ${canAdd
-                    ? `<button id="rbac-add-member" class="publisher-button" type="button">+ ADD TEAM MEMBER</button>`
-                    : ""}
+                <button id="rbac-add-member" class="publisher-button" type="button">+ ADD TEAM MEMBER</button>
             </div>
 
             <div class="rbac-access-summary">
                 <div>
                     <span class="rbac-kicker">ADMINISTRATOR LIMIT</span>
-                    <strong id="rbac-admin-count">—</strong>
+                    <strong id="rbac-admin-count">â€”</strong>
                 </div>
                 <label>
                     <span>Maximum Administrators</span>
-                    <select id="rbac-admin-limit" ${canChangeSettings ? "" : "disabled"}>
-                        <option value="3">3</option>
-                        <option value="4">4</option>
-                    </select>
+                    <select id="rbac-admin-limit"><option value="3">3</option><option value="4">4</option></select>
                 </label>
             </div>
 
-            ${canAdd ? `
-                <form id="rbac-add-member-form" class="rbac-form" hidden>
-                    <div class="rbac-form-heading">
-                        <h2>Add Team Member</h2>
-                        <button id="rbac-close-member" type="button">CANCEL</button>
-                    </div>
+            <form id="rbac-add-member-form" class="rbac-form" hidden>
+                <div class="rbac-form-heading"><h2>Add Team Member</h2><button id="rbac-close-member" type="button">CANCEL</button></div>
+                <div class="rbac-form-grid">
+                    <label><span>FIRST NAME *</span><input id="rbac-first-name" required maxlength="80"></label>
+                    <label><span>LAST NAME *</span><input id="rbac-last-name" required maxlength="80"></label>
+                    <label class="rbac-wide"><span>PERSONAL EMAIL *</span><input id="rbac-email" type="email" required maxlength="200"></label>
+                    <label><span>ROLE *</span><select id="rbac-role"><option value="viewer">Viewer</option><option value="ministry_leader">Ministry Leader</option><option value="media_team">Media Team</option><option value="administrator">Administrator</option></select></label>
+                    <label><span>TEMPORARY PASSWORD *</span><input id="rbac-temp-password" type="password" minlength="12" required autocomplete="new-password"></label>
+                    <label id="rbac-ministry-scope-row" class="rbac-wide" hidden><span>ASSIGNED MINISTRIES</span><input id="rbac-ministry-scopes" placeholder="Youth Ministry, Ushers, Music Ministry"><small>Separate multiple ministries with commas. Names are converted to stable ministry keys.</small></label>
+                </div>
+                <div id="rbac-team-message" class="rbac-message"></div>
+                <button class="publisher-button" type="submit">CREATE ACCOUNT</button>
+            </form>
 
-                    <div class="rbac-form-grid">
-                        <label>
-                            <span>FIRST NAME *</span>
-                            <input id="rbac-first-name" required maxlength="80">
-                        </label>
+            <div id="rbac-team-list" class="rbac-team-list"><p class="rbac-muted">Loading teamâ€¦</p></div>
 
-                        <label>
-                            <span>LAST NAME *</span>
-                            <input id="rbac-last-name" required maxlength="80">
-                        </label>
-
-                        <label class="rbac-wide">
-                            <span>PERSONAL EMAIL *</span>
-                            <input id="rbac-email" type="email" required maxlength="200">
-                        </label>
-
-                        <div class="rbac-field rbac-wide">
-                            <span class="rbac-field-label">ROLE ASSIGNMENTS *</span>
-                            ${roleCheckboxesHtml(["viewer"], false, "new-member-role")}
-                            <small>One person can have multiple role assignments.</small>
-                        </div>
-
-                        <label>
-                            <span>TEMPORARY PASSWORD *</span>
-                            <input id="rbac-temp-password" type="password" minlength="12" required autocomplete="new-password">
-                        </label>
-
-                        <div id="rbac-ministry-scope-row" class="rbac-field rbac-wide" hidden>
-                            <span class="rbac-field-label">ASSIGNED MINISTRIES *</span>
-                            ${ministryPickerHtml([], "rbac-new-member-ministries")}
-                            <small>Select every ministry this person leads. No typing required.</small>
-                        </div>
-                    </div>
-
-                    <div id="rbac-team-message" class="rbac-message"></div>
-                    <button class="publisher-button" type="submit">CREATE ACCOUNT</button>
-                </form>
-            ` : ""}
-
-            <div id="rbac-team-list" class="rbac-team-list">
-                <p class="rbac-muted">Loading team…</p>
-            </div>
-
-            ${canTransfer ? `
-                <section class="rbac-transfer-box">
-                    <div>
-                        <span class="rbac-kicker">OWNERSHIP</span>
-                        <h2>Transfer Ownership</h2>
-                        <p>The new person becomes Owner. Your account automatically becomes an Administrator.</p>
-                    </div>
-                    <div class="rbac-transfer-controls">
-                        <select id="rbac-new-owner"></select>
-                        <button id="rbac-transfer-owner" type="button" class="publisher-secondary-button">
-                            TRANSFER OWNERSHIP
-                        </button>
-                    </div>
-                </section>
-            ` : ""}
+            <section class="rbac-transfer-box">
+                <div><span class="rbac-kicker">OWNERSHIP</span><h2>Transfer Ownership</h2><p>The new person becomes Owner. Your account automatically becomes an Administrator.</p></div>
+                <div class="rbac-transfer-controls"><select id="rbac-new-owner"></select><button id="rbac-transfer-owner" type="button" class="publisher-secondary-button">TRANSFER OWNERSHIP</button></div>
+            </section>
         `;
 
         document.getElementById("rbac-add-member")?.addEventListener("click", () => {
             setHidden("rbac-add-member-form", false);
+            // Firefox-safe: no automatic scrolling
+            // Firefox-safe: no automatic focus
         });
-
-        document.getElementById("rbac-close-member")?.addEventListener("click", () => {
-            setHidden("rbac-add-member-form", true);
-        });
-
-        document.querySelectorAll("#rbac-add-member-form [data-role-choice]").forEach(input => {
-            input.addEventListener("change", updateMinistryScopeVisibility);
-        });
-
+        document.getElementById("rbac-close-member")?.addEventListener("click", () => setHidden("rbac-add-member-form", true));
+        document.getElementById("rbac-role")?.addEventListener("change", updateMinistryScopeVisibility);
         document.getElementById("rbac-add-member-form")?.addEventListener("submit", createTeamMember);
-
-        if (canChangeSettings) {
-            document.getElementById("rbac-admin-limit")?.addEventListener("change", updateAdminLimit);
-        }
-
+        document.getElementById("rbac-admin-limit")?.addEventListener("change", updateAdminLimit);
         document.getElementById("rbac-transfer-owner")?.addEventListener("click", transferOwnership);
-
-        bindMinistryPicker(document.getElementById("rbac-new-member-ministries"));
-        updateMinistryScopeVisibility();
 
         await refreshTeamPanel();
     }
 
-function updateMinistryScopeVisibility() {
-        const form = document.getElementById("rbac-add-member-form");
-        if (!form) return;
-
-        const roles = selectedRolesFrom(form);
-        setHidden("rbac-ministry-scope-row", !roles.includes("ministry_leader"));
+    function updateMinistryScopeVisibility() {
+        const role = document.getElementById("rbac-role")?.value;
+        setHidden("rbac-ministry-scope-row", role !== "ministry_leader");
     }
 
     function setHidden(id, hidden) {
@@ -890,7 +659,7 @@ function updateMinistryScopeVisibility() {
         if (element) element.hidden = hidden;
     }
 
-function scopesFromText(text) {
+    function scopesFromText(text) {
         return String(text || "").split(",")
             .map(value => normalizeKey(value))
             .filter(Boolean)
@@ -898,55 +667,25 @@ function scopesFromText(text) {
             .map(key => ({ type: "ministry", key }));
     }
 
-async function createTeamMember(event) {
+    async function createTeamMember(event) {
         event.preventDefault();
-
         const form = event.currentTarget;
         const message = document.getElementById("rbac-team-message");
-        const roles = selectedRolesFrom(form);
-        const ministryPicker = document.getElementById("rbac-new-member-ministries");
-        const scopes = roles.includes("ministry_leader")
-            ? ministryScopesFrom(ministryPicker)
-            : [];
-
-        if (!roles.length) {
-            message.textContent = "Choose at least one role assignment.";
-            return;
-        }
-
-        if (roles.includes("ministry_leader") && !scopes.length) {
-            message.textContent = "Choose at least one ministry for a Ministry Leader.";
-            return;
-        }
-
+        const role = document.getElementById("rbac-role").value;
         const body = {
             firstName: document.getElementById("rbac-first-name").value.trim(),
             lastName: document.getElementById("rbac-last-name").value.trim(),
             email: document.getElementById("rbac-email").value.trim(),
             temporaryPassword: document.getElementById("rbac-temp-password").value,
-            roles,
-            scopes
+            role,
+            scopes: role === "ministry_leader" ? scopesFromText(document.getElementById("rbac-ministry-scopes").value) : []
         };
 
-        message.textContent = "Creating account…";
-
+        message.textContent = "Creating accountâ€¦";
         try {
-            const data = await api("/api/team", {
-                method: "POST",
-                body: JSON.stringify(body)
-            });
-
+            const data = await api("/api/team", { method: "POST", body: JSON.stringify(body) });
             message.textContent = data.message;
             form.reset();
-
-            const viewer = form.querySelector('[data-role-choice][value="viewer"]');
-            if (viewer) viewer.checked = true;
-
-            form.querySelectorAll("[data-ministry-choice]").forEach(input => {
-                input.checked = false;
-            });
-
-            updateMinistryPickerSummary(ministryPicker);
             updateMinistryScopeVisibility();
             await refreshTeamPanel();
         }
@@ -955,195 +694,89 @@ async function createTeamMember(event) {
         }
     }
 
-async function refreshTeamPanel() {
+    async function refreshTeamPanel() {
         const [teamData, settingsData] = await Promise.all([
             api("/api/team"),
             api("/api/access/settings")
         ]);
 
         const team = teamData.team || [];
-        teamCapabilities = teamData.capabilities || {};
-
         const settings = settingsData.settings;
         const count = document.getElementById("rbac-admin-count");
         const limit = document.getElementById("rbac-admin-limit");
-
-        if (count) {
-            count.textContent = `${settings.administratorCount} OF ${settings.maxAdministrators} USED`;
-        }
-
-        if (limit) {
-            limit.value = String(settings.maxAdministrators);
-        }
+        if (count) count.textContent = `${settings.administratorCount} OF ${settings.maxAdministrators} USED`;
+        if (limit) limit.value = String(settings.maxAdministrators);
 
         renderTeamList(team);
         renderOwnershipCandidates(team);
     }
 
-function renderTeamList(team) {
+    function renderTeamList(team) {
         const list = document.getElementById("rbac-team-list");
         if (!list) return;
 
-        const canManageRoles = Boolean(teamCapabilities.canManageRoles);
-
         list.innerHTML = team.map(member => {
-            const memberRoles = Array.isArray(member.roles) && member.roles.length
-                ? member.roles
-                : [member.role || "viewer"];
-
-            const isOwner = memberRoles.includes("owner");
-            const ministryKeys = (member.scopes || [])
-                .filter(scope => scope.type === "ministry")
-                .map(scope => normalizeKey(scope.key));
-
-            const canDelete =
-                !isOwner
-                && Number(member.id) !== Number(currentUser?.id)
-                && (
-                    teamCapabilities.canDeleteAnyNonOwner
-                    || (
-                        teamCapabilities.canDeleteLower
-                        && !memberRoles.includes("administrator")
-                    )
-                );
-
+            const isOwner = member.role === "owner";
+            const scopes = (member.scopes || []).filter(x => x.type === "ministry").map(x => x.key).join(", ");
             return `
                 <article class="rbac-member" data-user-id="${member.id}">
                     <div class="rbac-member-identity">
-                        <div class="rbac-avatar">
-                            ${escapeHtml((member.firstName?.[0] || "?") + (member.lastName?.[0] || ""))}
-                        </div>
-                        <div>
-                            <h3>${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)}</h3>
-                            <p>${escapeHtml(member.email)}</p>
-                        </div>
+                        <div class="rbac-avatar">${escapeHtml((member.firstName?.[0] || "?") + (member.lastName?.[0] || ""))}</div>
+                        <div><h3>${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)}</h3><p>${escapeHtml(member.email)}</p></div>
                     </div>
-
                     <div class="rbac-member-controls">
-                        <div class="rbac-field rbac-member-roles">
-                            <span class="rbac-field-label">ROLES</span>
-                            ${isOwner || !canManageRoles
-                                ? rolesSummaryHtml(memberRoles)
-                                : roleCheckboxesHtml(memberRoles, false, `member-role-${member.id}`)}
-                        </div>
-
-                        ${isOwner
-                            ? ""
-                            : canManageRoles
-                                ? `
-                                    <div
-                                        class="rbac-field"
-                                        data-member-scope-wrap
-                                        ${memberRoles.includes("ministry_leader") ? "" : "hidden"}>
-                                        <span class="rbac-field-label">MINISTRIES</span>
-                                        ${ministryPickerHtml(ministryKeys, `rbac-member-ministries-${member.id}`)}
-                                    </div>
-                                `
-                                : memberRoles.includes("ministry_leader")
-                                    ? `
-                                        <div class="rbac-field">
-                                            <span class="rbac-field-label">MINISTRIES</span>
-                                            <div class="rbac-scope-tags">
-                                                ${ministryKeys.length
-                                                    ? ministryKeys.map(key => {
-                                                        const option = ministryOptions.find(item => item.key === key);
-                                                        return `<span class="rbac-scope">${escapeHtml(option?.label || prettyKey(key))}</span>`;
-                                                    }).join("")
-                                                    : `<span class="rbac-muted">No ministries assigned</span>`}
-                                            </div>
-                                        </div>
-                                    `
-                                    : ""}
-
-                        ${canManageRoles && !isOwner
-                            ? `
-                                <label class="rbac-active-toggle">
-                                    <span>ACTIVE</span>
-                                    <input type="checkbox" data-member-active ${member.isActive ? "checked" : ""}>
-                                </label>
-                            `
-                            : `
-                                <span class="rbac-status-pill ${member.isActive ? "" : "inactive"}">
-                                    ${member.isActive ? "ACTIVE" : "INACTIVE"}
-                                </span>
-                            `}
-
+                        <label><span>ROLE</span>
+                            ${isOwner
+                                ? `<strong class="rbac-owner-label">OWNER</strong>`
+                                : `<select data-member-role>
+                                    ${roleOption("administrator", member.role)}
+                                    ${roleOption("media_team", member.role)}
+                                    ${roleOption("ministry_leader", member.role)}
+                                    ${roleOption("viewer", member.role)}
+                                  </select>`}
+                        </label>
+                        ${!isOwner ? `<label data-member-scope-wrap ${member.role === "ministry_leader" ? "" : "hidden"}><span>MINISTRIES</span><input data-member-scopes value="${escapeAttribute(scopes)}" placeholder="youth-ministry, ushers"></label>` : ""}
+                        <label class="rbac-active-toggle"><span>ACTIVE</span><input type="checkbox" data-member-active ${member.isActive ? "checked" : ""} ${isOwner ? "disabled" : ""}></label>
                         ${member.mustChangePassword ? `<span class="rbac-temp-pill">TEMP PASSWORD</span>` : ""}
-
-                        ${canManageRoles && !isOwner
-                            ? `<button type="button" data-save-member class="publisher-secondary-button">SAVE</button>`
-                            : ""}
-
-                        ${canDelete
-                            ? `<button type="button" data-delete-member class="publisher-secondary-button rbac-danger-button">DELETE ACCOUNT</button>`
-                            : ""}
+                        ${!isOwner ? `<button type="button" data-save-member class="publisher-secondary-button">SAVE</button>` : ""}
                     </div>
                 </article>
             `;
         }).join("");
 
-        list.querySelectorAll(".rbac-member").forEach(memberElement => {
-            const roleInputs = memberElement.querySelectorAll("[data-role-choice]");
-            const scopeWrap = memberElement.querySelector("[data-member-scope-wrap]");
-
-            roleInputs.forEach(input => {
-                input.addEventListener("change", () => {
-                    const roles = selectedRolesFrom(memberElement);
-                    if (scopeWrap) {
-                        scopeWrap.hidden = !roles.includes("ministry_leader");
-                    }
-                });
+        list.querySelectorAll("[data-member-role]").forEach(select => {
+            select.addEventListener("change", event => {
+                const member = event.currentTarget.closest(".rbac-member");
+                const wrap = member?.querySelector("[data-member-scope-wrap]");
+                if (wrap) wrap.hidden = event.currentTarget.value !== "ministry_leader";
             });
-
-            bindMinistryPicker(memberElement);
         });
 
-        list.querySelectorAll("[data-save-member]").forEach(button => {
-            button.addEventListener("click", saveTeamMember);
-        });
-
-        list.querySelectorAll("[data-delete-member]").forEach(button => {
-            button.addEventListener("click", deleteTeamMember);
-        });
+        list.querySelectorAll("[data-save-member]").forEach(button => button.addEventListener("click", saveTeamMember));
     }
 
     function roleOption(value, current) {
         return `<option value="${value}" ${value === current ? "selected" : ""}>${roleLabel(value)}</option>`;
     }
 
-async function saveTeamMember(event) {
+    async function saveTeamMember(event) {
         const button = event.currentTarget;
         const member = button.closest(".rbac-member");
         const userId = member.dataset.userId;
-        const roles = selectedRolesFrom(member);
-        const active = member.querySelector("[data-member-active]")?.checked ?? true;
-        const ministryPicker = member.querySelector(".rbac-multi-select");
-        const scopes = roles.includes("ministry_leader")
-            ? ministryScopesFrom(ministryPicker)
-            : [];
-
-        if (!roles.length) {
-            window.alert("Choose at least one role assignment.");
-            return;
-        }
-
-        if (roles.includes("ministry_leader") && !scopes.length) {
-            window.alert("Choose at least one ministry for a Ministry Leader.");
-            return;
-        }
-
+        const role = member.querySelector("[data-member-role]").value;
+        const active = member.querySelector("[data-member-active]").checked;
+        const scopeText = member.querySelector("[data-member-scopes]")?.value || "";
         button.disabled = true;
 
         try {
             await api(`/api/team/${userId}`, {
                 method: "PATCH",
                 body: JSON.stringify({
-                    roles,
+                    role,
                     isActive: active,
-                    scopes
+                    scopes: role === "ministry_leader" ? scopesFromText(scopeText) : []
                 })
             });
-
             await refreshTeamPanel();
         }
         catch (error) {
@@ -1154,58 +787,12 @@ async function saveTeamMember(event) {
         }
     }
 
-    async function deleteTeamMember(event) {
-        const button = event.currentTarget;
-        const member = button.closest(".rbac-member");
-        const userId = member?.dataset.userId;
-        const name = member?.querySelector("h3")?.textContent?.trim() || "this account";
-
-        if (!userId) return;
-
-        const confirmed = window.confirm(
-            `Delete ${name}'s church account?\n\nTheir First New Zion access will be removed immediately.`
-        );
-
-        if (!confirmed) return;
-
-        button.disabled = true;
-
-        try {
-            const data = await api(`/api/team/${userId}`, {
-                method: "DELETE"
-            });
-
-            window.alert(data.message);
-            await refreshTeamPanel();
-        }
-        catch (error) {
-            window.alert(error.message);
-        }
-        finally {
-            button.disabled = false;
-        }
-    }function renderOwnershipCandidates(team) {
+    function renderOwnershipCandidates(team) {
         const select = document.getElementById("rbac-new-owner");
         if (!select) return;
-
-        const candidates = team.filter(member => {
-            const roles = Array.isArray(member.roles) && member.roles.length
-                ? member.roles
-                : [member.role];
-
-            return !roles.includes("owner") && member.isActive;
-        });
-
+        const candidates = team.filter(member => member.role !== "owner" && member.isActive);
         select.innerHTML = candidates.length
-            ? `<option value="">Choose new Owner…</option>${candidates.map(member => {
-                const labels = Array.isArray(member.roleLabels) && member.roleLabels.length
-                    ? member.roleLabels.join(" + ")
-                    : roleLabel(member.role);
-
-                return `<option value="${member.id}">
-                    ${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)} · ${escapeHtml(labels)}
-                </option>`;
-            }).join("")}`
+            ? `<option value="">Choose new Ownerâ€¦</option>${candidates.map(member => `<option value="${member.id}">${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)} Â· ${escapeHtml(member.roleLabel)}</option>`).join("")}`
             : `<option value="">No eligible team members</option>`;
     }
 
@@ -1303,28 +890,6 @@ async function saveTeamMember(event) {
             .rbac-access-summary{align-items:center;background:#fff;border:1px solid #d9cfbf;padding:18px 20px;margin:22px 0}.rbac-access-summary strong{display:block;color:var(--purple-dark,#2a0a35);font-size:1.2rem;margin-top:4px}.rbac-access-summary label,.rbac-form label,.rbac-member-controls label,.rbac-password-card label{display:flex;flex-direction:column;gap:6px;color:var(--purple-dark,#2a0a35);font-size:.6rem;font-weight:800;letter-spacing:.07em}.rbac-access-summary select,.rbac-form input,.rbac-form select,.rbac-member-controls input,.rbac-member-controls select,.rbac-transfer-controls select,.rbac-password-card input{border:1px solid #cec3cf;background:#fff;color:#2a2230;padding:11px 12px;font:500 .78rem Montserrat,Arial,sans-serif;min-width:150px}.rbac-form{background:#fff;border:1px solid #d9cfbf;border-top:5px solid var(--gold,#c9a342);padding:24px;margin-bottom:24px}.rbac-form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}.rbac-form .rbac-wide{grid-column:1/-1}.rbac-form small{font-size:.62rem;color:#777;font-weight:500;letter-spacing:0}.rbac-message{min-height:18px;margin-top:12px;color:#702222;font-size:.7rem;font-weight:700}
             .rbac-team-list{display:grid;gap:12px}.rbac-member{display:grid;grid-template-columns:minmax(220px,.8fr) minmax(460px,1.6fr);gap:20px;align-items:center;background:#fff;border:1px solid #ded5c7;padding:17px}.rbac-member-identity{display:flex;align-items:center;gap:12px}.rbac-avatar{width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--purple-dark,#2a0a35);color:#f2dc91;font:800 .72rem Montserrat,Arial,sans-serif}.rbac-member h3{margin:0;color:var(--purple-dark,#2a0a35);font-family:"Cormorant Garamond",Georgia,serif;font-size:1.3rem}.rbac-member p{margin:3px 0 0;color:#726b75;font-size:.66rem}.rbac-member-controls{display:flex;align-items:flex-end;justify-content:flex-end;gap:10px;flex-wrap:wrap}.rbac-member-controls label{min-width:145px}.rbac-member-controls [data-member-scope-wrap]{min-width:220px}.rbac-active-toggle{min-width:auto!important;align-items:center}.rbac-active-toggle input{min-width:0;width:20px;height:20px}.rbac-owner-label{padding:10px 12px;background:#f4ecd2;color:#38233f}.rbac-transfer-box{align-items:center;margin-top:28px;background:#f4efe5;border-left:5px solid var(--purple-dark,#2a0a35);padding:22px}.rbac-transfer-box p{max-width:600px;color:#6d6670;font-size:.72rem}.rbac-transfer-controls{display:flex;gap:10px;align-items:center}.rbac-awaiting-review{outline:2px solid #c9a342;outline-offset:2px}
             .rbac-overlay{position:fixed;inset:0;z-index:99999;background:rgba(24,8,30,.78);display:grid;place-items:center;padding:20px}.rbac-password-card{width:min(100%,480px);background:#fff;border-top:6px solid var(--gold,#c9a342);padding:30px;box-shadow:0 20px 70px rgba(0,0,0,.35)}.rbac-password-card h2{margin:5px 0 8px;color:var(--purple-dark,#2a0a35);font-family:"Cormorant Garamond",Georgia,serif;font-size:2rem}.rbac-password-card p{color:#6f6872;font-size:.75rem;line-height:1.5}.rbac-password-card label{margin-top:14px}
-
-            .rbac-field{display:flex;flex-direction:column;gap:6px;min-width:180px;color:var(--purple-dark,#2a0a35)}
-            .rbac-field-label{font-size:.6rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
-            .rbac-role-checks{display:flex;flex-wrap:wrap;gap:8px}
-            .rbac-role-checks label,.rbac-multi-options label{display:flex!important;flex-direction:row!important;align-items:center;gap:7px;margin:0!important;font-size:.67rem!important;font-weight:700!important;letter-spacing:0!important;cursor:pointer}
-            .rbac-role-checks label{border:1px solid #d5cbd6;background:#fff;padding:8px 10px}
-            .rbac-role-checks input,.rbac-multi-options input{min-width:0!important;width:16px!important;height:16px!important;padding:0!important;margin:0!important;accent-color:var(--purple-dark,#2a0a35)}
-            .rbac-role-tags,.rbac-scope-tags{display:flex;flex-wrap:wrap;gap:6px}
-            .rbac-role-tag{display:inline-flex;padding:7px 9px;background:#f4ecd2;color:#38233f;font-size:.58rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
-            .rbac-multi-select{position:relative;min-width:220px}
-            .rbac-multi-select summary{list-style:none;border:1px solid #cec3cf;background:#fff;color:#2a2230;padding:11px 12px;font:600 .72rem Montserrat,Arial,sans-serif;cursor:pointer;user-select:none}
-            .rbac-multi-select summary::-webkit-details-marker{display:none}
-            .rbac-multi-select summary:after{content:"▾";float:right;margin-left:12px}
-            .rbac-multi-select[open] summary:after{content:"▴"}
-            .rbac-multi-options{position:absolute;z-index:40;left:0;right:0;top:calc(100% + 4px);display:grid;gap:2px;max-height:270px;overflow:auto;background:#fff;border:1px solid #cfc3d0;box-shadow:0 12px 26px rgba(38,3,49,.16);padding:8px}
-            .rbac-multi-options label{padding:8px;border-radius:2px}
-            .rbac-multi-options label:hover{background:#f6f1e8}
-            .rbac-status-pill{display:inline-flex;padding:7px 9px;background:#e7f2e6;color:#245d2d;font-size:.56rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase}
-            .rbac-status-pill.inactive{background:#eee;color:#777}
-            .rbac-danger-button{color:#8f2020!important;border-color:#c98e8e!important;background:#fff!important}
-            .rbac-danger-button:hover{background:#fff1f1!important}
-            .rbac-member-roles{min-width:230px}
             [hidden]{display:none!important}
             @media(max-width:850px){.rbac-member{grid-template-columns:1fr}.rbac-member-controls{justify-content:flex-start}.rbac-request,.rbac-transfer-box,.rbac-access-summary{flex-direction:column;align-items:stretch}.rbac-request-actions{justify-content:flex-start}.rbac-transfer-controls{flex-direction:column;align-items:stretch}}
             @media(max-width:600px){.rbac-role-pill{display:none}.rbac-form-grid{grid-template-columns:1fr}.rbac-form .rbac-wide{grid-column:auto}.rbac-review-panel,.rbac-form{padding:18px}.rbac-member-controls{display:grid;grid-template-columns:1fr}.rbac-member-controls label{min-width:0}.rbac-pending-badge{font-size:.52rem}}
@@ -1345,3 +910,5 @@ async function saveTeamMember(event) {
         return escapeHtml(value).replace(/`/g, "&#096;");
     }
 })();
+
+
