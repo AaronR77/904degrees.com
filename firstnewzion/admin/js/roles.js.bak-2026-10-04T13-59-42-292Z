@@ -295,42 +295,14 @@
     }
 
     function observeDynamicPublisherUi() {
-        const observerOptions = {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ["hidden"]
-        };
-
-        let refreshQueued = false;
-
         const observer = new MutationObserver(() => {
-            if (refreshQueued) return;
-            refreshQueued = true;
-
-            window.requestAnimationFrame(() => {
-                /*
-                 * Disconnect while we mirror permissions into the DOM.
-                 * Those updates intentionally change `hidden` attributes and
-                 * status text. Observing our own changes caused an infinite
-                 * MutationObserver loop when Add Team Member opened.
-                 */
-                observer.disconnect();
-
-                try {
-                    applyRoleVisibility();
-                    configureEventPublisherControls();
-                    enforceMinistryScopes();
-                    markPendingEventCards();
-                }
-                finally {
-                    observer.observe(document.body, observerOptions);
-                    refreshQueued = false;
-                }
-            });
+            applyRoleVisibility();
+            configureEventPublisherControls();
+            enforceMinistryScopes();
+            markPendingEventCards();
         });
 
-        observer.observe(document.body, observerOptions);
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
     }
 
     async function loadPublicationQueue() {

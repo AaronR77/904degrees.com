@@ -29,15 +29,6 @@
 
             applyRoleVisibility();
             decorateUserIdentity();
-
-            // Owner controls are critical. Build Team & Roles first so a
-            // failure in an unrelated content module can never leave the
-            // Add Team Member button as the old inert dashboard stub.
-            if (hasPermission("team.manage")) {
-                await buildTeamAndRolesPanel();
-            }
-
-            installTeamButtonFallback();
             configureEventPublisherControls();
             enforceMinistryScopes();
             ensureMinistryEventSelector();
@@ -46,6 +37,10 @@
 
             if (hasPermission("publication.review")) {
                 await loadPublicationQueue();
+            }
+
+            if (hasPermission("team.manage")) {
+                await buildTeamAndRolesPanel();
             }
 
             if (currentUser.mustChangePassword) {
@@ -295,42 +290,14 @@
     }
 
     function observeDynamicPublisherUi() {
-        const observerOptions = {
-            childList: true,
-            subtree: true,
-            attributes: true,
-            attributeFilter: ["hidden"]
-        };
-
-        let refreshQueued = false;
-
         const observer = new MutationObserver(() => {
-            if (refreshQueued) return;
-            refreshQueued = true;
-
-            window.requestAnimationFrame(() => {
-                /*
-                 * Disconnect while we mirror permissions into the DOM.
-                 * Those updates intentionally change `hidden` attributes and
-                 * status text. Observing our own changes caused an infinite
-                 * MutationObserver loop when Add Team Member opened.
-                 */
-                observer.disconnect();
-
-                try {
-                    applyRoleVisibility();
-                    configureEventPublisherControls();
-                    enforceMinistryScopes();
-                    markPendingEventCards();
-                }
-                finally {
-                    observer.observe(document.body, observerOptions);
-                    refreshQueued = false;
-                }
-            });
+            applyRoleVisibility();
+            configureEventPublisherControls();
+            enforceMinistryScopes();
+            markPendingEventCards();
         });
 
-        observer.observe(document.body, observerOptions);
+        observer.observe(document.body, { childList: true, subtree: true, attributes: true, attributeFilter: ["hidden"] });
     }
 
     async function loadPublicationQueue() {
@@ -549,44 +516,6 @@
         });
     }
 
-
-    function installTeamButtonFallback() {
-        if (window.__fnzTeamButtonFallbackInstalled) return;
-        window.__fnzTeamButtonFallbackInstalled = true;
-
-        document.addEventListener("click", async event => {
-            const button = event.target.closest("button");
-            if (!button) return;
-
-            const text = String(button.textContent || "")
-                .replace(/\s+/g, " ")
-                .trim()
-                .toUpperCase();
-
-            const isAddTeamButton =
-                button.id === "rbac-add-member" ||
-                text === "+ ADD TEAM MEMBER" ||
-                text === "ADD TEAM MEMBER";
-
-            if (!isAddTeamButton || !hasPermission("team.manage")) return;
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            let form = document.getElementById("rbac-add-member-form");
-            if (!form) {
-                await buildTeamAndRolesPanel();
-                form = document.getElementById("rbac-add-member-form");
-            }
-
-            if (form) {
-                form.hidden = false;
-                form.scrollIntoView({ behavior: "smooth", block: "start" });
-                document.getElementById("rbac-first-name")?.focus();
-            }
-        }, true);
-    }
-
     async function buildTeamAndRolesPanel() {
         const panel = document.getElementById("panel-team");
         if (!panel) return;
@@ -635,11 +564,7 @@
             </section>
         `;
 
-        document.getElementById("rbac-add-member")?.addEventListener("click", () => {
-            setHidden("rbac-add-member-form", false);
-            document.getElementById("rbac-add-member-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
-            document.getElementById("rbac-first-name")?.focus();
-        });
+        document.getElementById("rbac-add-member")?.addEventListener("click", () => setHidden("rbac-add-member-form", false));
         document.getElementById("rbac-close-member")?.addEventListener("click", () => setHidden("rbac-add-member-form", true));
         document.getElementById("rbac-role")?.addEventListener("change", updateMinistryScopeVisibility);
         document.getElementById("rbac-add-member-form")?.addEventListener("submit", createTeamMember);
