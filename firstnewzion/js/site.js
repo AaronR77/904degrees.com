@@ -2020,13 +2020,80 @@ function initializeDirectionsLinks() {
         link.rel = "noopener noreferrer";
     });
 }
-function initializeMinistryDetail() {
+async function initializeMinistriesDirectory() {
+    const container = document.getElementById("ministry-directory");
+    if (!container) return;
+
+    // The packaged V2 cards stay in place as a graceful fallback if the
+    // Publisher API is unavailable. A successful API response replaces them.
+    try {
+        const response = await fetch(`${FNZ_API_URL}/api/ministries`, {
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+        });
+        if (!response.ok) throw new Error("Ministry directory request failed.");
+        const payload = await response.json();
+        const ministries = Array.isArray(payload.ministries) ? payload.ministries : [];
+        if (!ministries.length) return;
+
+        container.innerHTML = ministries.map(ministry => {
+            const name = escapeHtml(ministry.name || "Ministry");
+            const summary = escapeHtml(ministry.summary || "Ministry information coming soon.");
+            const iconUrl = safeImageUrl(ministry.icon_url);
+            const icon = iconUrl
+                ? `<img class="ministry-icon-art" src="${escapeAttribute(iconUrl)}" alt="">`
+                : `<span class="ministry-directory-default-icon" aria-hidden="true">✝</span>`;
+
+            return `<article class="ministry-directory-card"><div class="ministry-icon-slot" aria-hidden="true">${icon}</div><h3>${name}</h3><p>${summary}</p><a href="ministry.html?id=${encodeURIComponent(ministry.id)}">MINISTRY DETAILS →</a></article>`;
+        }).join("");
+    }
+    catch (error) {
+        console.warn("Ministries API unavailable; using packaged V2 directory.");
+    }
+}
+
+async function initializeMinistryDetail() {
     const heading = document.getElementById("ministry-name");
-    if (!heading) return;
-    const name = new URLSearchParams(window.location.search).get("name");
-    if (name) {
+    const description = document.getElementById("ministry-description");
+    const iconContainer = document.getElementById("ministry-detail-icon");
+    if (!heading || !description) return;
+
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("id");
+    const fallbackName = params.get("name");
+
+    if (!id) {
+        if (fallbackName) {
+            heading.textContent = fallbackName;
+            document.title = `${fallbackName} | First New Zion`;
+        }
+        return;
+    }
+
+    try {
+        const response = await fetch(`${FNZ_API_URL}/api/ministries/${encodeURIComponent(id)}`, {
+            headers: { "Accept": "application/json" },
+            cache: "no-store"
+        });
+        if (!response.ok) throw new Error("Ministry request failed.");
+        const payload = await response.json();
+        const ministry = payload.ministry;
+        if (!ministry) throw new Error("Ministry not found.");
+
+        const name = String(ministry.name || "Ministry");
         heading.textContent = name;
+        description.textContent = ministry.description || ministry.summary || "Ministry information will be added as it is approved.";
         document.title = `${name} | First New Zion`;
+
+        const iconUrl = safeImageUrl(ministry.icon_url);
+        if (iconContainer && iconUrl) {
+            iconContainer.innerHTML = `<img src="${escapeAttribute(iconUrl)}" alt="" aria-hidden="true">`;
+            iconContainer.hidden = false;
+        }
+    }
+    catch (error) {
+        heading.textContent = "Ministry Not Available";
+        description.textContent = "This ministry could not be loaded. Please return to the Ministries page.";
     }
 }
 

@@ -1310,3 +1310,92 @@ body {
         min-height: 36px;
     }
 }
+
+
+/* =========================================================
+   MINISTRIES PUBLISHER
+   ========================================================= */
+
+.ministries-publisher-list {
+    display: grid;
+    gap: 14px;
+    margin-top: 24px;
+}
+
+.ministries-publisher-list[hidden],
+#ministry-editor[hidden] {
+    display: none;
+}
+
+.ministry-publisher-card {
+    display: grid;
+    grid-template-columns: 88px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 24px;
+    padding: 22px 24px;
+    background: var(--white);
+    border: 1px solid #ded3c1;
+}
+
+.ministry-publisher-thumb {
+    width: 88px;
+    height: 88px;
+    padding: 12px;
+    object-fit: contain;
+    background: #fbf7ec;
+}
+
+.ministry-publisher-thumb-empty {
+    display: grid;
+    place-items: center;
+    padding: 0;
+    color: var(--gold-light);
+    background: var(--purple-dark);
+    font-size: 2rem;
+}
+
+.ministry-publisher-copy {
+    min-width: 0;
+}
+
+.ministry-publisher-copy h3 {
+    margin: 8px 0 4px;
+    color: var(--purple-dark);
+    font-family: "Cormorant Garamond", Georgia, serif;
+    font-size: 1.6rem;
+}
+
+.ministry-publisher-copy p {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.5;
+}
+
+.ministry-icon-dropzone {
+    min-height: 260px;
+}
+
+.ministry-icon-preview {
+    width: min(100%, 220px);
+    max-height: 220px;
+    object-fit: contain;
+}
+
+.ministry-visible-toggle {
+    align-self: end;
+}
+
+@media (max-width: 800px) {
+    .ministry-publisher-card {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .ministry-publisher-card .event-admin-actions {
+        grid-column: 1 / -1;
+    }
+
+    .ministry-publisher-thumb {
+        width: 72px;
+        height: 72px;
+    }
+}

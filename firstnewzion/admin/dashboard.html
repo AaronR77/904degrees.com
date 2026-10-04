@@ -92,6 +92,12 @@
             EVENTS
         </button>
 
+        <button class="publisher-nav-button admin-only"
+                data-panel="ministries"
+                type="button">
+            MINISTRIES
+        </button>
+
         <button class="publisher-nav-button"
                 data-panel="gallery"
                 type="button">
@@ -191,6 +197,33 @@
 
                     <strong>
                         MANAGE EVENTS →
+                    </strong>
+
+                </button>
+
+
+
+                <!-- MINISTRIES -->
+
+                <button class="dashboard-card admin-only"
+                        data-open-panel="ministries"
+                        type="button">
+
+                    <span class="dashboard-card-icon">
+                        ✦
+                    </span>
+
+                    <h2>
+                        Ministries
+                    </h2>
+
+                    <p>
+                        Add, edit, publish and remove
+                        church ministries.
+                    </p>
+
+                    <strong>
+                        MANAGE MINISTRIES →
                     </strong>
 
                 </button>
@@ -721,6 +754,82 @@
 
         </section>
 
+
+
+        <!-- =================================================
+             MINISTRIES
+             ================================================= -->
+
+        <section id="panel-ministries" class="publisher-panel admin-only">
+            <div class="panel-heading">
+                <div>
+                    <p class="dashboard-eyebrow">ADMINISTRATOR</p>
+                    <h1>Ministries</h1>
+                    <p>Add, edit, publish, reorder and remove ministries without editing website files.</p>
+                </div>
+                <button id="add-ministry-button" class="publisher-button" type="button">+ ADD MINISTRY</button>
+            </div>
+
+            <div id="ministry-editor" class="event-editor" hidden>
+                <div class="event-editor-heading">
+                    <div><p class="dashboard-eyebrow">MINISTRY EDITOR</p><h2 id="ministry-editor-title">Add Ministry</h2></div>
+                    <button id="cancel-ministry-button" class="publisher-outline-light" type="button">CANCEL</button>
+                </div>
+
+                <form id="ministry-form">
+                    <input id="ministry-id" type="hidden">
+                    <input id="ministry-icon-url" type="hidden">
+
+                    <div class="profile-editor-layout">
+                        <div>
+                            <div id="ministry-icon-dropzone" class="upload-dropzone ministry-icon-dropzone" tabindex="0" role="button" aria-label="Upload ministry icon">
+                                <img id="ministry-icon-preview" class="upload-preview ministry-icon-preview" alt="Ministry icon preview" hidden>
+                                <div class="upload-dropzone-copy">
+                                    <strong>DROP MINISTRY ICON HERE</strong>
+                                    <span>or click to browse</span>
+                                    <small>JPG, PNG or WebP • optional</small>
+                                </div>
+                                <input id="ministry-icon-file" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+                            </div>
+                            <button id="remove-ministry-icon-button" class="publisher-secondary-button upload-remove-button" type="button" hidden>REMOVE ICON</button>
+                            <p class="upload-note">A new icon replaces the previous Publisher-uploaded icon. Existing V2 ministry icons remain until replaced.</p>
+                        </div>
+
+                        <div class="event-form-grid">
+                            <label class="event-field event-field-wide">
+                                <span>MINISTRY NAME *</span>
+                                <input id="ministry-name-input" type="text" maxlength="140" required>
+                            </label>
+                            <label class="event-field event-field-wide">
+                                <span>SHORT DESCRIPTION</span>
+                                <textarea id="ministry-summary" rows="3" maxlength="500" placeholder="Short description shown on the Ministries page."></textarea>
+                            </label>
+                            <label class="event-field event-field-wide">
+                                <span>FULL DESCRIPTION</span>
+                                <textarea id="ministry-description-input" rows="7" maxlength="5000" placeholder="Expanded ministry information shown on the Ministry Details page."></textarea>
+                            </label>
+                            <label class="event-field">
+                                <span>DISPLAY ORDER</span>
+                                <input id="ministry-display-order" type="number" min="0" value="0">
+                            </label>
+                            <label class="publisher-checkbox ministry-visible-toggle">
+                                <input id="ministry-visible" type="checkbox" checked>
+                                Show this ministry on the website
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="ministry-form-message" class="event-form-message"></div>
+                    <div class="event-form-actions">
+                        <button id="save-ministry-button" class="publisher-button" type="submit">SAVE MINISTRY</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="ministries-loading" class="publisher-placeholder"><h2>Loading Ministries</h2><p>Retrieving ministry information.</p></div>
+            <div id="ministries-empty" class="publisher-placeholder" hidden><h2>No Ministries Yet</h2><p>Select Add Ministry to create the first ministry.</p></div>
+            <div id="ministries-list" class="ministries-publisher-list" hidden></div>
+        </section>
 
 
         <!-- =================================================

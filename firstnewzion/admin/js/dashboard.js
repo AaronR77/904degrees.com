@@ -169,6 +169,10 @@ document.addEventListener("DOMContentLoaded", () => {
             loadLeadership();
         }
 
+        if (panelName === "ministries") {
+            loadMinistries();
+        }
+
         if (panelName === "gallery") {
             loadGallery();
         }
@@ -2152,6 +2156,242 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         );
     }
+
+
+    /* =========================================================
+       MINISTRIES — PUBLISHER CRUD + OPTIONAL ICON UPLOAD
+       ========================================================= */
+
+    const ministryEditor = document.getElementById("ministry-editor");
+    const ministryForm = document.getElementById("ministry-form");
+    const ministriesLoading = document.getElementById("ministries-loading");
+    const ministriesEmpty = document.getElementById("ministries-empty");
+    const ministriesList = document.getElementById("ministries-list");
+    const ministryIconUrl = document.getElementById("ministry-icon-url");
+    const ministryIconDropzone = document.getElementById("ministry-icon-dropzone");
+    const ministryIconFile = document.getElementById("ministry-icon-file");
+    const ministryIconPreview = document.getElementById("ministry-icon-preview");
+    const removeMinistryIconButton = document.getElementById("remove-ministry-icon-button");
+    const ministryFormMessage = document.getElementById("ministry-form-message");
+    const saveMinistryButton = document.getElementById("save-ministry-button");
+
+    let ministriesCache = [];
+    let pendingMinistryIconFile = null;
+    let removeMinistryIconRequested = false;
+    let ministryIconPreviewObjectUrl = "";
+
+    function resolveMinistryIconUrl(url = "") {
+        if (!url) return "";
+        const value = String(url).trim();
+        if (!value) return "";
+        if (value.startsWith("images/")) {
+            return new URL(`../${value}`, window.location.href).href;
+        }
+        return value;
+    }
+
+    function setMinistryIconState(url = "") {
+        pendingMinistryIconFile = null;
+        removeMinistryIconRequested = false;
+        if (ministryIconPreviewObjectUrl) {
+            URL.revokeObjectURL(ministryIconPreviewObjectUrl);
+            ministryIconPreviewObjectUrl = "";
+        }
+        if (ministryIconUrl) ministryIconUrl.value = url || "";
+        if (ministryIconPreview) {
+            if (url) {
+                ministryIconPreview.src = resolveMinistryIconUrl(url);
+                ministryIconPreview.hidden = false;
+            }
+            else {
+                ministryIconPreview.removeAttribute("src");
+                ministryIconPreview.hidden = true;
+            }
+        }
+        if (removeMinistryIconButton) removeMinistryIconButton.hidden = !url;
+        ministryIconDropzone?.classList.toggle("has-file", Boolean(url));
+    }
+
+    function chooseMinistryIcon(file) {
+        try {
+            validateImageFile(file, 6);
+            pendingMinistryIconFile = file;
+            removeMinistryIconRequested = false;
+            if (ministryIconPreviewObjectUrl) URL.revokeObjectURL(ministryIconPreviewObjectUrl);
+            ministryIconPreviewObjectUrl = URL.createObjectURL(file);
+            if (ministryIconPreview) {
+                ministryIconPreview.src = ministryIconPreviewObjectUrl;
+                ministryIconPreview.hidden = false;
+            }
+            if (removeMinistryIconButton) removeMinistryIconButton.hidden = false;
+            ministryIconDropzone?.classList.add("has-file");
+            if (ministryFormMessage) ministryFormMessage.textContent = "New icon ready to upload when the ministry is saved.";
+        }
+        catch (error) {
+            if (ministryFormMessage) ministryFormMessage.textContent = error.message;
+        }
+    }
+
+    wireFileDropzone(ministryIconDropzone, ministryIconFile, chooseMinistryIcon);
+
+    removeMinistryIconButton?.addEventListener("click", event => {
+        event.stopPropagation();
+        pendingMinistryIconFile = null;
+        removeMinistryIconRequested = true;
+        if (ministryIconPreviewObjectUrl) {
+            URL.revokeObjectURL(ministryIconPreviewObjectUrl);
+            ministryIconPreviewObjectUrl = "";
+        }
+        if (ministryIconUrl) ministryIconUrl.value = "";
+        if (ministryIconPreview) {
+            ministryIconPreview.removeAttribute("src");
+            ministryIconPreview.hidden = true;
+        }
+        removeMinistryIconButton.hidden = true;
+        ministryIconDropzone?.classList.remove("has-file");
+        if (ministryFormMessage) ministryFormMessage.textContent = "Icon will be removed when the ministry is saved.";
+    });
+
+    async function loadMinistries() {
+        if (!ministriesList || !ministriesLoading || !ministriesEmpty) return;
+        ministriesLoading.hidden = false;
+        ministriesEmpty.hidden = true;
+        ministriesList.hidden = true;
+
+        try {
+            const data = await apiRequest("/api/ministries");
+            ministriesCache = Array.isArray(data.ministries) ? data.ministries : [];
+            ministriesLoading.hidden = true;
+
+            if (!ministriesCache.length) {
+                ministriesEmpty.hidden = false;
+                return;
+            }
+
+            ministriesList.innerHTML = ministriesCache.map(ministry => {
+                const status = Number(ministry.is_visible) === 1 ? "Published" : "Hidden";
+                const icon = ministry.icon_url
+                    ? `<img class="ministry-publisher-thumb" src="${escapeHtml(resolveMinistryIconUrl(ministry.icon_url))}" alt="">`
+                    : `<div class="ministry-publisher-thumb ministry-publisher-thumb-empty">✝</div>`;
+                return `<article class="ministry-publisher-card" data-ministry-id="${ministry.id}">${icon}<div class="ministry-publisher-copy"><span class="event-status ${Number(ministry.is_visible) === 1 ? "published" : "draft"}">${status}</span><h3>${escapeHtml(ministry.name || "Ministry")}</h3><p>${escapeHtml(ministry.summary || "")}</p></div><div class="event-admin-actions"><button class="publisher-secondary-button" type="button" data-ministry-action="edit">EDIT</button><button class="publisher-danger-button" type="button" data-ministry-action="delete">DELETE</button></div></article>`;
+            }).join("");
+            ministriesList.hidden = false;
+        }
+        catch (error) {
+            ministriesLoading.hidden = true;
+            ministriesEmpty.hidden = false;
+            ministriesEmpty.querySelector("h2").textContent = "Ministries Unavailable";
+            ministriesEmpty.querySelector("p").textContent = error.message || "Unable to load ministries.";
+        }
+    }
+
+    function openMinistryEditor(ministry = null) {
+        if (!ministryForm || !ministryEditor) return;
+        ministryForm.reset();
+        document.getElementById("ministry-id").value = ministry?.id || "";
+        document.getElementById("ministry-name-input").value = ministry?.name || "";
+        document.getElementById("ministry-summary").value = ministry?.summary || "";
+        document.getElementById("ministry-description-input").value = ministry?.description || "";
+        document.getElementById("ministry-display-order").value = ministry?.display_order ?? 0;
+        document.getElementById("ministry-visible").checked = ministry ? Number(ministry.is_visible) === 1 : true;
+        document.getElementById("ministry-editor-title").textContent = ministry ? "Edit Ministry" : "Add Ministry";
+        if (ministryFormMessage) ministryFormMessage.textContent = "";
+        setMinistryIconState(ministry?.icon_url || "");
+        ministryEditor.hidden = false;
+        ministryEditor.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function getMinistryFormData() {
+        return {
+            name: document.getElementById("ministry-name-input").value.trim(),
+            summary: document.getElementById("ministry-summary").value.trim(),
+            description: document.getElementById("ministry-description-input").value.trim(),
+            icon_url: ministryIconUrl?.value.trim() || "",
+            display_order: Number(document.getElementById("ministry-display-order").value || 0),
+            is_visible: document.getElementById("ministry-visible").checked
+        };
+    }
+
+    document.getElementById("add-ministry-button")?.addEventListener("click", () => openMinistryEditor());
+    document.getElementById("cancel-ministry-button")?.addEventListener("click", () => {
+        if (ministryEditor) ministryEditor.hidden = true;
+        setMinistryIconState("");
+    });
+
+    ministryForm?.addEventListener("submit", async event => {
+        event.preventDefault();
+        const existingId = document.getElementById("ministry-id").value;
+        const payload = getMinistryFormData();
+
+        if (!payload.name) {
+            ministryFormMessage.textContent = "Ministry name is required.";
+            return;
+        }
+
+        const originalText = saveMinistryButton?.textContent || "SAVE MINISTRY";
+        if (saveMinistryButton) {
+            saveMinistryButton.disabled = true;
+            saveMinistryButton.textContent = "SAVING...";
+        }
+        ministryFormMessage.textContent = "Saving ministry...";
+
+        try {
+            const data = await apiRequest(
+                existingId ? `/api/ministries/${existingId}` : "/api/ministries",
+                { method: existingId ? "PUT" : "POST", body: JSON.stringify(payload) }
+            );
+
+            const savedId = data.id || Number(existingId);
+            if (savedId) {
+                document.getElementById("ministry-id").value = String(savedId);
+                if (removeMinistryIconRequested) {
+                    await apiRequest(`/api/ministries/${encodeURIComponent(savedId)}/icon`, { method: "DELETE" });
+                }
+                if (pendingMinistryIconFile) {
+                    await apiBinaryRequest(`/api/ministries/${encodeURIComponent(savedId)}/icon`, pendingMinistryIconFile);
+                }
+            }
+
+            if (ministryEditor) ministryEditor.hidden = true;
+            setMinistryIconState("");
+            await loadMinistries();
+            document.querySelector("#panel-ministries .panel-heading")?.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        catch (error) {
+            ministryFormMessage.textContent = error.message || "Unable to save ministry.";
+        }
+        finally {
+            if (saveMinistryButton) {
+                saveMinistryButton.disabled = false;
+                saveMinistryButton.textContent = originalText;
+            }
+        }
+    });
+
+    ministriesList?.addEventListener("click", async event => {
+        const button = event.target.closest("[data-ministry-action]");
+        if (!button) return;
+        const card = button.closest("[data-ministry-id]");
+        const id = card?.dataset.ministryId;
+        const ministry = ministriesCache.find(item => String(item.id) === String(id));
+        if (!ministry) return;
+
+        if (button.dataset.ministryAction === "edit") {
+            openMinistryEditor(ministry);
+            return;
+        }
+
+        if (button.dataset.ministryAction === "delete") {
+            if (!confirm(`Delete "${ministry.name}"? This removes it from the public Ministries page and cannot be undone.`)) return;
+            try {
+                await apiRequest(`/api/ministries/${encodeURIComponent(id)}`, { method: "DELETE" });
+                await loadMinistries();
+            }
+            catch (error) {
+                alert(error.message || "Unable to delete ministry.");
+            }
+        }
+    });
 
 
     /* =========================================================
