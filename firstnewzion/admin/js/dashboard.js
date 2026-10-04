@@ -1525,8 +1525,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             eventFormMessage.textContent =
-                successMessage ||
-                data.message ||
+                data.message || successMessage ||
                 "Event saved.";
 
 
