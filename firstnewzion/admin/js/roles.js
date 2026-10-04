@@ -1,4 +1,4 @@
-"use strict";
+﻿"use strict";
 
 /* FNZ_ROLE_SYSTEM_V1
  * Website Publisher role/scoping UI.
@@ -37,7 +37,7 @@
                 await buildTeamAndRolesPanel();
             }
 
-            installTeamButtonFallback();
+            // installTeamButtonFallback(); // disabled: real Owner panel is active
             configureEventPublisherControls();
             enforceMinistryScopes();
             ensureMinistryEventSelector();
@@ -91,7 +91,7 @@
     function decorateUserIdentity() {
         const display = document.getElementById("user-display-name");
         if (display && currentUser) {
-            display.textContent = `${currentUser.firstName} · ${currentUser.roleLabel || roleLabel(currentUser.role)}`;
+            display.textContent = `${currentUser.firstName} Â· ${currentUser.roleLabel || roleLabel(currentUser.role)}`;
         }
 
         const headerActions = document.querySelector(".publisher-header-actions");
@@ -399,7 +399,7 @@
                 ${pendingRequests.map(item => `
                     <article class="rbac-request" data-request-id="${item.id}">
                         <div class="rbac-request-copy">
-                            <div class="rbac-request-meta">${escapeHtml(item.entityType.toUpperCase())} · submitted by ${escapeHtml(item.submittedBy)}</div>
+                            <div class="rbac-request-meta">${escapeHtml(item.entityType.toUpperCase())} Â· submitted by ${escapeHtml(item.submittedBy)}</div>
                             <h3>${escapeHtml(item.title)}</h3>
                             <p>${formatRequestDate(item)}</p>
                             ${item.scopeKey ? `<span class="rbac-scope">${escapeHtml(item.scopeKey)}</span>` : ""}
@@ -426,7 +426,7 @@
         if (date && !Number.isNaN(date.getTime())) parts.push(date.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" }));
         if (item.eventTime) parts.push(item.eventTime);
         if (item.location) parts.push(item.location);
-        return escapeHtml(parts.join(" · ") || "Ready for review");
+        return escapeHtml(parts.join(" Â· ") || "Ready for review");
     }
 
     async function handleQueueAction(event) {
@@ -581,8 +581,8 @@
 
             if (form) {
                 form.hidden = false;
-                form.scrollIntoView({ behavior: "smooth", block: "start" });
-                document.getElementById("rbac-first-name")?.focus();
+                // Firefox-safe: no automatic scrolling
+                // Firefox-safe: no automatic focus
             }
         }, true);
     }
@@ -605,7 +605,7 @@
             <div class="rbac-access-summary">
                 <div>
                     <span class="rbac-kicker">ADMINISTRATOR LIMIT</span>
-                    <strong id="rbac-admin-count">—</strong>
+                    <strong id="rbac-admin-count">â€”</strong>
                 </div>
                 <label>
                     <span>Maximum Administrators</span>
@@ -627,7 +627,7 @@
                 <button class="publisher-button" type="submit">CREATE ACCOUNT</button>
             </form>
 
-            <div id="rbac-team-list" class="rbac-team-list"><p class="rbac-muted">Loading team…</p></div>
+            <div id="rbac-team-list" class="rbac-team-list"><p class="rbac-muted">Loading teamâ€¦</p></div>
 
             <section class="rbac-transfer-box">
                 <div><span class="rbac-kicker">OWNERSHIP</span><h2>Transfer Ownership</h2><p>The new person becomes Owner. Your account automatically becomes an Administrator.</p></div>
@@ -637,8 +637,8 @@
 
         document.getElementById("rbac-add-member")?.addEventListener("click", () => {
             setHidden("rbac-add-member-form", false);
-            document.getElementById("rbac-add-member-form")?.scrollIntoView({ behavior: "smooth", block: "start" });
-            document.getElementById("rbac-first-name")?.focus();
+            // Firefox-safe: no automatic scrolling
+            // Firefox-safe: no automatic focus
         });
         document.getElementById("rbac-close-member")?.addEventListener("click", () => setHidden("rbac-add-member-form", true));
         document.getElementById("rbac-role")?.addEventListener("change", updateMinistryScopeVisibility);
@@ -681,7 +681,7 @@
             scopes: role === "ministry_leader" ? scopesFromText(document.getElementById("rbac-ministry-scopes").value) : []
         };
 
-        message.textContent = "Creating account…";
+        message.textContent = "Creating accountâ€¦";
         try {
             const data = await api("/api/team", { method: "POST", body: JSON.stringify(body) });
             message.textContent = data.message;
@@ -792,7 +792,7 @@
         if (!select) return;
         const candidates = team.filter(member => member.role !== "owner" && member.isActive);
         select.innerHTML = candidates.length
-            ? `<option value="">Choose new Owner…</option>${candidates.map(member => `<option value="${member.id}">${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)} · ${escapeHtml(member.roleLabel)}</option>`).join("")}`
+            ? `<option value="">Choose new Ownerâ€¦</option>${candidates.map(member => `<option value="${member.id}">${escapeHtml(member.firstName)} ${escapeHtml(member.lastName)} Â· ${escapeHtml(member.roleLabel)}</option>`).join("")}`
             : `<option value="">No eligible team members</option>`;
     }
 
@@ -910,4 +910,5 @@
         return escapeHtml(value).replace(/`/g, "&#096;");
     }
 })();
+
 
