@@ -1,6 +1,6 @@
 "use strict";
 
-/* FNZ_ROLE_SYSTEM_V4_ACCOUNT_POLISH
+/* FNZ_ROLE_SYSTEM_V3_MANY_HATS
  * Website Publisher role/scoping UI.
  * Security is enforced by the Worker. This file only mirrors permissions in the UI.
  */
@@ -31,14 +31,9 @@ async function initializeRoleSystem() {
 
             applyRoleVisibility();
             decorateUserIdentity();
-            installScopedMinistryFetchBridge();
-            installMinistryPanelGuard();
-
-            if (hasPermission("team.view") || hasRole("ministry_leader")) {
-                await loadMinistryOptions();
-            }
 
             if (hasPermission("team.view")) {
+                await loadMinistryOptions();
                 await buildTeamAndRolesPanel();
             }
 
@@ -114,7 +109,7 @@ async function initializeRoleSystem() {
 
 function decorateUserIdentity() {
         const labels = currentRoleLabels();
-        const summary = labels.join(" • ");
+        const summary = labels.join(" + ");
 
         const display = document.getElementById("user-display-name");
         if (display && currentUser) {
@@ -177,15 +172,6 @@ function applyRoleVisibility() {
             element.hidden = !canSee;
         });
 
-        // Overview cards use data-open-panel rather than data-panel.
-        // Mirror the same role visibility there so a Ministry Leader does
-        // not see Worship Media unless they also wear the Media Team hat.
-        document.querySelectorAll("[data-open-panel]").forEach(element => {
-            const panel = String(element.dataset.openPanel || "").toLowerCase();
-            const canSee = allowed === null || allowed.has(panel);
-            element.hidden = !canSee;
-        });
-
         document.querySelectorAll(".publisher-panel[id^='panel-']").forEach(panel => {
             const name = panel.id.replace(/^panel-/, "").toLowerCase();
             const canSee = allowed === null || allowed.has(name);
@@ -238,187 +224,6 @@ function enforceMinistryScopes() {
             .replace(/&/g, "and")
             .replace(/[^a-z0-9]+/g, "-")
             .replace(/^-+|-+$/g, "");
-    }
-
-    function assignedMinistryKeys() {
-        return new Set(
-            (currentUser?.scopes || [])
-                .filter(scope => String(scope?.type || "").toLowerCase() === "ministry")
-                .map(scope => normalizeKey(scope.key))
-                .filter(Boolean)
-        );
-    }
-
-    function installScopedMinistryFetchBridge() {
-        if (window.__fnzScopedMinistryFetchInstalled) return;
-        if (!hasRole("ministry_leader")) return;
-        if (hasRole("owner") || hasRole("administrator")) return;
-
-        const originalFetch = window.fetch.bind(window);
-        const allowed = assignedMinistryKeys();
-
-        window.__fnzScopedMinistryFetchInstalled = true;
-
-        window.fetch = async function(input, init = {}) {
-            const response = await originalFetch(input, init);
-
-            try {
-                const url = typeof input === "string" ? input : input?.url || "";
-                const method = String(init?.method || input?.method || "GET").toUpperCase();
-                const isMinistryCollection =
-                    method === "GET" &&
-                    /\/api\/ministries(?:\?|$)/i.test(url);
-
-                if (!isMinistryCollection || !response.ok) return response;
-
-                const data = await response.clone().json();
-                const items = Array.isArray(data?.ministries)
-                    ? data.ministries
-                    : (Array.isArray(data) ? data : null);
-
-                if (!items) return response;
-
-                const filtered = items.filter(item => {
-                    const raw =
-                        item?.key ??
-                        item?.slug ??
-                        item?.ministry_key ??
-                        item?.name ??
-                        item?.title ??
-                        item?.display_name ??
-                        item?.ministry_name ??
-                        "";
-
-                    return allowed.has(normalizeKey(raw));
-                });
-
-                const payload = Array.isArray(data)
-                    ? filtered
-                    : { ...data, ministries: filtered };
-
-                const headers = new Headers(response.headers);
-                headers.set("Content-Type", "application/json; charset=utf-8");
-
-                return new Response(JSON.stringify(payload), {
-                    status: response.status,
-                    statusText: response.statusText,
-                    headers
-                });
-            }
-            catch (_) {
-                return response;
-            }
-        };
-    }
-
-    function installMinistryPanelGuard() {
-        if (!hasRole("ministry_leader")) return;
-        if (hasRole("owner") || hasRole("administrator")) return;
-
-        const panel =
-            document.getElementById("panel-ministries") ||
-            document.getElementById("panel-ministry");
-
-        if (!panel || panel.dataset.fnzScopeGuard === "1") {
-            enforceMinistryPanelUi();
-            return;
-        }
-
-        panel.dataset.fnzScopeGuard = "1";
-
-        // Safe observer: child-list changes only. We never observe attributes,
-        // so hiding buttons/cards cannot trigger the observer again.
-        const observer = new MutationObserver(() => {
-            enforceMinistryPanelUi();
-        });
-
-        observer.observe(panel, {
-            childList: true,
-            subtree: true
-        });
-
-        document.querySelectorAll(
-            ".publisher-nav-button[data-panel='ministries'], .publisher-nav-button[data-panel='ministry']"
-        ).forEach(button => {
-            button.addEventListener("click", () => {
-                window.setTimeout(enforceMinistryPanelUi, 0);
-                window.setTimeout(enforceMinistryPanelUi, 100);
-            });
-        });
-
-        enforceMinistryPanelUi();
-    }
-
-    function enforceMinistryPanelUi() {
-        if (!hasRole("ministry_leader")) return;
-        if (hasRole("owner") || hasRole("administrator")) return;
-
-        const panel =
-            document.getElementById("panel-ministries") ||
-            document.getElementById("panel-ministry");
-
-        if (!panel) return;
-
-        const allowed = assignedMinistryKeys();
-
-        const eyebrow = panel.querySelector(".dashboard-eyebrow");
-        if (eyebrow) eyebrow.textContent = "MINISTRY LEADER";
-
-        const headingCopy = panel.querySelector(".panel-heading p:not(.dashboard-eyebrow)");
-        if (headingCopy) {
-            headingCopy.textContent =
-                "Edit information only for the ministries assigned to this account.";
-        }
-
-        panel.querySelectorAll("button").forEach(button => {
-            const text = String(button.textContent || "")
-                .replace(/\s+/g, " ")
-                .trim()
-                .toUpperCase();
-
-            if (text.includes("ADD MINISTRY") || text === "DELETE") {
-                button.hidden = true;
-            }
-        });
-
-        const candidates = panel.querySelectorAll(
-            "[data-ministry-key], [data-ministry], .ministry-admin-card, .ministry-editor-card, article"
-        );
-
-        candidates.forEach(card => {
-            if (!(card instanceof HTMLElement)) return;
-
-            const heading = card.querySelector("h2, h3");
-            const raw =
-                card.dataset.ministryKey ||
-                card.dataset.ministry ||
-                heading?.textContent ||
-                "";
-
-            const key = normalizeKey(raw);
-            if (!key) return;
-
-            // Only treat an element as a ministry card when it contains an
-            // edit/delete control or an explicit ministry data attribute.
-            const cardButtons = [...card.querySelectorAll("button")];
-            const hasMinistryControl = card.dataset.ministryKey
-                || card.dataset.ministry
-                || cardButtons.some(button => {
-                    const text = String(button.textContent || "").trim().toUpperCase();
-                    return text === "EDIT" || text === "DELETE";
-                });
-
-            if (!hasMinistryControl) return;
-
-            card.hidden = !allowed.has(key);
-
-            if (!card.hidden) {
-                cardButtons.forEach(button => {
-                    const text = String(button.textContent || "").trim().toUpperCase();
-                    if (text === "DELETE") button.hidden = true;
-                });
-            }
-        });
     }
 
 function ensureMinistryEventSelector() {
@@ -957,7 +762,7 @@ async function buildTeamAndRolesPanel() {
                     <p>
                         ${canAdd
                             ? "One person can wear multiple hats. Assign any combination of roles and ministry responsibilities."
-                            : "View church accounts, correct lower-level account information, and remove lower-level accounts when necessary. Role assignments remain Owner-controlled."}
+                            : "View church accounts and remove lower-level accounts when necessary. Role assignments remain Owner-controlled."}
                     </p>
                 </div>
                 ${canAdd
@@ -1180,8 +985,6 @@ function renderTeamList(team) {
         if (!list) return;
 
         const canManageRoles = Boolean(teamCapabilities.canManageRoles);
-        const canEditIdentityAny = Boolean(teamCapabilities.canEditIdentityAny);
-        const canEditIdentityLower = Boolean(teamCapabilities.canEditIdentityLower);
 
         list.innerHTML = team.map(member => {
             const memberRoles = Array.isArray(member.roles) && member.roles.length
@@ -1189,18 +992,9 @@ function renderTeamList(team) {
                 : [member.role || "viewer"];
 
             const isOwner = memberRoles.includes("owner");
-            const isAdministrator = memberRoles.includes("administrator");
             const ministryKeys = (member.scopes || [])
                 .filter(scope => scope.type === "ministry")
                 .map(scope => normalizeKey(scope.key));
-
-            const canEditIdentity =
-                canEditIdentityAny ||
-                (
-                    canEditIdentityLower &&
-                    !isOwner &&
-                    !isAdministrator
-                );
 
             const canDelete =
                 !isOwner
@@ -1209,7 +1003,7 @@ function renderTeamList(team) {
                     teamCapabilities.canDeleteAnyNonOwner
                     || (
                         teamCapabilities.canDeleteLower
-                        && !isAdministrator
+                        && !memberRoles.includes("administrator")
                     )
                 );
 
@@ -1276,59 +1070,14 @@ function renderTeamList(team) {
 
                         ${member.mustChangePassword ? `<span class="rbac-temp-pill">TEMP PASSWORD</span>` : ""}
 
-                        ${canEditIdentity
-                            ? `<button type="button" data-edit-account class="publisher-secondary-button">EDIT ACCOUNT</button>`
-                            : ""}
-
                         ${canManageRoles && !isOwner
-                            ? `<button type="button" data-save-member class="publisher-secondary-button">SAVE ACCESS</button>`
+                            ? `<button type="button" data-save-member class="publisher-secondary-button">SAVE</button>`
                             : ""}
 
                         ${canDelete
                             ? `<button type="button" data-delete-member class="publisher-secondary-button rbac-danger-button">DELETE ACCOUNT</button>`
                             : ""}
                     </div>
-
-                    ${canEditIdentity ? `
-                        <form class="rbac-account-editor" data-account-editor hidden>
-                            <div class="rbac-form-heading">
-                                <div>
-                                    <span class="rbac-kicker">ACCOUNT INFORMATION</span>
-                                    <h2>Edit Account</h2>
-                                </div>
-                                <button type="button" data-cancel-account>CANCEL</button>
-                            </div>
-
-                            <div class="rbac-account-grid">
-                                <label>
-                                    <span>FIRST NAME *</span>
-                                    <input data-account-first-name maxlength="80" required value="${escapeAttribute(member.firstName)}">
-                                </label>
-
-                                <label>
-                                    <span>LAST NAME *</span>
-                                    <input data-account-last-name maxlength="80" required value="${escapeAttribute(member.lastName)}">
-                                </label>
-
-                                <label class="rbac-wide">
-                                    <span>PERSONAL EMAIL *</span>
-                                    <input data-account-email type="email" maxlength="200" required value="${escapeAttribute(member.email)}">
-                                </label>
-
-                                <label class="rbac-wide">
-                                    <span>NEW TEMPORARY PASSWORD</span>
-                                    <input data-account-temp-password type="password" minlength="12" autocomplete="new-password" placeholder="Leave blank to keep current password">
-                                    <small>Optional. If set, the person must choose a new password at next sign-in.</small>
-                                </label>
-                            </div>
-
-                            <div data-account-message class="rbac-message"></div>
-
-                            <div class="rbac-account-actions">
-                                <button type="submit" class="publisher-button">SAVE ACCOUNT</button>
-                            </div>
-                        </form>
-                    ` : ""}
                 </article>
             `;
         }).join("");
@@ -1347,21 +1096,6 @@ function renderTeamList(team) {
             });
 
             bindMinistryPicker(memberElement);
-
-            memberElement.querySelector("[data-edit-account]")?.addEventListener("click", () => {
-                const editor = memberElement.querySelector("[data-account-editor]");
-                if (editor) editor.hidden = !editor.hidden;
-            });
-
-            memberElement.querySelector("[data-cancel-account]")?.addEventListener("click", () => {
-                const editor = memberElement.querySelector("[data-account-editor]");
-                if (editor) editor.hidden = true;
-            });
-
-            memberElement.querySelector("[data-account-editor]")?.addEventListener(
-                "submit",
-                saveAccountIdentity
-            );
         });
 
         list.querySelectorAll("[data-save-member]").forEach(button => {
@@ -1371,78 +1105,6 @@ function renderTeamList(team) {
         list.querySelectorAll("[data-delete-member]").forEach(button => {
             button.addEventListener("click", deleteTeamMember);
         });
-    }
-
-    async function saveAccountIdentity(event) {
-        event.preventDefault();
-
-        const form = event.currentTarget;
-        const member = form.closest(".rbac-member");
-        const userId = member?.dataset.userId;
-        const message = form.querySelector("[data-account-message]");
-        const submit = form.querySelector('button[type="submit"]');
-
-        if (!userId || !message || !submit) return;
-
-        const firstName = form.querySelector("[data-account-first-name]")?.value.trim() || "";
-        const lastName = form.querySelector("[data-account-last-name]")?.value.trim() || "";
-        const email = form.querySelector("[data-account-email]")?.value.trim() || "";
-        const temporaryPassword =
-            form.querySelector("[data-account-temp-password]")?.value || "";
-
-        if (!firstName || !lastName || !email) {
-            message.textContent = "First name, last name and personal email are required.";
-            return;
-        }
-
-        if (temporaryPassword && temporaryPassword.length < 12) {
-            message.textContent = "Temporary password must be at least 12 characters.";
-            return;
-        }
-
-        submit.disabled = true;
-        message.textContent = "Saving account…";
-
-        try {
-            const body = {
-                firstName,
-                lastName,
-                email
-            };
-
-            if (temporaryPassword) {
-                body.temporaryPassword = temporaryPassword;
-            }
-
-            const data = await api(`/api/team/${userId}`, {
-                method: "PATCH",
-                body: JSON.stringify(body)
-            });
-
-            message.textContent = data.message || "Account updated.";
-
-            // If the Owner edited their own identity, refresh the cached
-            // /auth/me payload so the header changes immediately.
-            if (Number(userId) === Number(currentUser?.id)) {
-                const me = await api("/api/auth/me");
-                currentUser = me.user;
-                sessionStorage.setItem(USER_KEY, JSON.stringify(currentUser));
-
-                document.getElementById("rbac-role-pill")?.remove();
-                decorateUserIdentity();
-
-                const welcome = document.getElementById("welcome-name");
-                if (welcome) welcome.textContent = currentUser.firstName || "Publisher";
-            }
-
-            await refreshTeamPanel();
-        }
-        catch (error) {
-            message.textContent = error.message;
-        }
-        finally {
-            submit.disabled = false;
-        }
     }
 
     function roleOption(value, current) {
@@ -1537,7 +1199,7 @@ async function saveTeamMember(event) {
         select.innerHTML = candidates.length
             ? `<option value="">Choose new Owner…</option>${candidates.map(member => {
                 const labels = Array.isArray(member.roleLabels) && member.roleLabels.length
-                    ? member.roleLabels.join(" • ")
+                    ? member.roleLabels.join(" + ")
                     : roleLabel(member.role);
 
                 return `<option value="${member.id}">
@@ -1663,16 +1325,9 @@ async function saveTeamMember(event) {
             .rbac-danger-button{color:#8f2020!important;border-color:#c98e8e!important;background:#fff!important}
             .rbac-danger-button:hover{background:#fff1f1!important}
             .rbac-member-roles{min-width:230px}
-            .rbac-account-editor{grid-column:1/-1;border-top:1px solid #e2d9cc;margin-top:2px;padding-top:18px}
-            .rbac-account-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}
-            .rbac-account-grid .rbac-wide{grid-column:1/-1}
-            .rbac-account-grid label{display:flex;flex-direction:column;gap:6px;color:var(--purple-dark,#2a0a35);font-size:.6rem;font-weight:800;letter-spacing:.07em}
-            .rbac-account-grid input{border:1px solid #cec3cf;background:#fff;color:#2a2230;padding:11px 12px;font:500 .78rem Montserrat,Arial,sans-serif}
-            .rbac-account-grid small{font-size:.62rem;color:#777;font-weight:500;letter-spacing:0}
-            .rbac-account-actions{display:flex;justify-content:flex-end;margin-top:10px}
             [hidden]{display:none!important}
             @media(max-width:850px){.rbac-member{grid-template-columns:1fr}.rbac-member-controls{justify-content:flex-start}.rbac-request,.rbac-transfer-box,.rbac-access-summary{flex-direction:column;align-items:stretch}.rbac-request-actions{justify-content:flex-start}.rbac-transfer-controls{flex-direction:column;align-items:stretch}}
-            @media(max-width:600px){.rbac-role-pill{display:none}.rbac-form-grid,.rbac-account-grid{grid-template-columns:1fr}.rbac-account-grid .rbac-wide{grid-column:auto}.rbac-form .rbac-wide{grid-column:auto}.rbac-review-panel,.rbac-form{padding:18px}.rbac-member-controls{display:grid;grid-template-columns:1fr}.rbac-member-controls label{min-width:0}.rbac-pending-badge{font-size:.52rem}}
+            @media(max-width:600px){.rbac-role-pill{display:none}.rbac-form-grid{grid-template-columns:1fr}.rbac-form .rbac-wide{grid-column:auto}.rbac-review-panel,.rbac-form{padding:18px}.rbac-member-controls{display:grid;grid-template-columns:1fr}.rbac-member-controls label{min-width:0}.rbac-pending-badge{font-size:.52rem}}
         `;
         document.head.appendChild(style);
     }
