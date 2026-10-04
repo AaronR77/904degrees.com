@@ -52,7 +52,7 @@
                 showRequiredPasswordChange();
             }
 
-            observeDynamicPublisherUi();
+            // observeDynamicPublisherUi(); // disabled: Firefox freeze
         }
         catch (error) {
             console.warn("FNZ access controls could not initialize:", error.message);
@@ -910,3 +910,4 @@
         return escapeHtml(value).replace(/`/g, "&#096;");
     }
 })();
+
