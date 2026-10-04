@@ -1,6 +1,6 @@
 "use strict";
 
-/* FNZ_ROLE_SYSTEM_V4_ACCOUNT_POLISH_HOTFIX_006_1
+/* FNZ_ROLE_SYSTEM_V4_ACCOUNT_POLISH
  * Website Publisher role/scoping UI.
  * Security is enforced by the Worker. This file only mirrors permissions in the UI.
  */
@@ -31,14 +31,6 @@ async function initializeRoleSystem() {
 
             applyRoleVisibility();
             decorateUserIdentity();
-
-            // Temporary-password accounts must get the security prompt immediately.
-            // Do this before any optional panel/network initialization so the prompt
-            // cannot be delayed by ministry/team data loading.
-            if (currentUser.mustChangePassword) {
-                showRequiredPasswordChange();
-            }
-
             installScopedMinistryFetchBridge();
             installMinistryPanelGuard();
 
@@ -60,7 +52,11 @@ async function initializeRoleSystem() {
                 await loadPublicationQueue();
             }
 
-            // Deliberately no global MutationObserver here. The prior observer could
+            if (currentUser.mustChangePassword) {
+                showRequiredPasswordChange();
+            }
+
+            // Deliberately no MutationObserver here. The prior observer could
             // create a self-triggering hidden-attribute loop in Firefox.
         }
         catch (error) {
@@ -323,35 +319,34 @@ function enforceMinistryScopes() {
             document.getElementById("panel-ministries") ||
             document.getElementById("panel-ministry");
 
-        if (!panel) return;
-
-        // IMPORTANT: no MutationObserver here.
-        // V006 watched child-list mutations, while enforceMinistryPanelUi()
-        // updated textContent inside the same panel. Firefox correctly reported
-        // the result as a runaway page because each update triggered the observer
-        // again. Use a few bounded refreshes instead.
-        const refresh = () => {
+        if (!panel || panel.dataset.fnzScopeGuard === "1") {
             enforceMinistryPanelUi();
-        };
-
-        const refreshSoon = () => {
-            refresh();
-            window.setTimeout(refresh, 75);
-            window.setTimeout(refresh, 250);
-            window.setTimeout(refresh, 750);
-        };
-
-        if (panel.dataset.fnzScopeGuard !== "1") {
-            panel.dataset.fnzScopeGuard = "1";
-
-            document.querySelectorAll(
-                ".publisher-nav-button[data-panel='ministries'], .publisher-nav-button[data-panel='ministry']"
-            ).forEach(button => {
-                button.addEventListener("click", refreshSoon);
-            });
+            return;
         }
 
-        refreshSoon();
+        panel.dataset.fnzScopeGuard = "1";
+
+        // Safe observer: child-list changes only. We never observe attributes,
+        // so hiding buttons/cards cannot trigger the observer again.
+        const observer = new MutationObserver(() => {
+            enforceMinistryPanelUi();
+        });
+
+        observer.observe(panel, {
+            childList: true,
+            subtree: true
+        });
+
+        document.querySelectorAll(
+            ".publisher-nav-button[data-panel='ministries'], .publisher-nav-button[data-panel='ministry']"
+        ).forEach(button => {
+            button.addEventListener("click", () => {
+                window.setTimeout(enforceMinistryPanelUi, 0);
+                window.setTimeout(enforceMinistryPanelUi, 100);
+            });
+        });
+
+        enforceMinistryPanelUi();
     }
 
     function enforceMinistryPanelUi() {
