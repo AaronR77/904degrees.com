@@ -2297,3 +2297,6 @@ section h2 {
     height: 82px;
     object-fit: contain;
 }
+
+/* Shared published text */
+.profile-copy { white-space: pre-line; overflow-wrap: anywhere; }

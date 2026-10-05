@@ -122,7 +122,8 @@
             TEAM &amp; ROLES
         </button>
 
-    </nav>
+    <button class="publisher-nav-button admin-only" data-panel="profile" type="button">SITE PROFILE</button>
+</nav>
 
 
 
@@ -1095,7 +1096,8 @@
         </section>
 
 
-    </main>
+    <section id="panel-profile" class="publisher-panel admin-only"><div class="dashboard-heading"><div><h1>Site Profile</h1><p>Shared church information for the website and BulletinSync Client.</p></div></div><p id="site-profile-version"></p><p id="site-profile-message" role="status" aria-live="polite"></p><form id="site-profile-form"><div class="form-field"><label for="profile-churchName">Church Name</label><input id="profile-churchName" name="churchName" type="text" maxlength="1000" required></div><div class="form-field"><label for="profile-address">Address</label><textarea id="profile-address" name="address" rows="4" maxlength="12000"></textarea></div><div class="form-field"><label for="profile-phone">Phone</label><input id="profile-phone" name="phone" type="text" maxlength="1000"></div><div class="form-field"><label for="profile-email">Email</label><input id="profile-email" name="email" type="email" maxlength="1000"></div><div class="form-field"><label for="profile-website">Website</label><input id="profile-website" name="website" type="url" maxlength="1000"></div><div class="form-field"><label for="profile-about">About</label><textarea id="profile-about" name="about" rows="4" maxlength="12000"></textarea></div><div class="form-field"><label for="profile-mission">Mission</label><textarea id="profile-mission" name="mission" rows="4" maxlength="12000"></textarea></div><div class="form-field"><label for="profile-vision">Vision</label><textarea id="profile-vision" name="vision" rows="4" maxlength="12000"></textarea></div><div class="form-field"><label for="profile-scheduleSummary">Service Times</label><textarea id="profile-scheduleSummary" name="scheduleSummary" rows="4" maxlength="12000"></textarea></div><div class="form-actions"><button id="site-profile-save" type="submit" disabled>SAVE DRAFT</button><button id="site-profile-publish" type="button" disabled>PUBLISH</button><button id="site-profile-reload" type="button" disabled>RELOAD SAVED DRAFT</button></div></form></section>
+</main>
 
 
 
@@ -1126,7 +1128,8 @@
 
 
     <!-- FNZ_ROLE_UI_V1 -->
-    <script src="js/roles.js?v=0061"></script>
+    <script src="js/roles.js?v=007"></script>
+<script src="js/profile.js?v=007"></script>
 </body>
 
 </html>

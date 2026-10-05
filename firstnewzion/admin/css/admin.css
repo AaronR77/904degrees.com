@@ -1399,3 +1399,10 @@ body {
         height: 72px;
     }
 }
+
+#site-profile-form { max-width: 850px; }
+#site-profile-form label { display: block; margin: 12px 0 6px; }
+#site-profile-form input, #site-profile-form textarea { box-sizing: border-box; width: 100%; padding: 12px; font: inherit; }
+#site-profile-form .form-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; }
+#site-profile-form button { padding: 12px 18px; font: inherit; cursor: pointer; }
+#site-profile-form button:disabled { opacity: .5; cursor: default; }

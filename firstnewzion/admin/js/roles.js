@@ -154,7 +154,7 @@ function allowedPanelsForRole() {
         if (hasRole("administrator")) {
             [
                 "events", "gallery", "media", "worship-media",
-                "ministries", "ministry", "leadership", "branding", "team"
+                "ministries", "ministry", "leadership", "branding", "profile", "team"
             ].forEach(panel => allowed.add(panel));
 
             return allowed;
