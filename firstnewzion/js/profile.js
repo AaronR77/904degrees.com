@@ -1,5 +1,17 @@
 "use strict";
 
+function fnzProfileAddressLines(value) {
+    const address = String(value || "").replace(/\\r\\n|\\n|\\r/g, "\n").replace(/\r\n?/g, "\n").trim();
+    if (!address) return [];
+    const lines = address.split(/\n+/).map(line => line.trim()).filter(Boolean);
+    if (lines.length > 1) return [lines[0], lines.slice(1).join(", ")];
+    // Keep apartment/suite commas with the street when a US city/state/ZIP follows.
+    const locality = address.match(/^(.*?),\s*([^,]+,\s*[A-Za-z]{2}\s+\d{5}(?:-\d{4})?)$/);
+    if (locality) return [locality[1].trim(), locality[2].trim()];
+    const comma = address.indexOf(",");
+    return comma >= 0 ? [address.slice(0, comma).trim(), address.slice(comma + 1).trim()] : [address];
+}
+
 // Apply published values only. Packaged content remains the offline fallback.
 document.addEventListener("DOMContentLoaded", async () => {
     try {
@@ -10,16 +22,20 @@ document.addEventListener("DOMContentLoaded", async () => {
         const church = data.church;
         document.querySelectorAll("[data-profile]").forEach(element => {
             const value = church[element.dataset.profile];
-            if (typeof value === "string") element.textContent = value;
+            if (typeof value === "string") element.textContent = element.dataset.profile === "address" ? fnzProfileAddressLines(value).join("\n") : value;
         });
+        const addressLines = fnzProfileAddressLines(church.address);
         document.querySelectorAll(".fnz-directions").forEach(link => {
             link.dataset.address = church.address;
             const heading = link.querySelector("h2");
             if (heading) {
-                heading.textContent = church.address;
+                heading.textContent = addressLines[0] || "";
                 const locality = link.querySelector("p");
-                if (locality) locality.textContent = "";
-            } else link.textContent = church.address ? `⌖ ${church.address}` : "";
+                if (locality) locality.textContent = addressLines[1] || "";
+            } else {
+                link.textContent = addressLines.length ? `⌖ ${addressLines.join("\n")}` : "";
+                link.style.whiteSpace = "pre-line";
+            }
             link.href = church.address ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(church.address)}` : "#";
             link.setAttribute("aria-label", church.address ? `Directions to ${church.churchName}` : "Address not supplied");
         });

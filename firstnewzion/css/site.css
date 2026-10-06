@@ -2153,13 +2153,12 @@ section h2 {
 }
 /* =========================================================
    HERO PHOTO — CONSISTENT VISUAL SCALE
-   The church photo keeps the same 590px rendered height across
-   viewport widths. Wider screens gain background space instead
-   of zooming/cropping the building.
+   Keep the church photo at 590px, while longer daily verses can
+   expand the section without clipping its title or visit button.
    ========================================================= */
 
 .hero {
-    height: 590px;
+    height: auto;
     min-height: 590px;
 }
 
@@ -2177,14 +2176,14 @@ section h2 {
 
 @media (max-width: 1080px) {
     .hero {
-        height: 590px;
+        height: auto;
         min-height: 590px;
     }
 }
 
 @media (max-width: 700px) {
     .hero {
-        height: 590px;
+        height: auto;
         min-height: 590px;
     }
 
