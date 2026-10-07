@@ -1,0 +1,217 @@
+{
+  "siteId": "liquorstore",
+  "template": "bottle-shop",
+  "title": "Bottle & Barrel bottle shop",
+  "previewPath": "/demo/liquorstore/",
+  "ageAcknowledgement": true,
+  "settings": [
+    {
+      "key": "name",
+      "label": "Store name",
+      "type": "text",
+      "maxLength": 120,
+      "required": true
+    },
+    {
+      "key": "tagline",
+      "label": "Store tagline",
+      "type": "text",
+      "maxLength": 180
+    },
+    {
+      "key": "heroTitle",
+      "label": "Homepage headline",
+      "type": "text",
+      "maxLength": 180
+    },
+    {
+      "key": "heroIntro",
+      "label": "Homepage introduction",
+      "type": "textarea",
+      "maxLength": 500
+    },
+    {
+      "key": "location",
+      "label": "Store location",
+      "type": "text",
+      "maxLength": 160
+    },
+    {
+      "key": "phone",
+      "label": "Phone",
+      "type": "tel",
+      "maxLength": 40
+    },
+    {
+      "key": "address",
+      "label": "Street address",
+      "type": "text",
+      "maxLength": 180
+    },
+    {
+      "key": "hours",
+      "label": "Store hours",
+      "type": "textarea",
+      "maxLength": 500
+    },
+    {
+      "key": "heroImageKey",
+      "label": "Primary hero image",
+      "type": "image",
+      "imageCollection": "rotators"
+    },
+    {
+      "key": "adviceTitle",
+      "label": "Store message heading",
+      "type": "text",
+      "maxLength": 180
+    },
+    {
+      "key": "adviceBody",
+      "label": "Store message",
+      "type": "textarea",
+      "maxLength": 500
+    },
+    {
+      "key": "primaryColor",
+      "label": "Primary color",
+      "type": "color"
+    },
+    {
+      "key": "accentColor",
+      "label": "Accent color",
+      "type": "color"
+    }
+  ],
+  "categories": [
+    "Wine",
+    "Spirits",
+    "Beer",
+    "Gifts"
+  ],
+  "categoryPages": [
+    {
+      "key": "wine",
+      "label": "Wine",
+      "path": "/demo/liquorstore/wine/",
+      "description": "Wine collection"
+    },
+    {
+      "key": "spirits",
+      "label": "Spirits",
+      "path": "/demo/liquorstore/spirits/",
+      "description": "Spirits collection"
+    },
+    {
+      "key": "beer",
+      "label": "Beer",
+      "path": "/demo/liquorstore/beer/",
+      "description": "Beer collection"
+    },
+    {
+      "key": "gifts",
+      "label": "Gifts & Extras",
+      "path": "/demo/liquorstore/gifts/",
+      "description": "Gifts and accessories"
+    }
+  ],
+  "contentCollections": {
+    "heroSlides": {
+      "source": "/demo/liquorstore/content/hero-slides.json",
+      "minimumItems": 1,
+      "fields": [
+        "eyebrow",
+        "title",
+        "text",
+        "caption",
+        "subcaption",
+        "image",
+        "alt"
+      ],
+      "imageCollection": "rotators",
+      "rotationSeconds": 7,
+      "showControlsOnlyWhenMultiple": true
+    },
+    "products": {
+      "source": "/demo/liquorstore/content/catalog.json",
+      "editableFields": [
+        "name",
+        "category",
+        "subcategory",
+        "brand",
+        "size",
+        "description",
+        "priceCents",
+        "available",
+        "published",
+        "sortOrder",
+        "imageKey",
+        "imageAlt"
+      ],
+      "filters": [
+        "search",
+        "priceRange",
+        "category",
+        "brand",
+        "size"
+      ],
+      "sortOptions": [
+        "featured",
+        "priceAscending",
+        "priceDescending",
+        "nameAscending"
+      ],
+      "imageCollection": "catalog",
+      "futureApiSource": "/demo/api/catalog/{storeSlug}",
+      "editorWritesTo": "The adaptive editor will replace the static catalog source with a tenant-scoped API at integration time."
+    },
+    "decorativeAssets": {
+      "imageCollection": "decorative",
+      "folder": "/demo/liquorstore/images/decorative/"
+    }
+  },
+  "imageCollections": {
+    "rotators": {
+      "folder": "/demo/liquorstore/images/rotators/",
+      "r2Prefix": "liquorstore/rotators/",
+      "maxWidth": 2000,
+      "maxHeight": 1200,
+      "fit": "cover"
+    },
+    "catalog": {
+      "folder": "/demo/liquorstore/images/catalog/{category}/",
+      "r2Prefix": "liquorstore/catalog/{category}/",
+      "allowedCategories": [
+        "wine",
+        "spirits",
+        "beer",
+        "gifts"
+      ],
+      "maxWidth": 1200,
+      "maxHeight": 1200,
+      "fit": "contain"
+    },
+    "decorative": {
+      "folder": "/demo/liquorstore/images/decorative/",
+      "r2Prefix": "liquorstore/decorative/",
+      "maxWidth": 1600,
+      "maxHeight": 1200,
+      "fit": "cover"
+    }
+  },
+  "itemLabel": "Product",
+  "itemFields": [
+    "name",
+    "category",
+    "subcategory",
+    "brand",
+    "size",
+    "description",
+    "price",
+    "availability",
+    "published",
+    "sortOrder",
+    "photo",
+    "altText"
+  ]
+}

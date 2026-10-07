@@ -1,0 +1,30 @@
+{
+  "store": {
+    "name": "Bottle & Barrel",
+    "tagline": "Thoughtful bottles. Neighborly service.",
+    "location": "Jacksonville, Florida",
+    "phone": "(904) 555-0101",
+    "address": "Jacksonville, Florida",
+    "hours": "Mon–Sat · 10am–8pm",
+    "primaryColor": "#292c29",
+    "accentColor": "#87927b"
+  },
+  "products": [
+    { "id": "bb-wine-001", "name": "North Coast Cabernet Sauvignon", "category": "Wine", "subcategory": "Red Wine", "brand": "Hearthstone Cellars", "size": "750 ml", "description": "Dark cherry, gentle spice, and an easy finish for a dinner table.", "priceCents": 1899, "available": true, "published": true, "sortOrder": 1, "image": "", "imageAlt": "" },
+    { "id": "bb-wine-002", "name": "Willamette Valley Pinot Noir", "category": "Wine", "subcategory": "Red Wine", "brand": "Riverbend Estate", "size": "750 ml", "description": "Bright red fruit and a soft, balanced finish.", "priceCents": 2499, "available": true, "published": true, "sortOrder": 2, "image": "", "imageAlt": "" },
+    { "id": "bb-wine-003", "name": "Coastal Chardonnay", "category": "Wine", "subcategory": "White Wine", "brand": "Low Tide Vineyards", "size": "750 ml", "description": "Fresh apple and citrus with a light touch of oak.", "priceCents": 1599, "available": true, "published": true, "sortOrder": 3, "image": "", "imageAlt": "" },
+    { "id": "bb-wine-004", "name": "Brut Sparkling Rosé", "category": "Wine", "subcategory": "Sparkling Wine", "brand": "Maison Belle Rive", "size": "750 ml", "description": "Fine bubbles, strawberry, and a clean, dry finish.", "priceCents": 2799, "available": true, "published": true, "sortOrder": 4, "image": "", "imageAlt": "" },
+    { "id": "bb-wine-005", "name": "Old Vine Zinfandel", "category": "Wine", "subcategory": "Red Wine", "brand": "Hearthstone Cellars", "size": "750 ml", "description": "Ripe berry with a little pepper and warmth.", "priceCents": 3299, "available": true, "published": true, "sortOrder": 5, "image": "", "imageAlt": "" },
+    { "id": "bb-wine-006", "name": "Sauvignon Blanc", "category": "Wine", "subcategory": "White Wine", "brand": "South Mist", "size": "750 ml", "description": "Lively citrus, green melon, and a refreshing finish.", "priceCents": 1299, "available": true, "published": true, "sortOrder": 6, "image": "", "imageAlt": "" },
+    { "id": "bb-spirit-001", "name": "Small Batch Bourbon", "category": "Spirits", "subcategory": "Bourbon", "brand": "B&B Reserve", "size": "750 ml", "description": "Vanilla, toasted oak, and a smooth, lingering finish.", "priceCents": 3499, "available": true, "published": true, "sortOrder": 7, "image": "", "imageAlt": "" },
+    { "id": "bb-spirit-002", "name": "Kentucky Straight Bourbon", "category": "Spirits", "subcategory": "Bourbon", "brand": "Barrel Select", "size": "750 ml", "description": "A full-bodied pour with caramel and baking spice.", "priceCents": 4250, "available": true, "published": true, "sortOrder": 8, "image": "", "imageAlt": "" },
+    { "id": "bb-spirit-003", "name": "Reposado Tequila", "category": "Spirits", "subcategory": "Tequila", "brand": "Casa del Sol", "size": "750 ml", "description": "Rested in oak for a mellow, rounded character.", "priceCents": 3899, "available": true, "published": true, "sortOrder": 9, "image": "", "imageAlt": "" },
+    { "id": "bb-spirit-004", "name": "Small Batch London Dry Gin", "category": "Spirits", "subcategory": "Gin", "brand": "Garden Gate", "size": "750 ml", "description": "Juniper-led with citrus peel and garden herbs.", "priceCents": 2799, "available": true, "published": true, "sortOrder": 10, "image": "", "imageAlt": "" },
+    { "id": "bb-spirit-005", "name": "Aged Dark Rum", "category": "Spirits", "subcategory": "Rum", "brand": "Harbor & Cane", "size": "750 ml", "description": "Molasses, dried fruit, and a warm oak note.", "priceCents": 3199, "available": true, "published": true, "sortOrder": 11, "image": "", "imageAlt": "" },
+    { "id": "bb-beer-001", "name": "River Bend Amber Ale", "category": "Beer", "subcategory": "Craft Beer", "brand": "River Bend Brewing", "size": "6 pack · 12 oz", "description": "Toasty malt with a crisp, balanced finish.", "priceCents": 1299, "available": true, "published": true, "sortOrder": 12, "image": "", "imageAlt": "" },
+    { "id": "bb-beer-002", "name": "Sunshine Citrus IPA", "category": "Beer", "subcategory": "IPA", "brand": "Sunshine Brewing", "size": "6 pack · 12 oz", "description": "Bright citrus and a pleasantly hoppy finish.", "priceCents": 1399, "available": true, "published": true, "sortOrder": 13, "image": "", "imageAlt": "" },
+    { "id": "bb-beer-003", "name": "Easy Day Pilsner", "category": "Beer", "subcategory": "Lager & Pilsner", "brand": "River Bend Brewing", "size": "6 pack · 12 oz", "description": "A clean, easy-drinking lager with a floral hop note.", "priceCents": 1199, "available": true, "published": true, "sortOrder": 14, "image": "", "imageAlt": "" },
+    { "id": "bb-gift-001", "name": "Old Fashioned Glass Set", "category": "Gifts", "subcategory": "Glassware", "brand": "Bottle & Barrel", "size": "Set of 2", "description": "Weighted-bottom glasses for a favorite classic cocktail.", "priceCents": 1900, "available": true, "published": true, "sortOrder": 15, "image": "", "imageAlt": "" },
+    { "id": "bb-gift-002", "name": "Host Gift Set", "category": "Gifts", "subcategory": "Gift Sets", "brand": "Bottle & Barrel", "size": "Gift set", "description": "A thoughtful pairing for a dinner invitation or celebration.", "priceCents": 2800, "available": true, "published": true, "sortOrder": 16, "image": "", "imageAlt": "" }
+  ]
+}
