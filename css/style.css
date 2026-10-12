@@ -566,3 +566,44 @@ main {
   .affiliate-menu { left: 12px; bottom: 34px; }
   .home-contact { left: 60px; bottom: 11px; padding-left: 0; }
 }
+
+/* MARK07 — Homepage contact relocation requested for launch.
+   Glowing degree menu remains at bottom-left; copyright stays beside it.
+   The business email moves independently to the bottom-right in brand lime. */
+.home-contact {
+  position: fixed;
+  left: auto;
+  right: 22px;
+  bottom: 18px;
+  padding: 0;
+  z-index: 998;
+  text-align: right;
+  font: 600 .82rem/1.35 "Oxanium", Arial, sans-serif;
+  letter-spacing: .025em;
+}
+.home-contact a,
+.home-contact a:visited {
+  color: #A3FF40;
+  text-decoration: none;
+}
+.home-contact a:hover {
+  color: #D8FFAE;
+  text-decoration: underline;
+}
+.home-contact a:focus-visible {
+  color: #D8FFAE;
+  outline: 2px solid #A3FF40;
+  outline-offset: 5px;
+}
+.home-copyright {
+  position: fixed;
+  left: 64px;
+  bottom: 18px;
+  z-index: 998;
+  color: #87928b;
+  font: 400 .58rem/1.35 "Oxanium", Arial, sans-serif;
+}
+@media (max-width: 680px) {
+  .home-contact { right: 12px; bottom: 13px; font-size: .72rem; }
+  .home-copyright { left: 60px; bottom: 42px; font-size: .55rem; }
+}

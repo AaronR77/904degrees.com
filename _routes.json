@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "include": [
+    "/admin",
+    "/admin/*",
+    "/customer",
+    "/customer/*",
+    "/api/admin/*",
+    "/api/customer/*"
+  ],
+  "exclude": []
+}
