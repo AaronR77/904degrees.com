@@ -551,3 +551,18 @@ main {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* MARK02 homepage additions */
+.customer-portal-link{position:fixed;right:22px;top:20px;z-index:1000;padding:11px 16px;border:1px solid rgba(168,219,0,.38);border-radius:8px;background:rgba(8,12,9,.88);color:#c7ff19;font-size:.74rem;letter-spacing:.12em;text-decoration:none;backdrop-filter:blur(10px)}.customer-portal-link:hover,.customer-portal-link:focus-visible{background:#1e2b0d;outline:2px solid #a8db00;outline-offset:2px}.home-contact{position:fixed;bottom:13px;left:16px;z-index:998;padding-left:47px;font-size:.76rem}.home-contact-line{display:flex;align-items:center;gap:9px;min-height:36px}.home-contact a{color:#d8dedb;text-decoration:none}.home-contact a:hover{text-decoration:underline;color:#c7ff19}.home-contact small{display:block;color:#87928b;font-size:.58rem}.home-contact .home-degree{position:absolute;left:0;bottom:11px;font-size:2.3rem;color:#a8db00;text-shadow:0 0 8px #a8db00,0 0 23px rgba(168,219,0,.7);line-height:1}.affiliate-menu{bottom:70px}.affiliate-menu .affiliate-links.is-open{opacity:1;visibility:visible;transform:translateY(0) scale(1)}@media(max-width:680px){.customer-portal-link{right:12px;top:10px;padding:9px 10px;font-size:.65rem}.home-contact{font-size:.69rem;bottom:10px}.affiliate-menu{bottom:72px}}
+
+/* MARK04: use the existing glowing dropdown trigger as the sole footer degree.
+   Align the contact email beside it and place copyright below the email. */
+.affiliate-menu { left: 16px; bottom: 36px; }
+.home-contact { left: 64px; bottom: 13px; padding-left: 0; }
+.home-contact-line { min-height: 38px; gap: 0; }
+.home-contact .home-degree { display: none; }
+.home-contact small { line-height: 1.25; }
+@media (max-width: 680px) {
+  .affiliate-menu { left: 12px; bottom: 34px; }
+  .home-contact { left: 60px; bottom: 11px; padding-left: 0; }
+}

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#040704">
+  <meta name="description" content="The Nondescript Door. An entirely reasonable way to visit the 904° Portal.">
+  <title>The Nondescript Door · 904°</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="/assets/904_Logo_Lime.png">
+  <link rel="stylesheet" href="/nondescript/assets/cinematic.css?v=1.0.0">
+  <script defer src="/nondescript/assets/renderer.js?v=1.0.0"></script>
+  <script defer src="/nondescript/assets/audio.js?v=1.0.0"></script>
+  <script defer src="/nondescript/assets/realities.js?v=1.0.0"></script>
+  <script defer src="/nondescript/assets/cinematic.js?v=1.0.0"></script>
+</head>
+<body>
+  <main id="experience" aria-label="The Nondescript Door cinematic experience">
+    <canvas id="space" aria-hidden="true"></canvas>
+    <div id="fx-flash" aria-hidden="true"></div>
+    <div id="plaid" aria-hidden="true"></div>
+    <div id="edge-vignette" aria-hidden="true"></div>
+
+    <section id="charging" class="scene visible" aria-label="Preparing hyperspace">
+      <div id="gate" aria-hidden="true">
+        <div class="gate-outer"></div><div class="gate-ring"></div><div class="gate-inner"></div>
+        <div class="gate-sparks"></div>
+      </div>
+      <div class="charging-copy">
+        <p class="eyebrow">904° // NONDESCRIPT DOOR</p>
+        <h1>CHARGING REALITY</h1>
+        <p id="charging-status">Locating enough energy to make a poor decision...</p>
+        <div class="charge-meter" aria-hidden="true"><span id="charge-progress"></span></div>
+      </div>
+    </section>
+
+    <div id="warp-hud" class="scene" aria-hidden="true">
+      <div class="vertical-readout"><span>904°</span><small>DIMENSIONAL DESCENT</small></div>
+      <div id="speed-meter">VELOCITY // UNREASONABLE</div>
+    </div>
+
+    <section id="reboot" class="scene" aria-label="Computer restarting">
+      <div class="scanlines" aria-hidden="true"></div>
+      <div class="reboot-frame">
+        <p class="eyebrow">904° // EMERGENCY SYSTEM RESTART</p>
+        <div id="reboot-logo-wrap"><img id="reboot-logo" src="/assets/904_Logo_Lime.png" alt="904°"></div>
+        <div class="reboot-screen" aria-live="off">
+          <div id="reboot-status">ATTEMPTING TO REBOOT REALITY...</div>
+          <div id="reboot-progress"><span></span></div>
+          <pre id="reboot-lines"></pre>
+        </div>
+      </div>
+    </section>
+
+    <section id="recovery" class="scene" aria-label="Computer recovery">
+      <div class="recovery-terminal">
+        <div class="terminal-top"><span>904° // REALITY OS</span><span id="term-clock">00:00:00</span></div>
+        <pre id="terminal-lines"></pre>
+        <div class="terminal-cursor" aria-hidden="true">C:\REALITY&gt; <span>█</span></div>
+      </div>
+      <div id="recovery-reveal" aria-hidden="true">
+        <div class="rec-circle rec-circle-a"></div><div class="rec-circle rec-circle-b"></div>
+        <div class="rec-core"><span>904°</span><small>RECOVERY MODE</small></div>
+      </div>
+    </section>
+
+    <section id="dimensional" class="scene" aria-label="Searching alternate realities">
+      <div class="rift-outer" aria-hidden="true">
+        <div id="rift-glow"></div>
+        <div id="rift-window"><canvas id="reality-canvas"></canvas><div id="reality-distortion"></div></div>
+      </div>
+      <div class="reality-banner" aria-hidden="true">
+        <div class="banner-top">904° // COORDINATES UNSTABLE</div>
+        <div id="dimension-label">SCANNING POSSIBLE UNIVERSES...</div>
+        <div id="dimension-count">UNIVERSE 01 / 05</div>
+      </div>
+    </section>
+
+    <section id="assembly" class="scene" aria-label="Reassembling destination">
+      <iframe id="arrival-preview" title="904° Portal arriving" tabindex="-1" aria-hidden="true" loading="eager"></iframe>
+      <div id="assembly-tiles" aria-hidden="true"></div>
+      <div id="arrival-label">REASSEMBLING REALITY <span>904DEGREES.COM/PORTAL/</span></div>
+    </section>
+
+    <section id="emergency" class="scene" role="alert" aria-live="assertive">
+      <div class="emergency-box">
+        <p class="eyebrow">904° // EMERGENCY DIAGNOSTICS</p>
+        <h2>UNEXPECTED REALITY FAILURE</h2>
+        <pre id="emergency-lines"></pre>
+        <p class="emergency-note">Redirecting to a universe with better uptime...</p>
+        <a class="emergency-link" href="/portal/">CONTINUE TO PORTAL ↗</a>
+      </div>
+    </section>
+
+    <div id="controls" class="controls" role="group" aria-label="Cinematic controls">
+      <span class="controls-brand" aria-hidden="true"><span class="controls-dot"></span>904° // NONDESCRIPT DOOR</span>
+      <div class="controls-actions">
+        <button id="sound" class="control-button" type="button" aria-label="Mute soundtrack" aria-pressed="false">
+          <span id="sound-symbol" aria-hidden="true">◖))</span><span id="sound-label">SOUND ON</span>
+        </button>
+        <span class="control-separator" aria-hidden="true"></span>
+        <a id="skip" class="control-button skip-button" href="/portal/">SKIP <span aria-hidden="true">↗</span></a>
+      </div>
+    </div>
+    <p id="sr-status" class="sr-only" role="status" aria-live="polite"></p>
+    <noscript><div class="noscript">904° needs JavaScript to open this door. <a href="/portal/">Enter the Portal directly →</a></div></noscript>
+  </main>
+</body>
+</html>

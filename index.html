@@ -19,6 +19,8 @@
   <div class="ambient ambient-one" aria-hidden="true"></div>
   <div class="ambient ambient-two" aria-hidden="true"></div>
 
+  <a class="customer-portal-link" href="/portal/">CUSTOMER PORTAL <span aria-hidden="true">↗</span></a>
+
   <main>
     <section class="landing" aria-labelledby="site-tagline">
       <div class="hero">
@@ -78,13 +80,16 @@
     </section>
   </main>
 
+  <div class="home-contact"><div class="home-contact-line"><a href="mailto:aaron@904degrees.com">aaron@904degrees.com</a></div><small>© 2026 904° · All rights reserved.</small></div>
+
   <div class="affiliate-menu">
-    <button class="affiliate-degree" type="button" aria-label="More links">
+    <button class="affiliate-degree" type="button" aria-label="More links" aria-expanded="false" aria-controls="affiliate-links">
       <span class="degree-ring" aria-hidden="true"></span>
     </button>
 
-    <div class="affiliate-links">
+    <div class="affiliate-links" id="affiliate-links">
       <a href="/activated/">Activated Handyman Services</a>
+      <a href="/nondescript/">The Nondescript Door</a>
       <a
         href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&autoplay=1"
         target="_blank"
@@ -94,5 +99,6 @@
       </a>
     </div>
   </div>
+  <script src="/js/home.js" defer></script>
 </body>
 </html>
