@@ -1,12 +1,12 @@
 /*
- * 904° MARK06 — Access perimeter for Cloudflare Pages.
+ * 904° MARK08 — Cloudflare Access perimeter and server-only denial diagnostics.
  *
- * This runs BEFORE serving static files or Functions at protected URLs.
- * No configuration, no token, bad signature, wrong audience, or an email
- * absent from the appropriate allowlist => DENY. There is no dev bypass.
+ * Fail closed on missing configuration, absent/invalid JWT, expired session,
+ * mismatched Access application audience, or unauthorized email.
  *
- * Cloudflare Access supplies the signed Cf-Access-Jwt-Assertion header.
- * Its identity token is verified here, rather than trusting a bare email header.
+ * DIAGNOSTICS: log only a fixed failure category and ADMIN/CUSTOMER area.
+ * Never log tokens, JWT contents, signing keys, email addresses, configured
+ * audience tags, or the Access team domain. Client response stays generic.
  */
 
 const KEY_CACHE_MS = 5 * 60 * 1000;
@@ -14,12 +14,15 @@ const MAX_TOKEN_LENGTH = 16384;
 const decoder = new TextDecoder();
 const keyCaches = new Map();
 
-function deny() {
+function deny(area, reason) {
+  // Cloudflare Pages > Real-time logs: filter by 904_ACCESS_DENIAL.
+  // No PII, tokens, or authorization configuration values leave the Worker.
+  console.warn('904_ACCESS_DENIAL', JSON.stringify({ area, reason }));
   return new Response('904° — Access denied. This area requires approved sign-in.\n', {
     status: 403,
     headers: {
       'Content-Type': 'text/plain; charset=utf-8',
-      'Cache-Control': 'no-store',
+      'Cache-Control': 'private, no-store',
       'X-Robots-Tag': 'noindex, nofollow, noarchive',
       'X-Content-Type-Options': 'nosniff',
     },
@@ -27,7 +30,7 @@ function deny() {
 }
 
 function b64urlBytes(input) {
-  if (!/^[A-Za-z0-9_-]+$/.test(input)) throw new Error('Invalid base64url');
+  if (!/^[A-Za-z0-9_-]+$/.test(input)) throw new Error('bad-base64url');
   const base64 = input.replace(/-/g, '+').replace(/_/g, '/');
   const binary = atob(base64 + '='.repeat((4 - base64.length % 4) % 4));
   return Uint8Array.from(binary, character => character.charCodeAt(0));
@@ -38,8 +41,8 @@ function parsePart(part) {
 }
 
 function allowedEmails(csv) {
-  return new Set(String(csv || '')
-    .split(',').map(email => email.trim().toLowerCase()).filter(Boolean));
+  return new Set(String(csv || '').split(',')
+    .map(email => email.trim().toLowerCase()).filter(Boolean));
 }
 
 function exactTeamDomain(raw) {
@@ -47,64 +50,99 @@ function exactTeamDomain(raw) {
   try {
     const value = new URL(String(raw));
     if (value.protocol !== 'https:' || value.username || value.password || value.port ||
-        value.pathname !== '/' || value.search || value.hash ||
-        !/^[a-z0-9-]+\.cloudflareaccess\.com$/i.test(value.hostname)) return null;
+      value.pathname !== '/' || value.search || value.hash ||
+      !/^[a-z0-9-]+\.cloudflareaccess\.com$/i.test(value.hostname)) return null;
     return value.origin;
-  } catch (_) { return null; }
+  } catch (_) {
+    return null;
+  }
+}
+
+class AccessDiagnosticError extends Error {
+  constructor(reason) {
+    super('Access verification failed');
+    this.reason = reason;
+  }
 }
 
 async function publicKeys(issuer) {
   const cached = keyCaches.get(issuer);
   if (cached && Date.now() < cached.until) return cached.keys;
 
-  // The hostname is strictly validated above and is NOT read from any JWT.
-  const response = await fetch(issuer + '/cdn-cgi/access/certs', {
-    headers: { Accept: 'application/json' },
-    redirect: 'error',
-    signal: AbortSignal.timeout(3500),
-  });
-  if (!response.ok) throw new Error('Access certificate endpoint unavailable');
-  const document = await response.json();
-  if (!Array.isArray(document.keys) || document.keys.length === 0 || document.keys.length > 10) {
-    throw new Error('Missing Access keys');
+  let response;
+  try {
+    response = await fetch(issuer + '/cdn-cgi/access/certs', {
+      headers: { Accept: 'application/json' },
+      redirect: 'error',
+      signal: AbortSignal.timeout(3500),
+    });
+  } catch (_) {
+    throw new AccessDiagnosticError('cert_fetch_failed');
+  }
+  if (!response.ok) throw new AccessDiagnosticError('cert_http_error');
+  let document;
+  try {
+    document = await response.json();
+  } catch (_) {
+    throw new AccessDiagnosticError('cert_json_invalid');
+  }
+  if (!Array.isArray(document.keys) || !document.keys.length || document.keys.length > 10) {
+    throw new AccessDiagnosticError('cert_keys_missing');
   }
   const keys = document.keys.filter(key => key && key.kty === 'RSA' &&
     typeof key.kid === 'string' && (!key.alg || key.alg === 'RS256') &&
     (!key.use || key.use === 'sig'));
-  if (!keys.length) throw new Error('No valid Access verification keys');
+  if (!keys.length) throw new AccessDiagnosticError('cert_rsa_keys_missing');
   keyCaches.set(issuer, { keys, until: Date.now() + KEY_CACHE_MS });
   return keys;
 }
 
 async function verifyAccessJwt(token, issuer, audience) {
-  if (!token || token.length > MAX_TOKEN_LENGTH) return null;
+  if (!token) return { reason: 'jwt_missing' };
+  if (token.length > MAX_TOKEN_LENGTH) return { reason: 'jwt_too_large' };
   const chunks = token.split('.');
-  if (chunks.length !== 3) return null;
+  if (chunks.length !== 3) return { reason: 'jwt_structure_invalid' };
   const [headerSegment, payloadSegment, signatureSegment] = chunks;
-  const header = parsePart(headerSegment);
-  if (header.alg !== 'RS256' || typeof header.kid !== 'string' || !header.kid) return null;
+  let header;
+  try { header = parsePart(headerSegment); }
+  catch (_) { return { reason: 'jwt_header_invalid' }; }
+  if (header.alg !== 'RS256' || typeof header.kid !== 'string' || !header.kid) {
+    return { reason: 'jwt_header_algorithm_invalid' };
+  }
   const keys = await publicKeys(issuer);
   const key = keys.find(item => item.kid === header.kid);
-  if (!key) return null;
+  if (!key) return { reason: 'jwt_kid_not_found' };
 
-  const publicKey = await crypto.subtle.importKey(
-    'jwk', key, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']
-  );
-  const signedContent = new TextEncoder().encode(headerSegment + '.' + payloadSegment);
-  const verified = await crypto.subtle.verify(
-    'RSASSA-PKCS1-v1_5', publicKey, b64urlBytes(signatureSegment), signedContent
-  );
-  if (!verified) return null;
+  let verified;
+  try {
+    const publicKey = await crypto.subtle.importKey(
+      'jwk', key, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['verify']
+    );
+    verified = await crypto.subtle.verify(
+      'RSASSA-PKCS1-v1_5', publicKey, b64urlBytes(signatureSegment),
+      new TextEncoder().encode(headerSegment + '.' + payloadSegment)
+    );
+  } catch (_) {
+    return { reason: 'jwt_crypto_error' };
+  }
+  if (!verified) return { reason: 'jwt_signature_invalid' };
 
-  const claims = parsePart(payloadSegment);
+  let claims;
+  try { claims = parsePart(payloadSegment); }
+  catch (_) { return { reason: 'jwt_payload_invalid' }; }
   const current = Math.floor(Date.now() / 1000);
   const audiences = Array.isArray(claims.aud) ? claims.aud : [claims.aud];
-  if (claims.iss !== issuer || !audiences.includes(audience) ||
-      !Number.isInteger(claims.exp) || claims.exp <= current ||
-      (claims.nbf !== undefined && (!Number.isInteger(claims.nbf) || claims.nbf > current)) ||
-      (claims.iat !== undefined && (!Number.isInteger(claims.iat) || claims.iat > current + 60)) ||
-      typeof claims.email !== 'string') return null;
-  return claims;
+  if (claims.iss !== issuer) return { reason: 'jwt_issuer_mismatch' };
+  if (!audiences.includes(audience)) return { reason: 'jwt_audience_mismatch' };
+  if (!Number.isInteger(claims.exp) || claims.exp <= current) return { reason: 'jwt_expired_or_invalid' };
+  if (claims.nbf !== undefined && (!Number.isInteger(claims.nbf) || claims.nbf > current)) {
+    return { reason: 'jwt_not_yet_valid' };
+  }
+  if (claims.iat !== undefined && (!Number.isInteger(claims.iat) || claims.iat > current + 60)) {
+    return { reason: 'jwt_issued_at_invalid' };
+  }
+  if (typeof claims.email !== 'string') return { reason: 'jwt_email_missing' };
+  return { identity: claims };
 }
 
 export async function onRequest(context) {
@@ -117,20 +155,21 @@ export async function onRequest(context) {
   const issuer = exactTeamDomain(env.ACCESS_TEAM_DOMAIN);
   const audience = String(env[`ACCESS_${area}_AUD`] || '').trim();
   const addresses = allowedEmails(env[`ACCESS_${area}_EMAILS`]);
-  if (!issuer || !audience || addresses.size === 0) return deny();
+  if (!issuer) return deny(area, 'config_issuer_invalid');
+  if (!audience) return deny(area, 'config_audience_missing');
+  if (!addresses.size) return deny(area, 'config_emails_missing');
 
   try {
     const jwt = context.request.headers.get('Cf-Access-Jwt-Assertion');
-    const identity = await verifyAccessJwt(jwt, issuer, audience);
-    if (!identity || !addresses.has(identity.email.trim().toLowerCase())) return deny();
+    const checked = await verifyAccessJwt(jwt, issuer, audience);
+    if (!checked.identity) return deny(area, checked.reason);
+    const identity = checked.identity;
+    if (!addresses.has(identity.email.trim().toLowerCase())) return deny(area, 'email_not_allowlisted');
 
-    // Cloudflare Access determines the session validity. For the browser
-    // auto-logout timer, do not extend a single JWT beyond its own expiration
-    // or the selected role's maximum age from token issuance.
     const limitSeconds = area === 'ADMIN' ? 6 * 3600 : 24 * 3600;
     const issued = Number.isInteger(identity.iat) ? identity.iat : null;
     const expires = issued === null ? identity.exp : Math.min(identity.exp, issued + limitSeconds);
-    if (expires <= Math.floor(Date.now() / 1000)) return deny();
+    if (expires <= Math.floor(Date.now() / 1000)) return deny(area, 'area_session_expired');
 
     if (path === `/api/${area.toLowerCase()}/session`) {
       return new Response(JSON.stringify({ area: area.toLowerCase(), expiresAt: expires * 1000 }), {
@@ -144,15 +183,12 @@ export async function onRequest(context) {
       });
     }
     const response = await context.next();
-    // These routes should never be stored in intermediary or browser caches.
     const headers = new Headers(response.headers);
     headers.set('Cache-Control', 'private, no-store');
     headers.set('X-Robots-Tag', 'noindex, nofollow, noarchive');
     headers.set('X-Content-Type-Options', 'nosniff');
     return new Response(response.body, { status: response.status, statusText: response.statusText, headers });
-  } catch (_) {
-    // Certificate retrieval failures, malformed tokens and internal errors
-    // must not expose protected content.
-    return deny();
+  } catch (error) {
+    return deny(area, error instanceof AccessDiagnosticError ? error.reason : 'internal_verification_error');
   }
 }
