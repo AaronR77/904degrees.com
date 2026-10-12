@@ -1,5 +1,5 @@
 /*
- * 904° MARK08 — Cloudflare Access perimeter and server-only denial diagnostics.
+ * 904° MARK09 — Cloudflare Access certificate retrieval compatibility fix.
  *
  * Fail closed on missing configuration, absent/invalid JWT, expired session,
  * mismatched Access application audience, or unauthorized email.
@@ -71,13 +71,19 @@ async function publicKeys(issuer) {
 
   let response;
   try {
+    // Follow the documented Access JWKS URL using the platform's ordinary
+    // fetch behavior. A redirect rejection or overly aggressive timeout can
+    // fail a valid cert response before signature verification even starts.
+    // Never send user credentials or JWTs to the cert endpoint.
     response = await fetch(issuer + '/cdn-cgi/access/certs', {
       headers: { Accept: 'application/json' },
-      redirect: 'error',
-      signal: AbortSignal.timeout(3500),
     });
-  } catch (_) {
-    throw new AccessDiagnosticError('cert_fetch_failed');
+  } catch (error) {
+    // Fixed, non-sensitive diagnostics only: never log raw error messages,
+    // request URLs, access tokens, private environment values, or headers.
+    const reason = error && (error.name === 'TimeoutError' || error.name === 'AbortError')
+      ? 'cert_fetch_timeout' : 'cert_fetch_network_error';
+    throw new AccessDiagnosticError(reason);
   }
   if (!response.ok) throw new AccessDiagnosticError('cert_http_error');
   let document;
