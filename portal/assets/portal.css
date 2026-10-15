@@ -14,6 +14,12 @@
 .top nav a.portal-logout:hover {background:#a3ff40; color:#080c08;}
 .top nav a.portal-logout:focus-visible {outline:3px solid #fff; outline-offset:3px;}
 @media(max-width:760px) {
-  .top nav .portal-session-label {display:none;}
+  .top nav .portal-session-label {font-size:.62rem;}
   .top nav a.portal-logout {min-height:44px; padding:10px 14px;}
+}
+
+/* MARK13.1 — keep login time visible on desktop and mobile. */
+.top nav .portal-session-label {
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum";
 }

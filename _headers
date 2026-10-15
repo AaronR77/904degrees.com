@@ -11,3 +11,11 @@
 /customer/*
   X-Robots-Tag: noindex, nofollow, noarchive
   Cache-Control: private, no-store
+
+/showroom
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: private, no-store
+
+/showroom/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+  Cache-Control: private, no-store

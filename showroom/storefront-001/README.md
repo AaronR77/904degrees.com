@@ -1,14 +1,14 @@
 # Bottle & Barrel storefront
 
-This is the first complete storefront under `/demo/liquorstore/`. It runs as a static website with its sample catalog in `content/catalog.json`; the shared editor will later replace that local content source with tenant-scoped data and upload handling.
+This is the first complete storefront under `/showroom/storefront-001/`. It runs as a static website with its sample catalog in `content/catalog.json`; the shared editor will later replace that local content source with tenant-scoped data and upload handling.
 
 ## Pages
 
-- `/demo/liquorstore/` — home, hero feature, department entry points, and featured products
-- `/demo/liquorstore/wine/`
-- `/demo/liquorstore/spirits/`
-- `/demo/liquorstore/beer/`
-- `/demo/liquorstore/gifts/`
+- `/showroom/storefront-001/` — home, hero feature, department entry points, and featured products
+- `/showroom/storefront-001/wine/`
+- `/showroom/storefront-001/spirits/`
+- `/showroom/storefront-001/beer/`
+- `/showroom/storefront-001/gifts/`
 
 Every page shares the sticky header, responsive search, department hamburger menu, age acknowledgement, product filters, price sorting, and common footer. The category URLs are separate HTML pages with the same product listing template. Product cards are capped at three columns on wide screens, two on standard tablet/mobile widths, and three on short landscape screens.
 
@@ -20,7 +20,7 @@ Serve the parent website directory so `/demo/...` absolute paths resolve. From t
 python -m http.server 8000 --directory public
 ```
 
-Then open `http://localhost:8000/demo/liquorstore/`. The sample catalog is illustrative. No cart, checkout, or online ordering is included.
+Then open `http://localhost:8000/showroom/storefront-001/`. The sample catalog is illustrative. No cart, checkout, or online ordering is included.
 
 ## Content contract for the future adaptive editor
 

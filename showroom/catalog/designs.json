@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "designs": [
+    {
+      "id": "storefront-001",
+      "number": 1,
+      "name": "Storefront 001",
+      "subtitle": "Retail Catalog",
+      "category": "Storefront",
+      "description": "An inviting multi-page retail catalog with category browsing, product search, price filters, and a rotating homepage feature. Built for browsing, not checkout.",
+      "demoPath": "/showroom/storefront-001/",
+      "detailPath": "/showroom/storefront-001/design/",
+      "tags": ["Multi-Page", "Product Catalog", "No Cart", "Search", "Price Filters", "Hero Rotator", "Mobile Responsive", "Editor-Ready"],
+      "published": true,
+      "featured": true,
+      "order": 1,
+      "updated": "2026-10-12",
+      "exampleBusiness": "Bottle & Barrel · Fictional bottle shop"
+    }
+  ],
+  "tagGroups": [
+    {"name": "Layout", "tags": ["Single-Page", "Multi-Page", "Mobile Responsive"]},
+    {"name": "Commerce", "tags": ["Product Catalog", "Shopping Cart", "No Cart", "Price Filters"]},
+    {"name": "Capabilities", "tags": ["Search", "Hero Rotator", "Image Gallery", "Content Editor", "Editor-Ready", "Booking", "Blog"]}
+  ]
+}

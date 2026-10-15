@@ -59,7 +59,7 @@
     const art = document.createElement('div'); art.className = 'product-image';
     art.style.setProperty('--art-bg', ['#e9e6dc', '#e2e6df', '#eee5da', '#e8e5d7'][index % 4]);
     const department = String(product.category || '').toLowerCase();
-    const imagePath = product.imageUrl || product.image || (product.imageKey ? `/demo/liquorstore/images/catalog/${department}/${product.imageKey}` : '');
+    const imagePath = product.imageUrl || product.image || (product.imageKey ? `/showroom/storefront-001/images/catalog/${department}/${product.imageKey}` : '');
     if (imagePath) {
       const img = document.createElement('img'); img.src = imagePath; img.alt = product.imageAlt || `${product.name} bottle`; img.loading = 'lazy'; art.append(img);
     } else {
@@ -156,7 +156,7 @@
   async function loadRotator() {
     const media = $('#heroMedia'); if (!media) return;
     let slides = [];
-    try { const response = await fetch('/demo/liquorstore/content/hero-slides.json', { cache: 'no-store' }); if (response.ok) slides = await response.json(); } catch { /* Keep the designed single-slide fallback. */ }
+    try { const response = await fetch('/showroom/storefront-001/content/hero-slides.json', { cache: 'no-store' }); if (response.ok) slides = await response.json(); } catch { /* Keep the designed single-slide fallback. */ }
     if (!Array.isArray(slides) || slides.length === 0) return;
     let index = 0, timer = 0;
     const controls = $('#rotatorControls'), dots = $('#heroDots');
@@ -167,7 +167,7 @@
       setLines($('#heroTitle'), slide.title || 'Make room for something good.');
       $('#heroText').textContent = slide.text || ''; setLines($('#heroCaption'), slide.caption || slide.title || ''); $('#heroSubcaption').textContent = slide.subcaption || '';
       const image = String(slide.image || '').trim();
-      if (image && image.startsWith('/demo/liquorstore/images/rotators/')) { media.classList.add('has-image'); media.style.backgroundImage = `linear-gradient(90deg,#29251d20,#29251d35),url("${image.replace(/["\\]/g, '')}")`; media.setAttribute('aria-label', slide.alt || slide.title || 'Featured Bottle & Barrel selection'); }
+      if (image && image.startsWith('/showroom/storefront-001/images/rotators/')) { media.classList.add('has-image'); media.style.backgroundImage = `linear-gradient(90deg,#29251d20,#29251d35),url("${image.replace(/["\\]/g, '')}")`; media.setAttribute('aria-label', slide.alt || slide.title || 'Featured Bottle & Barrel selection'); }
       else { media.classList.remove('has-image'); media.style.backgroundImage = ''; }
       dots?.querySelectorAll('button').forEach((dot, i) => dot.setAttribute('aria-current', String(i === index)));
     }
@@ -195,7 +195,7 @@
   }
   async function loadCatalog() {
     try {
-      const response = await fetch('/demo/liquorstore/content/catalog.json', { headers: { Accept: 'application/json' }, cache: 'no-cache' });
+      const response = await fetch('/showroom/storefront-001/content/catalog.json', { headers: { Accept: 'application/json' }, cache: 'no-cache' });
       const data = await response.json(); if (!response.ok || !Array.isArray(data.products)) throw new Error('The sample product collection could not be loaded.');
       state.products = data.products.filter(p => p.published !== false).map((p, i) => ({ ...p, sortOrder: p.sortOrder ?? i }));
       const store = data.store || {};

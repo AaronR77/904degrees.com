@@ -1,10 +1,10 @@
 /*
- * 904° MARK09 — Cloudflare Access certificate retrieval compatibility fix.
+ * 904° MARK10 — Cloudflare Access validation for Admin / Customer / Showroom.
  *
  * Fail closed on missing configuration, absent/invalid JWT, expired session,
  * mismatched Access application audience, or unauthorized email.
  *
- * DIAGNOSTICS: log only a fixed failure category and ADMIN/CUSTOMER area.
+ * DIAGNOSTICS: log only a fixed failure category and access area.
  * Never log tokens, JWT contents, signing keys, email addresses, configured
  * audience tags, or the Access team domain. Client response stays generic.
  */
@@ -154,7 +154,8 @@ async function verifyAccessJwt(token, issuer, audience) {
 export async function onRequest(context) {
   const path = new URL(context.request.url).pathname;
   const area = /^\/(?:admin|api\/admin)(?:\/|$)/.test(path) ? 'ADMIN' :
-    /^\/(?:customer|api\/customer)(?:\/|$)/.test(path) ? 'CUSTOMER' : null;
+    /^\/(?:customer|api\/customer)(?:\/|$)/.test(path) ? 'CUSTOMER' :
+    /^\/(?:showroom|api\/showroom)(?:\/|$)/.test(path) ? 'SHOWROOM' : null;
   if (!area) return context.next();
 
   const env = context.env || {};
@@ -177,7 +178,30 @@ export async function onRequest(context) {
     const expires = issued === null ? identity.exp : Math.min(identity.exp, issued + limitSeconds);
     if (expires <= Math.floor(Date.now() / 1000)) return deny(area, 'area_session_expired');
 
-    if (path === `/api/${area.toLowerCase()}/session`) {
+    // Store a verified identity on the Pages Functions context for MARK13 API routes.
+    // Never trust an email or role flag supplied by the browser.
+    context.data = context.data || {};
+    context.data.accessIdentity = { email: identity.email.trim().toLowerCase(), area, expiresAt: expires * 1000 };
+
+    // Opt-in migration to account-backed authorization for protected HTML/assets.
+    // The order APIs enforce D1 roles regardless of this flag. Keep the flag off
+    // until D1 is migrated, owner bootstrapped, and invited identities provisioned.
+    if (String(env.ACCOUNTS_REQUIRE_RECORD || '') === '1') {
+      const db = env.ACCOUNTS_DB;
+      if (!db || typeof db.prepare !== 'function') return deny(area, 'accounts_db_missing');
+      const account = await db.prepare('SELECT status,is_prospect,is_customer,is_admin FROM accounts WHERE email=? COLLATE NOCASE').bind(context.data.accessIdentity.email).first();
+      const bootstrap = area === 'ADMIN' && path === '/api/admin/bootstrap' &&
+        context.data.accessIdentity.email === String(env.ACCESS_OWNER_EMAIL || '').trim().toLowerCase();
+      if (!account && !bootstrap) return deny(area, 'account_not_invited');
+      if (account) {
+        if (account.status === 'suspended') return deny(area, 'account_suspended');
+        if (area === 'ADMIN' && !account.is_admin) return deny(area, 'account_not_admin');
+        if (area === 'CUSTOMER' && !account.is_customer && !account.is_admin) return deny(area, 'account_not_customer');
+        if (area === 'SHOWROOM' && !account.is_prospect && !account.is_customer && !account.is_admin) return deny(area, 'account_not_prospect');
+      }
+    }
+
+    if (path === (area === 'SHOWROOM' ? '/showroom/session' : `/api/${area.toLowerCase()}/session`)) {
       return new Response(JSON.stringify({ area: area.toLowerCase(), expiresAt: expires * 1000 }), {
         status: 200,
         headers: {

@@ -1,0 +1,29 @@
+/* 904° MARK13 — invitation accounts, estimate-first orders. */
+.mark13-section{padding:22px 0 40px}
+.mark13-panel{border:1px solid #344a37;background:linear-gradient(160deg,#142017,#0d1510);padding:22px;border-radius:12px;margin:18px 0}
+.mark13-panel h2,.mark13-panel h3{color:#e5eadd;margin:0 0 12px;font-family:Oxanium,sans-serif}
+.mark13-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:18px}
+.mark13-label{display:flex;flex-direction:column;gap:6px;color:#d7e1d4;font-size:.92rem;font-weight:600}
+.mark13-label input,.mark13-label textarea,.mark13-label select,.mark13-panel select{width:100%;padding:12px;border-radius:7px;border:1px solid #47634b;background:#07100a;color:#fff;min-height:44px}
+.mark13-label textarea{min-height:130px}
+.mark13-label input:focus,.mark13-label textarea:focus,.mark13-label select:focus{outline:2px solid #a3ff40;outline-offset:2px}
+.mark13-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr));gap:14px;margin-bottom:15px}
+.mark13-panel button,.mark13-button{border:1px solid #a3ff40;border-radius:7px;color:#090f07;background:#a3ff40;padding:10px 17px;font-family:Oxanium,sans-serif;font-weight:700;cursor:pointer;text-decoration:none}
+.mark13-panel button:hover,.mark13-button:hover{filter:brightness(1.12)}
+.mark13-panel button:disabled{opacity:.55;cursor:not-allowed}
+.mark13-panel .button-outline,.mark13-panel .mark13-outline{background:transparent;color:#a3ff40}
+.mark13-status{color:#c5efad;min-height:1.7em;margin:12px 0;white-space:pre-wrap}
+.mark13-error{color:#ffaaa5}
+.mark13-muted{color:#9eae9e;font-size:.9rem}
+.mark13-badge{display:inline-block;font-family:Oxanium,sans-serif;border:1px solid #567a4c;border-radius:40px;padding:2px 9px;color:#cfff9c;font-size:.75rem}
+.mark13-entry{padding:15px 0;border-bottom:1px solid #344536}
+.mark13-entry:last-child{border-bottom:0}
+.mark13-entry h3{margin:4px 0 8px}
+.mark13-entry p{margin:4px 0;overflow-wrap:anywhere}
+.mark13-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:10px 0}
+.mark13-check{display:inline-flex;gap:6px;align-items:center}
+.mark13-check input{accent-color:#a3ff40}
+.mark13-panel .mark13-small{font-size:.8rem;padding:8px 11px}
+.mark13-panel .mark13-select{width:auto;max-width:100%}
+.mark13-separator{border:0;border-top:1px solid #344536;margin:22px 0}
+@media(max-width:680px){.mark13-panel{padding:16px}.mark13-panel button{width:auto;max-width:100%}}

@@ -1,0 +1,6 @@
+# 904° MARK10 — old URLs redirect into the protected Showroom.
+/demo/liquorstore /showroom/storefront-001/ 301
+/demo/liquorstore/ /showroom/storefront-001/ 301
+/demo/liquorstore/* /showroom/storefront-001/:splat 301
+/showroom/design-001 /showroom/storefront-001/design/ 301
+/showroom/design-001/ /showroom/storefront-001/design/ 301

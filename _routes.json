@@ -6,7 +6,10 @@
     "/customer",
     "/customer/*",
     "/api/admin/*",
-    "/api/customer/*"
+    "/api/customer/*",
+    "/showroom",
+    "/showroom/*",
+    "/api/showroom/*"
   ],
   "exclude": []
 }

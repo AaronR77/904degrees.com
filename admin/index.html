@@ -1,3 +1,37 @@
 <!DOCTYPE html>
 
-<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#080b09" name="theme-color"/><title>Administration | 904°</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="/portal/assets/portal.css?v=7" rel="stylesheet"/></head><body><header class="top"><div class="shell"><a class="brand" href="/"><img alt="904°" src="/assets/904_Logo_Lime.png"/></a><nav aria-label="Portal navigation"><a href="/portal/">Portal</a><a aria-current="page" href="/admin/">Admin</a><span class="portal-session-label">ADMIN · 6-HOUR SESSION</span><a aria-label="Log out of 904° secure portal" class="portal-logout" data-portal-logout="" href="/cdn-cgi/access/logout" rel="nofollow">Log Out</a></nav></div></header><main class="shell"><section class="hero"><p class="eyebrow">904° // ADMINISTRATION</p><h1>MISSION CONTROL.</h1><p class="lead">A planned control center for the people building, supporting, and operating 904° projects.</p><div class="note"><strong>Administration is not enabled.</strong> This page is an informational preview only. No customer records, operational data, authentication bypass, or administrative controls are available.</div></section><section class="stats"><div class="stat"><strong>—</strong>Active projects · backend pending</div><div class="stat"><strong>—</strong>Support tickets · backend pending</div><div class="stat"><strong>—</strong>Open invoices · backend pending</div><div class="stat"><strong>—</strong>Monitoring status · backend pending</div></section><section class="grid section"><article class="card"><h2>Customers &amp; permissions</h2><p>Organization records, role assignments, staff permissions, and audit trails.</p></article><article class="card"><h2>Projects &amp; billing</h2><p>Proposals, approvals, estimates, hosted payments, and support requests.</p></article><article class="card"><h2>Deployment &amp; recovery</h2><p>Staging approvals, deployment history, incident monitoring, backups, and tested restores.</p></article></section></main><footer class="footer"><div class="shell"><span>© 2026 904° · HOT IDEAS. COLD LOGIC.</span><a href="mailto:aaron@904degrees.com">aaron@904degrees.com</a></div></footer><script defer="" src="/portal/assets/portal.js"></script><script data-portal-area="admin" defer="True" src="/portal/assets/portal-session.js?v=7"></script></body></html>
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1" name="viewport"/><meta content="#080b09" name="theme-color"/><title>Administration | 904°</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/><link href="/portal/assets/portal.css?v=13.1" rel="stylesheet"/><link href="/portal/assets/mark13.css?v=13" rel="stylesheet"/></head><body><header class="top"><div class="shell"><a class="brand" href="/"><img alt="904°" src="/assets/904_Logo_Lime.png"/></a><nav aria-label="Portal navigation"><a href="/portal/">Portal</a><a aria-current="page" href="/admin/">Admin</a><span class="portal-session-label" data-portal-session-remaining="" role="timer" aria-live="off">Checking login time…</span><a aria-label="Log out of 904° secure portal" class="portal-logout" data-portal-logout="" href="/cdn-cgi/access/logout" rel="nofollow">Log Out</a></nav></div></header><main class="shell">
+    <section class="hero"><p class="eyebrow">904° // ADMINISTRATION</p><h1>MISSION CONTROL.</h1>
+      <p class="lead">Invitations, account permissions and website orders—one place to manage your projects.</p>
+      <div class="note">Order first, invoice later. Order status changes do not send emails or generate invoices in this release.</div>
+    </section>
+    <section class="mark13-section" id="admin-tools">
+      <div class="mark13-panel"><h2>Secure account connection</h2>
+        <p id="admin-identity" class="mark13-status" role="status">Checking Admin access…</p>
+        <button id="admin-bootstrap" type="button" hidden>INITIALIZE OWNER ACCOUNT</button>
+        <p class="mark13-muted">The initial owner account is created explicitly, once, after D1 setup. No account is auto-promoted from a browser field.</p>
+      </div>
+      <div class="mark13-grid">
+        <section class="mark13-panel" aria-labelledby="invite-title">
+          <h2 id="invite-title">Invite an account</h2>
+          <form id="account-create-form">
+            <div class="mark13-fields">
+              <label class="mark13-label">Email address<input name="email" type="email" autocomplete="off" maxlength="254" required></label>
+              <label class="mark13-label">Contact name<input name="name" maxlength="120" autocomplete="off"></label>
+              <label class="mark13-label">Organization<input name="organization" maxlength="150" autocomplete="off"></label>
+            </div>
+            <div class="mark13-row">
+              <label class="mark13-check"><input type="checkbox" name="isCustomer"> Customer account</label>
+              <label class="mark13-check"><input type="checkbox" name="isAdmin" id="grant-admin"> Admin privilege (Owner only)</label>
+            </div>
+            <p class="mark13-muted">Every invitation starts with the Prospect role. Until unified login is built, also approve the email in the appropriate Cloudflare Access policy and Pages allowlist, then send your invitation manually.</p>
+            <button type="submit">CREATE INVITATION</button><p id="account-form-result" class="mark13-status" role="status"></p>
+          </form>
+        </section>
+        <section class="mark13-panel" aria-labelledby="account-list-title">
+          <h2 id="account-list-title">Invited accounts</h2><div id="accounts-list" class="mark13-muted">Loading accounts…</div>
+        </section>
+      </div>
+      <section class="mark13-panel" aria-labelledby="orders-title"><h2 id="orders-title">Incoming website orders</h2><p class="mark13-muted">Review requirements, set order status, and leave a note. Quotes and invoices are issued separately.</p><div id="admin-orders-list">Loading orders…</div></section>
+    </section>
+  </main><footer class="footer"><div class="shell"><span>© 2026 904° · HOT IDEAS. COLD LOGIC.</span><a href="mailto:aaron@904degrees.com">aaron@904degrees.com</a></div></footer><script defer="" src="/portal/assets/portal.js"></script><script defer src="/portal/assets/mark13-admin.js?v=13"></script><script data-portal-area="admin" defer="True" src="/portal/assets/portal-session.js?v=13.1"></script></body></html>

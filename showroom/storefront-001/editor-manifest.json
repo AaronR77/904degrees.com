@@ -2,7 +2,7 @@
   "siteId": "liquorstore",
   "template": "bottle-shop",
   "title": "Bottle & Barrel bottle shop",
-  "previewPath": "/demo/liquorstore/",
+  "previewPath": "/showroom/storefront-001/",
   "ageAcknowledgement": true,
   "settings": [
     {
@@ -93,31 +93,31 @@
     {
       "key": "wine",
       "label": "Wine",
-      "path": "/demo/liquorstore/wine/",
+      "path": "/showroom/storefront-001/wine/",
       "description": "Wine collection"
     },
     {
       "key": "spirits",
       "label": "Spirits",
-      "path": "/demo/liquorstore/spirits/",
+      "path": "/showroom/storefront-001/spirits/",
       "description": "Spirits collection"
     },
     {
       "key": "beer",
       "label": "Beer",
-      "path": "/demo/liquorstore/beer/",
+      "path": "/showroom/storefront-001/beer/",
       "description": "Beer collection"
     },
     {
       "key": "gifts",
       "label": "Gifts & Extras",
-      "path": "/demo/liquorstore/gifts/",
+      "path": "/showroom/storefront-001/gifts/",
       "description": "Gifts and accessories"
     }
   ],
   "contentCollections": {
     "heroSlides": {
-      "source": "/demo/liquorstore/content/hero-slides.json",
+      "source": "/showroom/storefront-001/content/hero-slides.json",
       "minimumItems": 1,
       "fields": [
         "eyebrow",
@@ -133,7 +133,7 @@
       "showControlsOnlyWhenMultiple": true
     },
     "products": {
-      "source": "/demo/liquorstore/content/catalog.json",
+      "source": "/showroom/storefront-001/content/catalog.json",
       "editableFields": [
         "name",
         "category",
@@ -162,24 +162,24 @@
         "nameAscending"
       ],
       "imageCollection": "catalog",
-      "futureApiSource": "/demo/api/catalog/{storeSlug}",
+      "futureApiSource": "/api/showroom/catalog/{storeSlug}",
       "editorWritesTo": "The adaptive editor will replace the static catalog source with a tenant-scoped API at integration time."
     },
     "decorativeAssets": {
       "imageCollection": "decorative",
-      "folder": "/demo/liquorstore/images/decorative/"
+      "folder": "/showroom/storefront-001/images/decorative/"
     }
   },
   "imageCollections": {
     "rotators": {
-      "folder": "/demo/liquorstore/images/rotators/",
+      "folder": "/showroom/storefront-001/images/rotators/",
       "r2Prefix": "liquorstore/rotators/",
       "maxWidth": 2000,
       "maxHeight": 1200,
       "fit": "cover"
     },
     "catalog": {
-      "folder": "/demo/liquorstore/images/catalog/{category}/",
+      "folder": "/showroom/storefront-001/images/catalog/{category}/",
       "r2Prefix": "liquorstore/catalog/{category}/",
       "allowedCategories": [
         "wine",
@@ -192,7 +192,7 @@
       "fit": "contain"
     },
     "decorative": {
-      "folder": "/demo/liquorstore/images/decorative/",
+      "folder": "/showroom/storefront-001/images/decorative/",
       "r2Prefix": "liquorstore/decorative/",
       "maxWidth": 1600,
       "maxHeight": 1200,
