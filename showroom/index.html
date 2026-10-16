@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link href="/showroom/assets/showroom.css?v=13.1" rel="stylesheet">
   <link href="/portal/assets/mark13.css?v=13" rel="stylesheet">
+  <link href="/portal/assets/navigation.css?v=13.2" rel="stylesheet">
   <script src="/showroom/assets/showroom.js?v=13" defer></script>
 </head>
 <body>
@@ -18,13 +19,7 @@
   <header class="topbar">
     <div class="shell topbar-inner">
       <a class="brand" href="/" aria-label="904 degrees homepage"><img src="/assets/904_Logo_Lime.png" alt="904°"></a>
-      <nav aria-label="Showroom navigation">
-        <a aria-current="page" href="/showroom/">Showroom</a>
-        <a href="/portal/">Portal</a>
-        <a href="/customer/">Customer Hub</a>
-        <span class="showroom-session-label" data-portal-session-remaining="" role="timer" aria-live="off">Checking login time…</span>
-        <a class="logout-link" href="/cdn-cgi/access/logout" rel="nofollow">Log Out <span aria-hidden="true">↗</span></a>
-      </nav>
+      <nav aria-label="Account navigation"><a href="/portal/">Portal</a><a href="/admin/" data-owner-nav hidden>Admin</a><a href="/customer/">Hub</a><span class="portal-session-label" data-portal-session-remaining role="timer" aria-live="off">Checking login time…</span><a class="portal-logout" data-portal-logout href="/cdn-cgi/access/logout" rel="nofollow" aria-label="Log out of 904°">Log Out</a></nav>
     </div>
   </header>
 
@@ -88,6 +83,6 @@
     </section>
   </main>
   <footer class="footer"><div class="shell footer-inner"><span>© 2026 904° · HOT IDEAS. COLD LOGIC.</span><a href="mailto:aaron@904degrees.com">aaron@904degrees.com</a></div></footer>
-<script data-portal-area="showroom" src="/portal/assets/portal-session.js?v=13.1" defer></script>
+<script data-portal-area="showroom" src="/portal/assets/portal-session.js?v=13.2" defer></script>
 </body>
 </html>
