@@ -1,7 +1,7 @@
 "use strict";
 
 (() => {
-    const rootUrl = "https://fnz-website-api.904degreeslabs.workers.dev";
+    const rootUrl = globalThis.FNZ_CONFIG?.apiUrl || "https://fnz-website-api.904degreeslabs.workers.dev";
     const keys = ["churchName", "address", "phone", "email", "website", "about", "mission", "vision", "scheduleSummary"];
     let churchId, busy = false, dirty = false, ready = false;
     document.addEventListener("DOMContentLoaded", async () => {

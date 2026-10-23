@@ -2132,7 +2132,7 @@ section h2 {
     /* black master -> FNZ gold */
     filter: brightness(0) saturate(100%) invert(49%) sepia(89%) saturate(1018%) hue-rotate(6deg) brightness(91%) contrast(89%);
 }
-.ministry-icon-art { width: 100%; height: 100%; }
+
 .ministries-grid .ministry-home-icon {
     position: relative;
     z-index: 1;

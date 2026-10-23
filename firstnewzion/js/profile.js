@@ -1,5 +1,9 @@
 "use strict";
 
+const FNZ_PROFILE_API_URL =
+    globalThis.FNZ_CONFIG?.apiUrl ||
+    (typeof FNZ_API_URL !== "undefined" ? FNZ_API_URL : "https://fnz-website-api.904degreeslabs.workers.dev");
+
 function fnzProfileAddressLines(value) {
     const address = String(value || "").replace(/\\r\\n|\\n|\\r/g, "\n").replace(/\r\n?/g, "\n").trim();
     if (!address) return [];
@@ -15,7 +19,7 @@ function fnzProfileAddressLines(value) {
 // Apply published values only. Packaged content remains the offline fallback.
 document.addEventListener("DOMContentLoaded", async () => {
     try {
-        const response = await fetch(`${FNZ_API_URL}/api/site-profile`, { cache: "no-store" });
+        const response = await fetch(`${FNZ_PROFILE_API_URL}/api/site-profile`, { cache: "no-store" });
         if (!response.ok) return;
         const data = await response.json();
         if (!data.ok || data.state !== "published" || !data.church) return;

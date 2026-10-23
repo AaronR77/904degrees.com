@@ -6,7 +6,7 @@
  */
 
 (() => {
-    const RBAC_API_URL = "https://fnz-website-api.904degreeslabs.workers.dev";
+    const RBAC_API_URL = globalThis.FNZ_CONFIG?.apiUrl || "https://fnz-website-api.904degreeslabs.workers.dev";
     const TOKEN_KEY = "fnzPublisherToken";
     const USER_KEY = "fnzPublisherUser";
 

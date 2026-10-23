@@ -6,6 +6,7 @@
    ============================================================= */
 
 const FNZ_API_URL =
+    globalThis.FNZ_CONFIG?.apiUrl ||
     "https://fnz-website-api.904degreeslabs.workers.dev";
 
 
@@ -34,60 +35,58 @@ const FNZ_SOCIAL_LINKS = {
    STARTUP
    ============================================================= */
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", initializePublicSite);
 
-    const path = window.location.pathname;
+function initializePublicSite() {
+    const page = getCurrentPage();
     const params = new URLSearchParams(window.location.search);
 
     initializeMobileNavigation();
-    initializeActiveNavigation(path, params);
-    initializeHomeLinks();
+    initializePersistentNavigation(params);
+    initializeActiveNavigation(page);
     initializeSocialLinks();
+    initializeDirectionsLinks();
     initializeSiteBranding();
-    initializePublicMediaGallery();
 
-
-    /* ---------------------------------------------------------
-       HOMEPAGE
-       --------------------------------------------------------- */
-
-    if (
-        path.endsWith("/") ||
-        path.endsWith("/firstnewzion/index.html")
-    ) {
-        initializeHomepageEvents();
-        initializeDailyVerse();
+    switch (page) {
+        case "home":
+            initializeHomepageEvents();
+            initializeDailyVerse();
+            break;
+        case "events":
+            initializeEventsPage(params);
+            break;
+        case "event":
+            initializeEventDetailPage(params);
+            break;
+        case "media":
+            initializePublicMediaGallery();
+            break;
+        case "leadership":
+            loadLeadershipDirectory();
+            break;
+        case "leader":
+            loadLeadershipProfile();
+            break;
+        case "ministries":
+            initializeMinistriesDirectory();
+            break;
+        case "ministry":
+            initializeMinistryDetail();
+            break;
+        default:
+            break;
     }
+}
 
-    /* ---------------------------------------------------------
-       EVENTS PAGE
+function getCurrentPage() {
+    const declared = String(document.body?.dataset?.page || "").trim().toLowerCase();
+    if (declared) return declared;
 
-       IMPORTANT:
-       Cloudflare may serve /firstnewzion/events.html as /events.
-       Support BOTH.
-       --------------------------------------------------------- */
-
-    if (
-        path.endsWith("/events") ||
-        path.endsWith("/firstnewzion/events.html")
-    ) {
-        initializeEventsPage(params);
-    }
-
-    /* ---------------------------------------------------------
-       SINGLE EVENT PAGE
-
-       Support both /event and /firstnewzion/event.html.
-       --------------------------------------------------------- */
-
-    if (
-        path.endsWith("/event") ||
-        path.endsWith("/firstnewzion/event.html")
-    ) {
-        initializeEventDetailPage(params);
-    }
-
-});
+    const file = window.location.pathname.split("/").filter(Boolean).pop() || "index.html";
+    const stem = file.replace(/\.html$/i, "").toLowerCase();
+    return stem === "index" ? "home" : stem;
+}
 
 /* =============================================================
    SOCIAL LINKS
@@ -165,129 +164,80 @@ function initializeMobileNavigation() {
 
 
 /* =============================================================
-   ACTIVE NAVIGATION
+   ACTIVE + PERSISTENT NAVIGATION
    ============================================================= */
 
-function initializeActiveNavigation(path, params) {
+function initializeActiveNavigation(page) {
+    const section = ({
+        home: "index.html",
+        about: "about.html",
+        leadership: "about.html",
+        leader: "about.html",
+        ministries: "ministries.html",
+        ministry: "ministries.html",
+        services: "services.html",
+        events: "events.html",
+        event: "events.html",
+        media: "media.html",
+        contact: "contact.html"
+    })[page];
 
-    const placeholderPage =
-        params.get("page");
+    document.querySelectorAll(".nav-links a").forEach(link => {
+        link.classList.remove("active");
+        if (!section) return;
 
-    document
-        .querySelectorAll(".nav-links a")
-        .forEach(link => {
+        try {
+            const target = new URL(link.getAttribute("href") || "", window.location.href);
+            const file = target.pathname.split("/").filter(Boolean).pop() || "index.html";
+            if (file.toLowerCase() === section) link.classList.add("active");
+        }
+        catch (error) {
+            console.warn("Unable to inspect navigation link:", link.getAttribute("href"));
+        }
+    });
+}
 
-            link.classList.remove("active");
+function initializePersistentNavigation(params) {
+    const forceTop = () => window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+    const queueTop = () => {
+        forceTop();
+        requestAnimationFrame(forceTop);
+    };
 
-            const href =
-                link.getAttribute("href");
+    if (params.get("navtop") === "1" || window.location.hash === "#top") {
+        if ("scrollRestoration" in history) history.scrollRestoration = "manual";
+        queueTop();
+        window.addEventListener("load", queueTop, { once: true });
+    }
 
-            if (!href) {
-                return;
-            }
-
-            /* HOME */
-
-            if (
-                (
-                    path.endsWith("/") ||
-                    path.endsWith("/firstnewzion/index.html")
-                ) &&
-                href === "index.html"
-            ) {
-                link.classList.add("active");
-                return;
-            }
-
-            /* EVENTS */
-
-            if (
-                (
-                    path.endsWith("/events") ||
-                    path.endsWith("/firstnewzion/events.html") ||
-                    path.endsWith("/event") ||
-                    path.endsWith("/firstnewzion/event.html")
-                ) &&
-                href === "events.html"
-            ) {
-                link.classList.add("active");
-                return;
-            }
-
-            /* PLACEHOLDER PAGES */
-
-            if (!placeholderPage) {
-                return;
-            }
-
+    document.querySelectorAll(".main-nav .nav-links a").forEach(link => {
+        link.addEventListener("click", event => {
+            let target;
             try {
-
-                const url =
-                    new URL(
-                        href,
-                        window.location.href
-                    );
-
-                if (
-                    url.searchParams.get("page") ===
-                    placeholderPage
-                ) {
-                    link.classList.add("active");
-                }
-
+                target = new URL(link.href, window.location.href);
             }
-            catch (error) {
-
-                console.warn(
-                    "Unable to inspect navigation link:",
-                    href
-                );
-
+            catch (_) {
+                return;
             }
 
+            if (target.origin !== window.location.origin) return;
+
+            sessionStorage.setItem("fnz-main-nav-force-top", "true");
+            const current = new URL(window.location.href);
+            if (target.pathname === current.pathname) {
+                event.preventDefault();
+                history.pushState(null, "", `${target.pathname}${target.search}${target.hash || "#top"}`);
+                queueTop();
+            }
         });
+    });
 
+    window.addEventListener("pageshow", () => {
+        if (sessionStorage.getItem("fnz-main-nav-force-top") !== "true") return;
+        sessionStorage.removeItem("fnz-main-nav-force-top");
+        queueTop();
+    });
 }
-
-
-/* =============================================================
-   HOME BUTTON
-
-   HOME always means:
-   TOP OF HOMEPAGE.
-
-   Browser Back still remembers the old scroll position.
-   ============================================================= */
-
-function initializeHomeLinks() {
-
-    document
-        .querySelectorAll('a[href="index.html"]')
-        .forEach(link => {
-
-            link.addEventListener("click", () => {
-
-                sessionStorage.setItem(
-                    "fnz-force-home-top",
-                    "true"
-                );
-
-                const homePath =
-                    new URL(
-                        "index.html",
-                        window.location.href
-                    ).pathname;
-
-                sessionStorage.removeItem(
-                    "fnz-scroll-" + homePath
-                );
-
-            });
-
-        });
-
-}
-
 
 /* =============================================================
    API
@@ -332,9 +282,9 @@ async function getPublishedEvents() {
             ? data.events
             : [];
 
-    events.sort(compareEventsByDate);
-
-    return events;
+    return events
+        .filter(isUpcomingEvent)
+        .sort(compareEventsByDate);
 }
 
 
@@ -1358,6 +1308,18 @@ function showEventDetailError() {
    EVENT SORTING
    ============================================================= */
 
+function isUpcomingEvent(event) {
+    const lastDate = parseLocalDate(event?.end_date || event?.event_date);
+    if (!lastDate) return false;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    lastDate.setHours(0, 0, 0, 0);
+
+    return lastDate >= today;
+}
+
+
 function compareEventsByDate(
     first,
     second
@@ -1734,7 +1696,9 @@ function safeImageUrl(value) {
 
     if (
         imageUrl.startsWith("images/") ||
-        imageUrl.startsWith("/firstnewzion/images/")
+        imageUrl.startsWith("./images/") ||
+        imageUrl.startsWith("../images/") ||
+        imageUrl.startsWith("/images/")
     ) {
         return imageUrl;
     }
@@ -1798,52 +1762,6 @@ function escapeHtml(value) {
 
 
 
-
-/* =============================================================
-   PERSISTENT NAVIGATION: ALWAYS START DESTINATION AT TOP
-
-   Main navigation is intentionally NOT scroll-restored.
-   #top is authoritative for these links, including same-page clicks.
-   ============================================================= */
-(function initializePersistentNavTopLinks() {
-    if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-    }
-
-    function forceTop() {
-        window.scrollTo(0, 0);
-    }
-
-    document.querySelectorAll('.main-nav .nav-links a').forEach(link => {
-        link.addEventListener('click', event => {
-            const target = new URL(link.href, window.location.href);
-            const current = new URL(window.location.href);
-
-            if (target.pathname === current.pathname && target.hash === '#top') {
-                event.preventDefault();
-                history.replaceState(null, '', target.pathname + target.search + '#top');
-                forceTop();
-                requestAnimationFrame(forceTop);
-                return;
-            }
-
-            sessionStorage.setItem('fnz-main-nav-force-top', 'true');
-        });
-    });
-
-    window.addEventListener('pageshow', () => {
-        const fromMainNav = sessionStorage.getItem('fnz-main-nav-force-top') === 'true';
-        const hasTopHash = window.location.hash === '#top';
-
-        if (fromMainNav || hasTopHash) {
-            sessionStorage.removeItem('fnz-main-nav-force-top');
-            forceTop();
-            requestAnimationFrame(forceTop);
-            setTimeout(forceTop, 0);
-            setTimeout(forceTop, 100);
-        }
-    });
-})();
 
 /* =============================================================
    PUBLISHER-MANAGED SITE BRANDING
@@ -2104,31 +2022,3 @@ function escapeAttribute(value) {
         .replaceAll("<", "&lt;")
         .replaceAll(">", "&gt;");
 }
-
-document.addEventListener("DOMContentLoaded", () => {
-    loadLeadershipDirectory();
-    loadLeadershipProfile();
-    initializeDirectionsLinks();
-    initializeMinistryDetail();
-});
-
-
-/* =============================================================
-   V2.5 FINAL NAV-TOP OVERRIDE
-   ?navtop=1 makes a persistent-nav click an explicit new navigation
-   state so browser scroll restoration cannot reuse the last view.
-   ============================================================= */
-(function fnzFinalNavTopOverride() {
-    const params = new URLSearchParams(window.location.search);
-    if (!params.has('navtop')) return;
-    if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
-    const top = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-    top();
-    document.addEventListener('DOMContentLoaded', top, { once: true });
-    window.addEventListener('load', top, { once: true });
-    window.addEventListener('pageshow', top, { once: true });
-    requestAnimationFrame(() => requestAnimationFrame(top));
-    setTimeout(top, 0);
-    setTimeout(top, 50);
-    setTimeout(top, 250);
-})();

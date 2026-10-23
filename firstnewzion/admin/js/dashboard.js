@@ -8,6 +8,7 @@
 
 
 const API_URL =
+    globalThis.FNZ_CONFIG?.apiUrl ||
     "https://fnz-website-api.904degreeslabs.workers.dev";
 
 
