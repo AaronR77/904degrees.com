@@ -1,1 +1,5 @@
 /demo/storefront
+
+# Development-only artifacts must not be deployed
+.vs/
+*.bak-*

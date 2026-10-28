@@ -1,105 +1,124 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#090b0a">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090e11">
+  <meta name="description" content="904° is an independent creative technology studio building original software, games, digital business tools, and distinctive web experiences. Hot Ideas. Cold Logic.">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="904°">
+  <meta property="og:title" content="904° — We Build What's Next">
+  <meta property="og:description" content="Original software. Independent games. Digital experiences. Practical business tools. And some seriously good websites.">
+  <meta property="og:url" content="https://www.904degrees.com/">
+  <meta property="og:image" content="https://www.904degrees.com/assets/904_Logo_Lime.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="canonical" href="https://www.904degrees.com/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
-
-  <link rel="stylesheet" href="css/style.css?v=7">
-
-  <title>904° | Hot Ideas. Cold Logic.</title>
+  <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="preload" as="image" href="/assets/904_Logo_Lime.png">
+  <link rel="stylesheet" href="/css/style.css?v=11.2">
+  <title>904° — We Build What's Next | Hot Ideas. Cold Logic.</title>
 </head>
-
 <body>
   <div class="background-grid" aria-hidden="true"></div>
-  <div class="ambient ambient-one" aria-hidden="true"></div>
-  <div class="ambient ambient-two" aria-hidden="true"></div>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+  <a class="skip-link" href="#content">Skip to content</a>
 
-  <a class="customer-portal-link" href="/portal/">CUSTOMER PORTAL <span aria-hidden="true">↗</span></a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="/" aria-label="904° home"><img src="/assets/904_Logo_Lime.png" alt="904°" width="180" height="60"></a>
+      <nav class="primary-nav" id="primary-nav" aria-label="Main navigation">
+        <a href="#universe">What We Do</a>
+        <a href="#workbench">On the Workbench</a>
+        <a href="#real-world">Our Work</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="portal-link" href="/portal/">Portal <span aria-hidden="true">↗</span></a>
+      <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="primary-nav" aria-label="Open navigation"><span></span><span></span><span></span></button>
+    </div>
+  </header>
 
-  <main>
-    <section class="landing" aria-labelledby="site-tagline">
-      <div class="hero">
-        <div class="status-line" aria-label="904 Degrees status">
-          <span class="status-dot" aria-hidden="true"></span>
-          <span>904° // BUILDING WHAT'S NEXT</span>
+  <div class="signal-bar" aria-hidden="true"><div class="shell signal-inner"><span>904° // CREATIVE TECHNOLOGY STUDIO</span><span><i class="status-dot"></i> IDEA REACTOR ONLINE</span></div></div>
+
+  <main id="content">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="tiny-rule"></span> HOT IDEAS. COLD LOGIC.</p>
+        <h1 id="hero-title">WE BUILD<br>WHAT'S <span>NEXT.</span></h1>
+        <p class="hero-description">Original software. Independent games. Digital experiences. Practical business tools. And yes, some seriously good websites.</p>
+        <div class="hero-actions">
+          <a class="button button-lime" href="#workbench">Explore Our Work <span aria-hidden="true">↗</span></a>
+          <a class="button button-outline" href="mailto:aaron@904degrees.com?subject=Let's%20Talk%20About%20a%20904%C2%B0%20Project">Start a Conversation</a>
         </div>
-
-        <div class="logo-wrap">
-          <div class="logo-halo" aria-hidden="true"></div>
-          <img
-            class="brand-logo"
-            src="assets/904_Logo_Lime.png"
-            alt="904 Degrees"
-          >
-        </div>
-
-        <div class="hero-copy">
-          <p id="site-tagline" class="tagline">HOT IDEAS. <span>COLD LOGIC.</span></p>
-        </div>
-
-        <div class="signal" aria-hidden="true">
-          <span></span><span></span><span></span><span></span><span></span>
-        </div>
+        <p class="microcopy">904° / INDEPENDENT THINKING. PURPOSE-BUILT CODE.</p>
       </div>
 
-      <a class="scroll-cue" href="#whats-cooking" aria-label="Scroll to What's Cooking at 904 Degrees">
-        <span>MORE</span>
-        <i aria-hidden="true"></i>
-      </a>
+      <article class="spotlight" aria-labelledby="spotlight-title">
+        <div class="spotlight-top technical"><span>PROJECT SPOTLIGHT // 001</span><span class="active-indicator"><i class="status-dot"></i> ACTIVE</span></div>
+        <div class="spotlight-copy">
+          <p class="card-kicker">FEATURED DEVELOPMENT</p>
+          <h2 id="spotlight-title">LivingLineage<span class="lime">.</span></h2>
+          <p>One living family tree. Generations connected. A digital legacy designed to grow.</p>
+        </div>
+        <div class="tree-viewport" role="img" aria-label="Subtle animated branching family connections representing the LivingLineage concept">
+          <div class="tree-grid" aria-hidden="true"></div>
+          <svg class="lineage-art" viewBox="0 0 520 285" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="trunk-grad" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#A3FF40"/><stop offset="1" stop-color="#5d9363"/></linearGradient>
+              <radialGradient id="leaf-grad"><stop stop-color="#A3FF40" stop-opacity=".32"/><stop offset="1" stop-color="#A3FF40" stop-opacity="0"/></radialGradient>
+            </defs>
+            <g class="tree-branches" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <path class="line-major" d="M260 264V215L160 175M260 215L360 175" />
+              <path class="line-secondary" d="M160 175L96 127M160 175L220 127M360 175L300 127M360 175L424 127" />
+              <path class="line-tertiary" d="M96 127L51 76M96 127L125 75M220 127L184 73M220 127L249 73M300 127L272 73M300 127L336 73M424 127L397 73M424 127L470 76" />
+            </g>
+            <g class="tree-nodes-main"><circle cx="260" cy="264" r="9"/><circle cx="160" cy="175" r="7"/><circle cx="360" cy="175" r="7"/></g>
+            <g class="tree-nodes-middle"><circle cx="96" cy="127" r="5.5"/><circle cx="220" cy="127" r="5.5"/><circle cx="300" cy="127" r="5.5"/><circle cx="424" cy="127" r="5.5"/></g>
+            <g class="tree-nodes-leaves"><circle cx="51" cy="76" r="4"/><circle cx="125" cy="75" r="4"/><circle cx="184" cy="73" r="4"/><circle cx="249" cy="73" r="4"/><circle cx="272" cy="73" r="4"/><circle cx="336" cy="73" r="4"/><circle cx="397" cy="73" r="4"/><circle cx="470" cy="76" r="4"/></g>
+            <circle class="root-halo" cx="260" cy="264" r="37" fill="url(#leaf-grad)" />
+          </svg>
+          <span class="tree-label technical">CONNECTIONS THAT ENDURE</span>
+          <span class="tree-coordinate technical">G01 / G∞</span>
+        </div>
+        <div class="spotlight-bottom technical"><span>FAMILY / LEGACY / SOFTWARE</span><span class="dev-chip">IN DEVELOPMENT</span></div>
+      </article>
     </section>
 
-    <section class="cooking" id="whats-cooking" aria-labelledby="cooking-title">
-      <div class="section-shell">
-        <p class="section-kicker">904° // CURRENT TEMPERATURE - 396°</p>
-        <h1 id="cooking-title">WHAT'S COOKING AT <span>904°</span></h1>
-
-        <div class="category-line" aria-label="Software, games, brands, and tools">
-          <span>SOFTWARE</span>
-          <span>GAMES</span>
-          <span>BRANDS</span>
-          <span>TOOLS</span>
-        </div>
-
-        <div class="manifesto">
-          <p>Sometimes sensible.</p>
-          <p>Sometimes questionable.</p>
-          <p class="manifesto-final">Built anyway.</p>
-        </div>
-
-        <div class="future-slot" aria-hidden="true">
-          <span class="future-line"></span>
-          <span class="future-label">MORE WHEN IT'S READY</span>
-          <span class="future-line"></span>
-        </div>
+    <section class="section shell" id="universe" aria-labelledby="universe-title">
+      <div class="section-title"><div><p class="section-kicker">THE 904° UNIVERSE</p><h2 id="universe-title">Different disciplines. <span>One furnace.</span></h2></div><p>Good ideas don't fit neatly into category lines.</p></div>
+      <div class="offering-grid">
+        <article class="offering"><span class="offering-no">01 / BUILD</span><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="7" width="30" height="26" rx="4"/><path d="m12 16 7 5-7 5M23 27h7"/></svg><h3>Software</h3><p>Original applications built around real needs and better workflows.</p></article>
+        <article class="offering"><span class="offering-no">02 / PLAY</span><svg viewBox="0 0 40 40" aria-hidden="true"><path d="M12 14h16c5 0 8 3 9 8l1 8c.4 4-4 6-7 4l-7-5h-8l-7 5c-4 2-7-1-7-4l1-8c1-5 4-8 9-8Z"/><path d="M12 18v9m-4.5-4.5h9M28 21h1M32 25h1"/></svg><h3>Games</h3><p>Independent puzzles and interactive worlds with a mind of their own.</p></article>
+        <article class="offering"><span class="offering-no">03 / SOLVE</span><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="7" width="30" height="26" rx="3"/><path d="M5 15h30M14 15v18M20 21h10M20 27h7"/></svg><h3>Digital Tools</h3><p>Publishing and management tools built for how businesses actually operate.</p></article>
+        <article class="offering"><span class="offering-no">04 / CONNECT</span><svg viewBox="0 0 40 40" aria-hidden="true"><rect x="5" y="7" width="30" height="26" rx="3"/><path d="M5 15h30M12 22h14M12 28h9M30 22h2"/></svg><h3>Web Experiences</h3><p>Distinctive websites, storefronts, and mobile-ready customer experiences.</p></article>
       </div>
     </section>
+
+    <section class="section shell" id="workbench" aria-labelledby="workbench-title">
+      <div class="section-title"><div><p class="section-kicker">ON THE WORKBENCH</p><h2 id="workbench-title">Currently <span>cooking.</span></h2></div><p>Real projects in development. No imaginary launch dates.</p></div>
+      <div class="project-grid">
+        <article class="project-card"><div class="project-art bulletin-art"><span class="art-cross" aria-hidden="true">✛</span><strong>BulletinSync</strong><span class="art-scan" aria-hidden="true"></span></div><div class="project-content"><span class="card-kicker">PUBLISHING PLATFORM</span><h3>BulletinSync</h3><p>Smarter communications and content publishing for churches.</p><span class="project-stage">● IN DEVELOPMENT</span></div></article>
+        <article class="project-card"><div class="project-art menu-art"><span class="art-menu" aria-hidden="true">☰</span><strong>MenuSync</strong><span class="art-scan" aria-hidden="true"></span></div><div class="project-content"><span class="card-kicker">BUSINESS SOFTWARE</span><h3>MenuSync</h3><p>Easy-to-manage digital restaurant menus and updates.</p><span class="project-stage">● IN DEVELOPMENT</span></div></article>
+        <article class="project-card"><div class="project-art token-art"><span class="token-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span><strong>TOKEN<span>DUKO</span></strong><span class="art-scan" aria-hidden="true"></span></div><div class="project-content"><span class="card-kicker">ORIGINAL GAME</span><h3>Tokenduko</h3><p>A distinctive new puzzle challenge from the 904° workshop.</p><span class="project-stage">● IN DEVELOPMENT</span></div></article>
+      </div>
+    </section>
+
+    <section class="section shell" id="real-world" aria-labelledby="real-title">
+      <div class="section-title"><div><p class="section-kicker">PUT TO WORK</p><h2 id="real-title">Built for <span>real businesses.</span></h2></div><p>Practical solutions deserve distinctive presentation.</p></div>
+      <div class="case-study">
+        <div class="case-mark" aria-hidden="true">A</div>
+        <div class="case-copy"><span class="card-kicker">BRANDED WEB EXPERIENCE</span><h3>Activated Handyman Services</h3><p>A focused web presence for a local service business—clear services, confident branding, and a straightforward way to get in touch.</p></div>
+        <a class="case-link" href="/activated/" aria-label="See Activated Handyman Services website">See Website <span aria-hidden="true">↗</span></a>
+      </div>
+      <p class="work-note">More work is taking shape behind the scenes. Some things are better unveiled when they're ready.</p>
+    </section>
+
+    <section class="contact-section" id="contact" aria-labelledby="contact-title"><div class="shell contact-inner"><p class="section-kicker">HAVE AN IDEA? WE HAVE A FURNACE.</p><h2 id="contact-title">Let's make something <span>remarkable.</span></h2><p>Sensible ideas welcome. Questionable ideas reviewed individually.<br>Good ideas don't need permission to be interesting.</p><a class="button button-lime" href="mailto:aaron@904degrees.com?subject=904%C2%B0%20Project%20Inquiry">Tell Us What You're Thinking <span aria-hidden="true">↗</span></a></div></section>
   </main>
 
-  <div class="home-contact"><a href="mailto:aaron@904degrees.com">aaron@904degrees.com</a></div>
-  <div class="home-copyright"><small>© 2026 904° · All rights reserved.</small></div>
-
-  <div class="affiliate-menu">
-    <button class="affiliate-degree" type="button" aria-label="More links" aria-expanded="false" aria-controls="affiliate-links">
-      <span class="degree-ring" aria-hidden="true"></span>
-    </button>
-
-    <div class="affiliate-links" id="affiliate-links">
-      <a href="/activated/">Activated Handyman Services</a>
-      <a href="/nondescript/">The Nondescript Door</a>
-      <a
-        href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&autoplay=1"
-        target="_blank"
-        rel="noopener"
-      >
-        Something Unremarkable
-      </a>
-    </div>
-  </div>
-  <script src="/js/home.js" defer></script>
+  <footer class="site-footer"><div class="shell footer-content"><div class="footer-left"><div class="affiliate-menu"><button class="affiliate-degree" type="button" aria-label="Open 904° hidden links" aria-expanded="false" aria-controls="affiliate-links"><span class="degree-ring" aria-hidden="true">°</span></button><div class="affiliate-links" id="affiliate-links" hidden><a href="/nondescript/">The Nondescript Door</a><a href="/activated/">Activated Handyman Services</a><a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&autoplay=1" target="_blank" rel="noopener noreferrer">Something Unremarkable <span aria-hidden="true">↗</span></a></div></div><div class="footer-credit"><span>© 2026 904° · All rights reserved.</span><span>Some doors are better left unexplained.</span></div></div></div></footer>
+  <script src="/js/home.js?v=11.2" defer></script>
 </body>
 </html>

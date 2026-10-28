@@ -15,7 +15,7 @@ import {onRequest as middleware} from '../functions/_middleware.js';
 let checks=0;
 function check(condition,message){assert.ok(condition,message);checks++;}
 const sqlite=new DatabaseSync(':memory:');
-sqlite.exec(readFileSync(new URL('../database/MARK13_accounts_orders.sql',import.meta.url),'utf8'));
+sqlite.exec(readFileSync(new URL('../database/accounts_orders.sql',import.meta.url),'utf8'));
 const DB={
  prepare(sql){const stmt=sqlite.prepare(sql);let params=[];return {
   bind(...values){params=values;return this;},
