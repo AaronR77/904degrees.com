@@ -882,6 +882,12 @@ function installEventScopeFetchBridge() {
         setValue("event-date", item.event_date);
         setValue("event-end-date", item.end_date || "");
         setValue("event-time", item.event_time || "");
+        setValue("event-end-time", item.end_time || "");
+        const allDay = document.getElementById("event-all-day");
+        if (allDay) {
+            allDay.checked = Number(item.is_all_day) === 1;
+            allDay.dispatchEvent(new Event("change"));
+        }
         setValue("event-location", item.location || "");
         setValue("event-description", item.description || "");
         setValue("event-image-url", item.image_url || "");

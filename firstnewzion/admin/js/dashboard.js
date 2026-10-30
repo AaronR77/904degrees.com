@@ -406,6 +406,11 @@ document.addEventListener("DOMContentLoaded", () => {
             "event-time"
         );
 
+    const eventEndTime =
+        document.getElementById(
+            "event-end-time"
+        );
+
     const eventAllDay =
         document.getElementById(
             "event-all-day"
@@ -852,8 +857,9 @@ document.addEventListener("DOMContentLoaded", () => {
         const time =
             Number(event.is_all_day) === 1
                 ? "All Day"
-                : formatEventTime(
-                    event.event_time
+                : formatEventTimeRange(
+                    event.event_time,
+                    event.end_time
                 );
 
 
@@ -977,13 +983,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function syncEventAllDayState() {
         if (!eventAllDay || !eventTime) return;
-        if (eventAllDay.checked) {
+        const disabled = eventAllDay.checked;
+        if (disabled) {
             eventTime.value = "";
-            eventTime.disabled = true;
+            if (eventEndTime) eventEndTime.value = "";
         }
-        else {
-            eventTime.disabled = false;
-        }
+        eventTime.disabled = disabled;
+        if (eventEndTime) eventEndTime.disabled = disabled;
     }
 
 
@@ -1214,6 +1220,12 @@ document.addEventListener("DOMContentLoaded", () => {
             selectedEvent.event_time ||
             "";
 
+        if (eventEndTime) {
+            eventEndTime.value =
+                selectedEvent.end_time ||
+                "";
+        }
+
         syncEventAllDayState();
 
 
@@ -1301,6 +1313,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         setEventImageState("");
         if (eventTime) eventTime.disabled = false;
+        if (eventEndTime) eventEndTime.disabled = false;
     }
 
 
@@ -1329,6 +1342,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 eventAllDay?.checked
                     ? ""
                     : eventTime.value || "",
+
+            end_time:
+                eventAllDay?.checked
+                    ? ""
+                    : eventEndTime?.value || "",
 
             is_all_day:
                 eventAllDay?.checked
@@ -1397,6 +1415,25 @@ document.addEventListener("DOMContentLoaded", () => {
                 eventEndDate.focus();
             }
 
+
+            return false;
+        }
+
+
+        if (
+            !formData.is_all_day &&
+            formData.event_time &&
+            formData.end_time &&
+            (!formData.end_date || formData.end_date === formData.event_date) &&
+            formData.end_time < formData.event_time
+        ) {
+
+            eventFormMessage.textContent =
+                "End time cannot be before the start time for a one-day event.";
+
+            if (eventEndTime) {
+                eventEndTime.focus();
+            }
 
             return false;
         }
@@ -2119,6 +2156,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
                         event_time:
                             selectedEvent.event_time ||
+                            "",
+
+                        end_time:
+                            selectedEvent.end_time ||
                             "",
 
                         is_all_day:
@@ -3140,4 +3181,11 @@ function formatEventTime(
 
 
     return `${hour}:${minute} ${period}`;
+}
+
+function formatEventTimeRange(startValue, endValue) {
+    const start = formatEventTime(startValue);
+    const end = formatEventTime(endValue);
+    if (start && end) return `${start} – ${end}`;
+    return start || end || "";
 }

@@ -1417,8 +1417,9 @@ function formatEventDateLine(event) {
     const time =
         Number(event?.is_all_day) === 1
             ? "All Day"
-            : formatEventTime(
-                event?.event_time
+            : formatEventTimeRange(
+                event?.event_time,
+                event?.end_time
             );
 
     let dateText;
@@ -1671,6 +1672,14 @@ function formatEventTime(value) {
 
     return `${hour}:${minute} ${period}`;
 
+}
+
+
+function formatEventTimeRange(startValue, endValue) {
+    const start = formatEventTime(startValue);
+    const end = formatEventTime(endValue);
+    if (start && end) return `${start} – ${end}`;
+    return start || end || "";
 }
 
 
