@@ -1079,7 +1079,7 @@ body {
 .event-time-row {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-    align-items: end;
+    align-items: start;
     gap: 18px;
 }
 
@@ -1088,6 +1088,7 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 10px;
+	margin-top: 21px;
     min-height: 46px;
     color: var(--green);
     font-size: 0.72rem;
